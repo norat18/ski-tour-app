@@ -574,8 +574,8 @@
     <div class="container">
         <header>
             <h1>⛷️ Ski Tour Decision Dashboard</h1>
-            <div class="zone-selector-header">
-                <select id="nwacZone" onchange="onZoneChange()">
+            <div class="zone-selector-header" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; align-items: center;">
+                <select id="nwacZone" onchange="onZoneChange()" style="flex: 1; min-width: 200px;">
                     <option value="">Choose your zone...</option>
                     <optgroup label="Washington Cascades - West">
                         <option value="west-slopes-north">West Slopes North (Mt Baker)</option>
@@ -594,6 +594,12 @@
                         <option value="mt-hood">Mt Hood</option>
                     </optgroup>
                 </select>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <label for="tourDate" style="font-size: 0.9rem; color: var(--forest-green); font-weight: 600;">📅 Tour Date:</label>
+                    <input type="date" id="tourDate" onchange="onDateChange()" 
+                           style="padding: 0.7rem 1rem; font-size: 1rem; font-weight: 600; border: 2px solid var(--forest-green); 
+                                  border-radius: 8px; background: white; color: var(--forest-green); cursor: pointer;">
+                </div>
             </div>
         </header>
 
@@ -729,8 +735,34 @@
             nwacZone: null,
             caltopoMapId: null,
             fitnessLevel: 7,
-            skillLevel: 5
+            skillLevel: 5,
+            tourDate: new Date().toISOString().split('T')[0] // Today's date
         };
+
+        // Initialize date picker on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const datePicker = document.getElementById('tourDate');
+            const today = new Date();
+            const maxDate = new Date(today.getTime() + 6 * 24 * 60 * 60 * 1000); // 7 days from now
+            
+            datePicker.value = today.toISOString().split('T')[0];
+            datePicker.min = today.toISOString().split('T')[0];
+            datePicker.max = maxDate.toISOString().split('T')[0];
+            
+            config.tourDate = datePicker.value;
+        });
+
+        function onDateChange() {
+            const selectedDate = document.getElementById('tourDate').value;
+            console.log('📅 Date changed to:', selectedDate);
+            config.tourDate = selectedDate;
+            
+            // Reload weather data for new date
+            if (config.nwacZone) {
+                updateDate();
+                loadWeatherData();
+            }
+        }
 
         // Tour database organized by zone
         const toursByZone = {
@@ -1049,10 +1081,28 @@
         }
 
         function updateDate() {
+            const selectedDate = new Date(config.tourDate + 'T12:00:00'); // Add time to avoid timezone issues
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('dateBanner').textContent = 
-                `📅 Today: ${today.toLocaleDateString('en-US', options)}`;
+            const dateStr = selectedDate.toLocaleDateString('en-US', options);
+            
+            // Calculate days from now
+            const diffDays = Math.round((selectedDate - today) / (1000 * 60 * 60 * 24));
+            
+            let prefix = '📅';
+            let suffix = '';
+            if (diffDays === 0) {
+                prefix = '📅 Today:';
+            } else if (diffDays === 1) {
+                prefix = '📅 Tomorrow:';
+            } else {
+                prefix = '📅 Tour Date:';
+                suffix = ` (${diffDays} days away)`;
+            }
+            
+            document.getElementById('dateBanner').textContent = `${prefix} ${dateStr}${suffix}`;
         }
 
         async function loadAvalancheForecast() {
@@ -1073,32 +1123,8 @@
                 'mt-hood': 'https://nwac.us/avalanche-forecast/#/mt-hood'
             };
             
-            // Map our zone IDs to avalanche.org zone IDs
-            const avyOrgZoneIds = {
-                'west-slopes-north': 1129,      // Mt Baker
-                'stevens-pass': 1130,           // Stevens Pass
-                'west-slopes-central': 1131,    // West Central
-                'snoqualmie-pass': 1132,        // Snoqualmie Pass
-                'west-slopes-south': 1133,      // West South
-                'east-slopes-north': 1134,      // East North
-                'east-slopes-central': 1135,    // East Central
-                'east-slopes-south': 1136,      // East South
-                'olympics': 1137,               // Olympics
-                'mt-hood': 1138                 // Mt Hood
-            };
-            
             const zoneUrl = nwacZoneUrls[config.nwacZone] || 'https://nwac.us/avalanche-forecast/';
             const zoneName = getZoneName(config.nwacZone);
-            
-            // Danger level colors and labels
-            const dangerColors = {
-                0: { color: '#cccccc', label: 'No Rating', textColor: '#333' },
-                1: { color: '#50B848', label: 'Low', textColor: '#fff' },
-                2: { color: '#FFF200', label: 'Moderate', textColor: '#333' },
-                3: { color: '#F7941E', label: 'Considerable', textColor: '#fff' },
-                4: { color: '#ED1C24', label: 'High', textColor: '#fff' },
-                5: { color: '#000000', label: 'Extreme', textColor: '#fff' }
-            };
             
             // Show loading state
             content.innerHTML = `
@@ -1109,8 +1135,8 @@
             `;
             
             try {
-                // Try to fetch from avalanche.org API
-                const apiUrl = 'https://api.avalanche.org/v2/public/products?avalanche_center_id=NWAC&type=forecast';
+                // Use the official avalanche.org map-layer API
+                const apiUrl = 'https://api.avalanche.org/v2/public/products/map-layer/NWAC';
                 console.log('🏔️ Fetching from avalanche.org API:', apiUrl);
                 
                 const response = await fetch(apiUrl);
@@ -1119,35 +1145,46 @@
                     throw new Error(`API returned ${response.status}`);
                 }
                 
-                const forecasts = await response.json();
-                console.log('🏔️ Avalanche.org API response:', forecasts);
+                const geoData = await response.json();
+                console.log('🏔️ Avalanche.org API response:', geoData);
                 
-                // Find the forecast for our zone
-                const zoneId = avyOrgZoneIds[config.nwacZone];
+                // Find the forecast for our zone by matching zone name
+                const zoneNameMap = {
+                    'west-slopes-north': ['Mt Baker', 'West Slopes North', 'Baker'],
+                    'stevens-pass': ['Stevens Pass'],
+                    'west-slopes-central': ['West Slopes Central', 'Central'],
+                    'snoqualmie-pass': ['Snoqualmie Pass'],
+                    'west-slopes-south': ['West Slopes South', 'White Pass'],
+                    'east-slopes-north': ['East Slopes North'],
+                    'east-slopes-central': ['East Slopes Central', 'Mission Ridge'],
+                    'east-slopes-south': ['East Slopes South'],
+                    'olympics': ['Olympics', 'Olympic'],
+                    'mt-hood': ['Mt Hood', 'Mount Hood']
+                };
+                
                 let forecast = null;
+                const searchNames = zoneNameMap[config.nwacZone] || [zoneName];
                 
-                if (forecasts && Array.isArray(forecasts)) {
-                    forecast = forecasts.find(f => f.forecast_zone && f.forecast_zone.some(z => z.id === zoneId));
+                if (geoData && geoData.features && Array.isArray(geoData.features)) {
+                    forecast = geoData.features.find(f => {
+                        const name = f.properties?.name?.toLowerCase() || '';
+                        return searchNames.some(s => name.includes(s.toLowerCase()));
+                    });
                 }
                 
-                if (forecast) {
-                    // Parse danger levels
-                    const dangerAbove = forecast.danger ? forecast.danger.find(d => d.upper !== undefined)?.upper || 0 : 0;
-                    const dangerNear = forecast.danger ? forecast.danger.find(d => d.middle !== undefined)?.middle || 0 : 0;
-                    const dangerBelow = forecast.danger ? forecast.danger.find(d => d.lower !== undefined)?.lower || 0 : 0;
+                if (forecast && forecast.properties) {
+                    const props = forecast.properties;
                     
-                    // Get the highest danger for display
-                    const maxDanger = Math.max(dangerAbove, dangerNear, dangerBelow);
-                    const dangerInfo = dangerColors[maxDanger] || dangerColors[0];
+                    // Get danger level (1-5 scale, or -1 for no rating)
+                    const dangerLevel = props.danger_level || 0;
+                    const dangerText = props.danger || 'No Rating';
+                    const dangerColor = props.color || '#cccccc';
+                    const fontColor = props.font_color || '#333';
+                    const travelAdvice = props.travel_advice || '';
+                    const forecastLink = props.link || zoneUrl;
                     
-                    // Parse avalanche problems
-                    const problems = forecast.forecast_avalanche_problems || [];
-                    
-                    // Parse bottom line
-                    const bottomLine = forecast.bottom_line || '';
-                    
-                    // Issue date
-                    const issueDate = forecast.published_time ? new Date(forecast.published_time).toLocaleDateString('en-US', {
+                    // Format dates
+                    const issueDate = props.start_date ? new Date(props.start_date).toLocaleDateString('en-US', {
                         weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
                     }) : '';
                     
@@ -1156,57 +1193,56 @@
                             <!-- Zone Name & Issue Date -->
                             <div style="margin-bottom: 1rem;">
                                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--forest-green);">
-                                    ${zoneName}
+                                    ${props.name || zoneName}
                                 </div>
                                 ${issueDate ? `<div style="font-size: 0.7rem; color: var(--topo-gray);">Updated: ${issueDate}</div>` : ''}
                             </div>
                             
                             <!-- Danger Rating Display -->
-                            <div style="background: ${dangerInfo.color}; color: ${dangerInfo.textColor}; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
-                                <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.9; margin-bottom: 0.25rem;">Current Danger</div>
-                                <div style="font-size: 1.75rem; font-weight: 700;">${dangerInfo.label}</div>
+                            <div style="background: ${dangerColor}; color: ${fontColor}; padding: 1.25rem; border-radius: 12px; margin-bottom: 1rem;">
+                                <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.9; margin-bottom: 0.25rem;">Avalanche Danger</div>
+                                <div style="font-size: 2rem; font-weight: 700; text-transform: uppercase;">${dangerText}</div>
                             </div>
                             
-                            <!-- Elevation Breakdown -->
-                            <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                                <div style="background: ${dangerColors[dangerAbove].color}; color: ${dangerColors[dangerAbove].textColor}; padding: 0.5rem 0.75rem; border-radius: 8px; min-width: 80px;">
-                                    <div style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.8;">Above TL</div>
-                                    <div style="font-size: 0.85rem; font-weight: 700;">${dangerColors[dangerAbove].label}</div>
-                                </div>
-                                <div style="background: ${dangerColors[dangerNear].color}; color: ${dangerColors[dangerNear].textColor}; padding: 0.5rem 0.75rem; border-radius: 8px; min-width: 80px;">
-                                    <div style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.8;">Near TL</div>
-                                    <div style="font-size: 0.85rem; font-weight: 700;">${dangerColors[dangerNear].label}</div>
-                                </div>
-                                <div style="background: ${dangerColors[dangerBelow].color}; color: ${dangerColors[dangerBelow].textColor}; padding: 0.5rem 0.75rem; border-radius: 8px; min-width: 80px;">
-                                    <div style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.8;">Below TL</div>
-                                    <div style="font-size: 0.85rem; font-weight: 700;">${dangerColors[dangerBelow].label}</div>
-                                </div>
-                            </div>
-                            
-                            <!-- Avalanche Problems -->
-                            ${problems.length > 0 ? `
+                            <!-- Travel Advice -->
+                            ${travelAdvice ? `
                             <div style="background: var(--cream); border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem; text-align: left;">
-                                <div style="font-size: 0.7rem; color: var(--topo-gray); text-transform: uppercase; margin-bottom: 0.5rem;">Avalanche Problems</div>
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
-                                    ${problems.map(p => `
-                                        <span style="background: #e8e8e8; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
-                                            ${p.name || p.avalanche_problem_id || 'Unknown'}
-                                        </span>
-                                    `).join('')}
-                                </div>
+                                <div style="font-size: 0.7rem; color: var(--topo-gray); text-transform: uppercase; margin-bottom: 0.4rem;">Travel Advice</div>
+                                <div style="font-size: 0.8rem; color: #333; line-height: 1.4;">${travelAdvice}</div>
                             </div>
                             ` : ''}
                             
-                            <!-- Bottom Line Summary -->
-                            ${bottomLine ? `
-                            <div style="background: var(--cream); border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem; text-align: left;">
-                                <div style="font-size: 0.7rem; color: var(--topo-gray); text-transform: uppercase; margin-bottom: 0.4rem;">Bottom Line</div>
-                                <div style="font-size: 0.8rem; color: #333; line-height: 1.4;">${bottomLine.replace(/<[^>]*>/g, '').substring(0, 300)}${bottomLine.length > 300 ? '...' : ''}</div>
+                            <!-- Danger Scale Legend -->
+                            <div style="background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem;">
+                                <div style="font-size: 0.65rem; color: var(--topo-gray); text-transform: uppercase; margin-bottom: 0.4rem;">
+                                    Danger Scale
+                                </div>
+                                <div style="display: flex; justify-content: center; gap: 0.3rem; flex-wrap: wrap;">
+                                    <div style="display: flex; align-items: center; gap: 0.15rem; background: white; padding: 0.25rem 0.4rem; border-radius: 4px; ${dangerLevel === 1 ? 'border: 2px solid #333;' : ''}">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #50B848;"></div>
+                                        <span style="font-size: 0.6rem; font-weight: 600;">Low</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.15rem; background: white; padding: 0.25rem 0.4rem; border-radius: 4px; ${dangerLevel === 2 ? 'border: 2px solid #333;' : ''}">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #FFF200; border: 1px solid #ddd;"></div>
+                                        <span style="font-size: 0.6rem; font-weight: 600;">Mod</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.15rem; background: white; padding: 0.25rem 0.4rem; border-radius: 4px; ${dangerLevel === 3 ? 'border: 2px solid #333;' : ''}">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #F7941E;"></div>
+                                        <span style="font-size: 0.6rem; font-weight: 600;">Cons</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.15rem; background: white; padding: 0.25rem 0.4rem; border-radius: 4px; ${dangerLevel === 4 ? 'border: 2px solid #333;' : ''}">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #ED1C24;"></div>
+                                        <span style="font-size: 0.6rem; font-weight: 600;">High</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.15rem; background: white; padding: 0.25rem 0.4rem; border-radius: 4px; ${dangerLevel === 5 ? 'border: 2px solid #333;' : ''}">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #000000;"></div>
+                                        <span style="font-size: 0.6rem; font-weight: 600;">Ext</span>
+                                    </div>
+                                </div>
                             </div>
-                            ` : ''}
                             
                             <!-- CTA Button -->
-                            <a href="${zoneUrl}" target="_blank" 
+                            <a href="${forecastLink}" target="_blank" 
                                style="display: inline-block; background: var(--forest-green); color: white; 
                                       padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; 
                                       font-weight: 700; font-size: 0.9rem; margin-bottom: 0.75rem;
@@ -1327,7 +1363,7 @@
 
         async function loadWeatherData() {
             const content = document.getElementById('weatherContent');
-            console.log('⛅ Loading weather data for:', config.location);
+            console.log('⛅ Loading weather data for:', config.location, 'Date:', config.tourDate);
             
             const zoneInfo = zoneCoordinates[config.nwacZone] || zoneCoordinates['stevens-pass'];
             
@@ -1351,11 +1387,43 @@
                 }
                 
                 const forecastData = await forecastResponse.json();
-                const current = forecastData.properties.periods[0];
-                const temp = current.temperature;
-                const windSpeed = current.windSpeed;
+                const allPeriods = forecastData.properties.periods;
                 
-                console.log('✅ NWS Weather loaded:', { temp, windSpeed, conditions: current.shortForecast });
+                // Find the forecast period matching the selected tour date
+                const tourDate = new Date(config.tourDate + 'T12:00:00');
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const daysFromNow = Math.round((tourDate - today) / (1000 * 60 * 60 * 24));
+                
+                console.log('📅 Looking for forecast:', daysFromNow, 'days from now');
+                
+                // NWS returns day/night pairs. Find the daytime period for our date.
+                let selectedPeriod = allPeriods[0]; // Default to current
+                let nextPeriod = allPeriods[1]; // For day/night pair
+                
+                if (daysFromNow > 0) {
+                    // Find the period that matches our target date
+                    for (let i = 0; i < allPeriods.length; i++) {
+                        const period = allPeriods[i];
+                        const periodDate = new Date(period.startTime);
+                        periodDate.setHours(0, 0, 0, 0);
+                        const periodDaysFromNow = Math.round((periodDate - today) / (1000 * 60 * 60 * 24));
+                        
+                        if (periodDaysFromNow === daysFromNow && period.isDaytime) {
+                            selectedPeriod = period;
+                            nextPeriod = allPeriods[i + 1] || null; // Night period
+                            console.log('📅 Found matching period:', period.name);
+                            break;
+                        }
+                    }
+                }
+                
+                const temp = selectedPeriod.temperature;
+                const windSpeed = selectedPeriod.windSpeed;
+                const periodName = selectedPeriod.name;
+                const nightTemp = nextPeriod ? nextPeriod.temperature : null;
+                
+                console.log('✅ NWS Weather loaded for', periodName, ':', { temp, windSpeed, conditions: selectedPeriod.shortForecast });
                 
                 // ============================================
                 // SNOW DATA FROM SYNOPTIC DATA API
@@ -1370,31 +1438,29 @@
                 
                 if (SYNOPTIC_TOKEN !== 'YOUR_SYNOPTIC_TOKEN') {
                     try {
-                        // Search for SNOTEL stations (network 2) which have snow data
-                        // Also include other networks that report snow
+                        // Search for stations with snow data
+                        // Variables: snow_depth, snow_accum_24_hour (new snow), precip for 7-day calc
                         const synopticUrl = `https://api.synopticdata.com/v2/stations/latest?` +
                             `token=${SYNOPTIC_TOKEN}` +
                             `&radius=${zoneInfo.lat},${zoneInfo.lon},50` +  // 50 mile radius
-                            `&vars=snow_depth,snow_water_equiv,precip_accum_24_hour` +
+                            `&vars=snow_depth,snow_accum,snow_accum_24_hour,precip_accum_24_hour,precip_accum_since_local_midnight` +
                             `&within=1440` +  // Data within last 24 hours
                             `&units=english` +
                             `&status=active`;
                         
                         console.log('❄️ Fetching Synoptic snow data for:', zoneInfo.name);
-                        console.log('❄️ API URL:', synopticUrl);
                         const synopticResponse = await fetch(synopticUrl);
                         
                         if (synopticResponse.ok) {
                             const synopticData = await synopticResponse.json();
                             console.log('❄️ Synoptic API response:', synopticData);
                             
-                            // Check for API errors
                             if (synopticData.SUMMARY && synopticData.SUMMARY.RESPONSE_CODE === 1) {
                                 console.log('❄️ Found', synopticData.SUMMARY.NUMBER_OF_OBJECTS, 'stations');
                             }
                             
                             if (synopticData.STATION && synopticData.STATION.length > 0) {
-                                // Find station with best snow data (prefer higher elevation)
+                                // Find station with best snow data (prefer higher elevation with snow_depth)
                                 let bestStation = null;
                                 let bestElevation = 0;
                                 
@@ -1402,12 +1468,11 @@
                                     const elev = parseFloat(station.ELEVATION) || 0;
                                     const obs = station.OBSERVATIONS || {};
                                     
-                                    // Check for any snow-related data
+                                    // Check for snow-related data
                                     const hasSnowData = obs.snow_depth_value_1 || 
-                                                       obs.snow_water_equiv_value_1 ||
+                                                       obs.snow_accum_24_hour_value_1 ||
+                                                       obs.snow_accum_value_1 ||
                                                        obs.precip_accum_24_hour_value_1;
-                                    
-                                    console.log(`❄️ Station: ${station.NAME} (${elev} ft) - Has snow data: ${!!hasSnowData}`);
                                     
                                     if (hasSnowData && elev > bestElevation) {
                                         bestStation = station;
@@ -1415,7 +1480,7 @@
                                     }
                                 });
                                 
-                                // If no snow data stations, just get highest elevation station
+                                // Fallback to highest elevation station
                                 if (!bestStation && synopticData.STATION.length > 0) {
                                     synopticData.STATION.forEach(station => {
                                         const elev = parseFloat(station.ELEVATION) || 0;
@@ -1434,28 +1499,26 @@
                                     const obs = bestStation.OBSERVATIONS || {};
                                     console.log('❄️ Best station observations:', obs);
                                     
-                                    // Snow depth (inches) - try multiple possible keys
-                                    if (obs.snow_depth_value_1?.value !== undefined && obs.snow_depth_value_1?.value !== null) {
+                                    // Current snow depth (inches)
+                                    if (obs.snow_depth_value_1?.value != null) {
                                         snowDepth = Math.round(obs.snow_depth_value_1.value) + '"';
                                     }
                                     
-                                    // Snow water equivalent
-                                    if (obs.snow_water_equiv_value_1?.value !== undefined && obs.snow_water_equiv_value_1?.value !== null) {
-                                        // SWE in inches, estimate snow depth with 10:1 ratio if no direct depth
-                                        if (snowDepth === '--') {
-                                            snowDepth = Math.round(obs.snow_water_equiv_value_1.value * 10) + '"*';
-                                        }
-                                        newSnow7d = obs.snow_water_equiv_value_1.value.toFixed(1) + '" SWE';
-                                    }
-                                    
-                                    // 24-hour precip (convert to estimated snowfall)
-                                    if (obs.precip_accum_24_hour_value_1?.value !== undefined && obs.precip_accum_24_hour_value_1?.value !== null) {
+                                    // 24-hour new snow - try direct snow accumulation first
+                                    if (obs.snow_accum_24_hour_value_1?.value != null) {
+                                        newSnow24h = Math.round(obs.snow_accum_24_hour_value_1.value) + '"';
+                                    } else if (obs.snow_accum_value_1?.value != null) {
+                                        newSnow24h = Math.round(obs.snow_accum_value_1.value) + '"';
+                                    } else if (obs.precip_accum_24_hour_value_1?.value != null) {
+                                        // Estimate from liquid precip (10:1 ratio)
                                         const precip = obs.precip_accum_24_hour_value_1.value;
-                                        // Estimate snow from liquid precip (10:1 ratio for Cascades)
-                                        newSnow24h = Math.round(precip * 10) + '"';
+                                        newSnow24h = Math.round(precip * 10) + '"*';
+                                    } else if (obs.precip_accum_since_local_midnight_value_1?.value != null) {
+                                        const precip = obs.precip_accum_since_local_midnight_value_1.value;
+                                        newSnow24h = Math.round(precip * 10) + '"*';
                                     }
                                     
-                                    console.log('✅ Synoptic snow data:', { stationName, stationElevation, snowDepth, newSnow24h, newSnow7d });
+                                    console.log('✅ Synoptic snow data:', { stationName, stationElevation, snowDepth, newSnow24h });
                                 }
                             } else {
                                 console.log('❄️ No stations found in response');
@@ -1463,6 +1526,53 @@
                         } else {
                             console.warn('❄️ Synoptic API returned status:', synopticResponse.status);
                         }
+                        
+                        // Second API call to get 7-day precipitation for snowfall estimate
+                        try {
+                            const now = new Date();
+                            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            const startDate = sevenDaysAgo.toISOString().replace(/[-:]/g, '').split('.')[0].slice(0, 12);
+                            const endDate = now.toISOString().replace(/[-:]/g, '').split('.')[0].slice(0, 12);
+                            
+                            const precipUrl = `https://api.synopticdata.com/v2/stations/precip?` +
+                                `token=${SYNOPTIC_TOKEN}` +
+                                `&radius=${zoneInfo.lat},${zoneInfo.lon},50` +
+                                `&start=${startDate}&end=${endDate}` +
+                                `&pmode=totals` +
+                                `&units=precip|in`;
+                            
+                            console.log('❄️ Fetching 7-day precip data...');
+                            const precipResponse = await fetch(precipUrl);
+                            
+                            if (precipResponse.ok) {
+                                const precipData = await precipResponse.json();
+                                console.log('❄️ 7-day precip response:', precipData);
+                                
+                                if (precipData.STATION && precipData.STATION.length > 0) {
+                                    // Find highest elevation station with precip data
+                                    let bestPrecipStation = null;
+                                    let bestPrecipElev = 0;
+                                    
+                                    precipData.STATION.forEach(station => {
+                                        const elev = parseFloat(station.ELEVATION) || 0;
+                                        if (station.TOTAL && elev > bestPrecipElev) {
+                                            bestPrecipStation = station;
+                                            bestPrecipElev = elev;
+                                        }
+                                    });
+                                    
+                                    if (bestPrecipStation && bestPrecipStation.TOTAL != null) {
+                                        // Convert liquid precip to snow estimate (10:1 ratio)
+                                        const snow7d = Math.round(bestPrecipStation.TOTAL * 10);
+                                        newSnow7d = snow7d + '"*';
+                                        console.log('✅ 7-day snow estimate:', newSnow7d, 'from station:', bestPrecipStation.NAME);
+                                    }
+                                }
+                            }
+                        } catch (precip7Err) {
+                            console.warn('❄️ 7-day precip fetch failed:', precip7Err.message);
+                        }
+                        
                     } catch (synopticErr) {
                         console.warn('❄️ Synoptic fetch failed:', synopticErr.message);
                     }
@@ -1473,16 +1583,31 @@
                 // ============================================
                 // RENDER WEATHER DISPLAY
                 // ============================================
+                const isToday = daysFromNow === 0;
+                const dateLabel = isToday ? 'Current' : periodName;
+                
                 content.innerHTML = `
                     <div style="text-align: center; padding: 0.5rem 0;">
+                        <!-- Forecast period label -->
+                        ${!isToday ? `
+                        <div style="background: var(--forest-green); color: white; padding: 0.4rem 0.8rem; border-radius: 6px; display: inline-block; margin-bottom: 0.75rem; font-size: 0.8rem; font-weight: 600;">
+                            📅 Forecast for ${periodName}
+                        </div>
+                        ` : ''}
+                        
                         <!-- Temperature from NWS -->
                         <div style="margin-bottom: 1.25rem;">
                             <div style="font-size: 3rem; font-weight: 700; color: var(--forest-green); line-height: 1;">
                                 ${temp}°<span style="font-size: 1.25rem;">F</span>
                             </div>
                             <div style="font-size: 1rem; color: var(--topo-gray); margin-top: 0.4rem;">
-                                ${current.shortForecast}
+                                ${selectedPeriod.shortForecast}
                             </div>
+                            ${nightTemp !== null ? `
+                            <div style="font-size: 0.85rem; color: var(--topo-gray); margin-top: 0.25rem;">
+                                🌙 Night: ${nightTemp}°F
+                            </div>
+                            ` : ''}
                         </div>
                         
                         <!-- Weather stats from NWS -->
@@ -1492,28 +1617,28 @@
                                 <div style="font-size: 1rem; font-weight: 600; color: var(--forest-green);">💨 ${windSpeed}</div>
                             </div>
                             <div style="text-align: center; background: var(--cream); padding: 0.6rem 1rem; border-radius: 8px;">
-                                <div style="font-size: 0.65rem; color: var(--topo-gray); text-transform: uppercase;">${current.isDaytime ? 'Daytime' : 'Nighttime'}</div>
-                                <div style="font-size: 1rem; font-weight: 600; color: var(--forest-green);">${current.isDaytime ? '☀️ Day' : '🌙 Night'}</div>
+                                <div style="font-size: 0.65rem; color: var(--topo-gray); text-transform: uppercase;">High / Low</div>
+                                <div style="font-size: 1rem; font-weight: 600; color: var(--forest-green);">☀️ ${temp}° ${nightTemp !== null ? `/ 🌙 ${nightTemp}°` : ''}</div>
                             </div>
                         </div>
                         
                         <!-- Snow Data from Synoptic (OpenSnow's data source) -->
                         <div style="background: linear-gradient(135deg, #e8f4fd 0%, #d4e9f7 100%); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
                             <div style="font-size: 0.7rem; color: #1565c0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
-                                ❄️ Snow Conditions
+                                ❄️ Snow Conditions ${!isToday ? '(Current)' : ''}
                             </div>
                             <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
                                 <div style="text-align: center; min-width: 70px;">
                                     <div style="font-size: 1.4rem; font-weight: 700; color: #1565c0;">${snowDepth}</div>
-                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">Snow Depth</div>
+                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">Base Depth</div>
                                 </div>
                                 <div style="text-align: center; min-width: 70px;">
                                     <div style="font-size: 1.4rem; font-weight: 700; color: #1565c0;">${newSnow24h}</div>
-                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">24hr New</div>
+                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">Last 24hrs</div>
                                 </div>
                                 <div style="text-align: center; min-width: 70px;">
                                     <div style="font-size: 1.4rem; font-weight: 700; color: #1565c0;">${newSnow7d}</div>
-                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">SWE</div>
+                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">Last 7 Days</div>
                                 </div>
                             </div>
                             ${synopticWorking ? `
@@ -1521,7 +1646,7 @@
                                 📍 ${stationName} (${stationElevation})
                             </div>
                             <div style="font-size: 0.6rem; color: var(--topo-gray); margin-top: 0.2rem; font-style: italic;">
-                                Data via Synoptic • SWE = Snow Water Equivalent
+                                * Estimated from precipitation (10:1 ratio)
                             </div>
                             ` : `
                             <div style="font-size: 0.7rem; color: #856404; margin-top: 0.5rem; background: #fff3cd; padding: 0.5rem; border-radius: 6px;">
@@ -1534,10 +1659,10 @@
                         <!-- NWS Detailed Forecast -->
                         <div style="background: var(--cream); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
                             <div style="font-size: 0.7rem; color: var(--topo-gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem;">
-                                NWS Forecast
+                                ${periodName} Forecast
                             </div>
                             <div style="font-size: 0.85rem; color: #333; line-height: 1.5;">
-                                ${current.detailedForecast}
+                                ${selectedPeriod.detailedForecast}
                             </div>
                         </div>
                         
