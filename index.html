@@ -503,7 +503,7 @@
     <div class="container">
         <header>
             <h1>⛷️ Ski Tour Decision Dashboard</h1>
-            <div class="location" id="headerLocation">Enter your location to begin</div>
+            <div class="location" id="headerLocation">Choose your zone to begin</div>
         </header>
 
         <!-- Setup Panel -->
@@ -511,25 +511,35 @@
             <div class="setup-title">🔧 Configuration</div>
             
             <div class="input-group">
-                <label class="input-label">📍 Trailhead/Tour Location</label>
-                <span class="input-sublabel">Enter coordinates for WHERE YOU'LL BE SKIING (not your home). Weather will be for this location.</span>
-                <input type="text" id="homeLocation" placeholder="47.745, -121.089 (Stevens Pass example)">
-                <p style="font-size: 0.75rem; color: var(--topo-gray); margin-top: 0.5rem;">
-                    💡 Tip: Get coordinates from Google Maps - drop a pin on your trailhead, right-click, copy coordinates
-                </p>
+                <label class="input-label">🏔️ NWAC Zone (Required)</label>
+                <span class="input-sublabel">Select your avalanche forecast zone</span>
+                <select id="nwacZone">
+                    <option value="">Choose a zone...</option>
+                    <optgroup label="Washington Cascades - West">
+                        <option value="west-slopes-north">West Slopes North (Mt Baker)</option>
+                        <option value="west-slopes-central">West Slopes Central (Stevens Pass)</option>
+                        <option value="snoqualmie-pass">Snoqualmie Pass</option>
+                        <option value="west-slopes-south">West Slopes South (White Pass)</option>
+                    </optgroup>
+                    <optgroup label="Washington Cascades - East">
+                        <option value="east-slopes-north">East Slopes North</option>
+                        <option value="east-slopes-central">East Slopes Central (Mission Ridge)</option>
+                        <option value="east-slopes-south">East Slopes South</option>
+                    </optgroup>
+                    <optgroup label="Other Areas">
+                        <option value="olympics">Olympics</option>
+                        <option value="mt-hood">Mt Hood</option>
+                    </optgroup>
+                </select>
             </div>
 
             <div class="input-group">
-                <label class="input-label">NWAC Zone</label>
-                <span class="input-sublabel">Select your primary avalanche forecast zone</span>
-                <select id="nwacZone">
-                    <option value="">Choose a zone...</option>
-                    <option value="west-slopes-north">West Slopes North (Mt Baker)</option>
-                    <option value="west-slopes-central">West Slopes Central (Stevens Pass)</option>
-                    <option value="snoqualmie-pass">Snoqualmie Pass</option>
-                    <option value="west-slopes-south">West Slopes South (White Pass)</option>
-                    <option value="mt-hood">Mt Hood</option>
-                </select>
+                <label class="input-label">📍 Specific Location (Optional)</label>
+                <span class="input-sublabel">Leave blank to use default zone coordinates, or enter specific trailhead coordinates for more accurate weather</span>
+                <input type="text" id="homeLocation" placeholder="e.g., 47.745, -121.089 (leave empty for zone default)">
+                <p style="font-size: 0.75rem; color: var(--topo-gray); margin-top: 0.5rem;">
+                    💡 Tip: Get coordinates from Google Maps - drop a pin on your trailhead, right-click, copy coordinates
+                </p>
             </div>
 
             <div class="input-group">
@@ -617,9 +627,22 @@
     </div>
 
     <script>
+        // Default coordinates for each NWAC zone
+        const zoneDefaults = {
+            'west-slopes-north': { lat: 48.868, lon: -121.813, name: 'Mt Baker Area' },
+            'west-slopes-central': { lat: 47.745, lon: -121.089, name: 'Stevens Pass Area' },
+            'snoqualmie-pass': { lat: 47.424, lon: -121.413, name: 'Snoqualmie Pass' },
+            'west-slopes-south': { lat: 46.600, lon: -121.400, name: 'White Pass Area' },
+            'east-slopes-north': { lat: 48.500, lon: -120.650, name: 'North Cascades East' },
+            'east-slopes-central': { lat: 47.250, lon: -120.650, name: 'Mission Ridge Area' },
+            'east-slopes-south': { lat: 47.250, lon: -120.900, name: 'Wenatchee Mountains' },
+            'olympics': { lat: 47.900, lon: -123.600, name: 'Olympic Mountains' },
+            'mt-hood': { lat: 45.330, lon: -121.710, name: 'Mt Hood' }
+        };
+
         // Configuration
         let config = {
-            homeLocation: null,
+            location: null,
             nwacZone: null,
             caltopoMapId: null,
             fitnessLevel: 7
@@ -705,7 +728,7 @@
                     terrain: "Open slopes, 30-35°"
                 },
                 {
-                    name: "Granite Mountain - Summit Push",
+                    name: "Granite Mountain",
                     location: "Snoqualmie Pass",
                     elevationGain: 3800,
                     distance: 8,
@@ -743,6 +766,26 @@
                     terrain: "Open slopes, 30-35°"
                 }
             ],
+            'east-slopes-central': [
+                {
+                    name: "Mission Ridge Backcountry",
+                    location: "Mission Ridge",
+                    elevationGain: 2000,
+                    distance: 4,
+                    maxElevation: 6800,
+                    aspect: "Multiple",
+                    terrain: "Open slopes, 30-35°"
+                },
+                {
+                    name: "Blewett Pass Trees",
+                    location: "Blewett Pass",
+                    elevationGain: 1500,
+                    distance: 3,
+                    maxElevation: 5500,
+                    aspect: "N",
+                    terrain: "Treed, <30°"
+                }
+            ],
             'mt-hood': [
                 {
                     name: "Illumination Saddle",
@@ -771,6 +814,17 @@
                     aspect: "Multiple",
                     terrain: "Treed, <30°"
                 }
+            ],
+            'olympics': [
+                {
+                    name: "Hurricane Ridge",
+                    location: "Olympics",
+                    elevationGain: 1000,
+                    distance: 3,
+                    maxElevation: 5700,
+                    aspect: "Multiple",
+                    terrain: "Open slopes, <30°"
+                }
             ]
         };
 
@@ -792,19 +846,27 @@
 
             console.log('🔄 Loading data...', { homeLocation, nwacZone, caltopoMapId });
 
-            if (!homeLocation || !nwacZone) {
-                alert('Please enter your home location and select a NWAC zone');
+            if (!nwacZone) {
+                alert('Please select a NWAC zone');
                 return;
             }
 
-            // Parse coordinates
-            const coords = homeLocation.split(',').map(c => parseFloat(c.trim()));
-            if (coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) {
-                alert('Invalid coordinates. Please use format: latitude, longitude');
-                return;
+            // Use custom coordinates if provided, otherwise use zone default
+            let coords;
+            if (homeLocation) {
+                const parsedCoords = homeLocation.split(',').map(c => parseFloat(c.trim()));
+                if (parsedCoords.length !== 2 || isNaN(parsedCoords[0]) || isNaN(parsedCoords[1])) {
+                    alert('Invalid coordinates. Please use format: latitude, longitude');
+                    return;
+                }
+                coords = { lat: parsedCoords[0], lon: parsedCoords[1] };
+                console.log('✅ Using custom coordinates:', coords);
+            } else {
+                coords = zoneDefaults[nwacZone];
+                console.log('✅ Using default zone coordinates:', coords);
             }
 
-            config.homeLocation = { lat: coords[0], lon: coords[1] };
+            config.location = coords;
             config.nwacZone = nwacZone;
             config.caltopoMapId = caltopoMapId || null;
 
@@ -818,9 +880,14 @@
             document.getElementById('appContent').style.display = 'block';
             
             // Update header with location
-            document.getElementById('headerLocation').textContent = `📍 ${coords[0]}, ${coords[1]}`;
+            const zoneName = getZoneName(nwacZone);
+            if (homeLocation) {
+                document.getElementById('headerLocation').textContent = `📍 ${coords.lat}, ${coords.lon} (${zoneName})`;
+            } else {
+                document.getElementById('headerLocation').textContent = `📍 ${zoneName}`;
+            }
 
-            console.log('📊 Dashboard displayed for location:', `${coords[0]}, ${coords[1]}`);
+            console.log('📊 Dashboard displayed');
 
             // Update date
             updateDate();
@@ -851,16 +918,13 @@
             console.log('🏔️ Loading avalanche forecast for:', config.nwacZone);
             
             try {
-                // NWAC doesn't have an official public API, but we can show structure
-                // In production, you'd either scrape or use an unofficial endpoint
                 content.innerHTML = `
                     <div style="margin-bottom: 1rem;">
                         <strong>${getZoneName(config.nwacZone)}</strong>
-                        <div class="danger-level danger-moderate" style="margin-top: 0.5rem;">Moderate</div>
+                        <div class="danger-level danger-moderate" style="margin-top: 0.5rem;">Check NWAC</div>
                     </div>
                     <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--topo-gray); line-height: 1.6;">
-                        ⚠️ Check <a href="https://nwac.us/" target="_blank" style="color: var(--forest-green);">NWAC.us</a> for the latest forecast. 
-                        API integration requires building a custom scraper or accessing unofficial endpoints.
+                        ⚠️ Check <a href="https://nwac.us/" target="_blank" style="color: var(--forest-green);">NWAC.us</a> for the latest avalanche forecast for this zone.
                     </p>
                 `;
                 console.log('✅ Avalanche forecast loaded (placeholder)');
@@ -872,11 +936,10 @@
 
         async function loadWeatherData() {
             const content = document.getElementById('weatherContent');
-            console.log('⛅ Loading weather data for:', config.homeLocation);
+            console.log('⛅ Loading weather data for:', config.location);
             
             try {
-                // Fetch from Weather.gov API
-                const pointsUrl = `https://api.weather.gov/points/${config.homeLocation.lat},${config.homeLocation.lon}`;
+                const pointsUrl = `https://api.weather.gov/points/${config.location.lat},${config.location.lon}`;
                 console.log('📡 Fetching grid data from:', pointsUrl);
                 
                 const pointsResponse = await fetch(pointsUrl);
@@ -932,7 +995,7 @@
                         ${current.detailedForecast}
                     </p>
                     <p style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--topo-gray); font-style: italic;">
-                        📍 Weather for coordinates: ${config.homeLocation.lat}, ${config.homeLocation.lon}
+                        📍 Weather for: ${config.location.lat}, ${config.location.lon}
                     </p>
                 `;
             } catch (error) {
@@ -946,12 +1009,8 @@
                             Error: ${error.message}
                         </p>
                         <p style="font-size: 0.85rem; color: var(--topo-gray);">
-                            This is likely a browser CORS issue. Try:<br>
-                            • Different browser (Chrome recommended)<br>
-                            • Disable ad-blocker/extensions<br>
-                            • Run from local web server<br>
-                            <br>
-                            Check console (F12) for details.
+                            Check <a href="https://www.weather.gov/" target="_blank" style="color: var(--forest-green);">Weather.gov</a> or 
+                            <a href="https://www.mountain-forecast.com/" target="_blank" style="color: var(--forest-green);">Mountain-Forecast.com</a>
                         </p>
                     </div>
                 `;
@@ -962,10 +1021,8 @@
             const content = document.getElementById('toursContent');
             console.log('📍 Loading tours for zone:', config.nwacZone);
             
-            // Update zone name in header
             document.getElementById('zoneName').textContent = getZoneName(config.nwacZone);
             
-            // Get tours for the selected zone
             const tours = toursByZone[config.nwacZone] || [];
             
             if (tours.length === 0) {
@@ -976,7 +1033,7 @@
                                 No sample tours available for this zone yet.
                             </p>
                             <p style="font-size: 0.9rem; color: var(--topo-gray);">
-                                To add your own tours, edit the <code>toursByZone</code> object in the code!
+                                Add your own tours by editing the <code>toursByZone</code> object!
                             </p>
                         </div>
                     </div>
@@ -986,32 +1043,25 @@
             
             console.log(`✅ Loaded ${tours.length} tours for ${config.nwacZone}`);
             
-            content.innerHTML = tours.map((tour, index) => {
+            content.innerHTML = tours.map((tour) => {
                 const rec = calculateRecommendation(tour);
                 return generateTourCard(tour, rec);
             }).join('');
         }
 
         function calculateRecommendation(tour) {
-            // Simple recommendation algorithm
-            // In production, this would factor in avalanche danger, aspect, fitness, etc.
-            
             const fitnessLevel = config.fitnessLevel;
             const elevGain = tour.elevationGain;
             
-            // Basic scoring
             let score = 0;
             
-            // Fitness vs effort
             if (elevGain < 2000 && fitnessLevel >= 5) score += 2;
             else if (elevGain < 3000 && fitnessLevel >= 6) score += 1;
             else if (elevGain >= 3500 && fitnessLevel < 7) score -= 2;
             
-            // Terrain considerations
             if (tour.terrain.includes('Treed')) score += 1;
             if (tour.terrain.includes('Exposed')) score -= 1;
             
-            // Recommend based on score
             if (score >= 2) return { level: 'go', text: '✅ Good to Go', analysis: 'Conditions and terrain align well with your fitness level. Great choice!' };
             if (score >= 0) return { level: 'maybe', text: '⚠️ Cautious Go', analysis: 'Feasible but requires careful decision-making. Stay conservative.' };
             return { level: 'no', text: '🛑 Skip It', analysis: 'Consider an easier objective or wait for better conditions.' };
@@ -1072,35 +1122,40 @@
                 'west-slopes-central': 'West Slopes Central (Stevens Pass)',
                 'snoqualmie-pass': 'Snoqualmie Pass',
                 'west-slopes-south': 'West Slopes South (White Pass)',
+                'east-slopes-north': 'East Slopes North',
+                'east-slopes-central': 'East Slopes Central (Mission Ridge)',
+                'east-slopes-south': 'East Slopes South',
+                'olympics': 'Olympics',
                 'mt-hood': 'Mt Hood'
             };
             return zones[zoneId] || zoneId;
         }
 
-        // Fitness slider interaction
         document.getElementById('fitnessSlider').addEventListener('input', function() {
             const value = parseInt(this.value);
             config.fitnessLevel = value;
             document.getElementById('fitnessStatus').textContent = 
                 `${fitnessLabels[value]} (${value}/10)`;
             
-            // Recalculate recommendations
             loadTours();
-            
-            // Save to localStorage
             localStorage.setItem('skiTourConfig', JSON.stringify(config));
         });
 
-        // Load saved config on page load
         window.addEventListener('load', () => {
             const savedConfig = localStorage.getItem('skiTourConfig');
             if (savedConfig) {
                 config = JSON.parse(savedConfig);
                 
-                // Pre-fill form
-                if (config.homeLocation) {
-                    document.getElementById('homeLocation').value = 
-                        `${config.homeLocation.lat}, ${config.homeLocation.lon}`;
+                if (config.location && config.nwacZone) {
+                    const zoneDefault = zoneDefaults[config.nwacZone];
+                    const isCustomLocation = !zoneDefault || 
+                        config.location.lat !== zoneDefault.lat || 
+                        config.location.lon !== zoneDefault.lon;
+                    
+                    if (isCustomLocation) {
+                        document.getElementById('homeLocation').value = 
+                            `${config.location.lat}, ${config.location.lon}`;
+                    }
                 }
                 if (config.nwacZone) {
                     document.getElementById('nwacZone').value = config.nwacZone;
@@ -1109,8 +1164,7 @@
                     document.getElementById('caltopoMapId').value = config.caltopoMapId;
                 }
                 
-                // Auto-load if we have minimum config
-                if (config.homeLocation && config.nwacZone) {
+                if (config.location && config.nwacZone) {
                     loadData();
                 }
             }
