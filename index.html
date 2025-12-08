@@ -2166,22 +2166,17 @@
             const warningText = warnings.length > 0 ? warnings.join('. ') + '.' : '';
             
             // Determine recommendation level based on score
+            // 4 tiers: Good Choice, Doable, Stretch, Not Today
             let level, text;
-            if (score >= 5) {
-                level = 'go';
-                text = '✅ Perfect Match';
-            } else if (score >= 3) {
+            if (score >= 3) {
                 level = 'go';
                 text = '✅ Good Choice';
             } else if (score >= 1) {
                 level = 'maybe';
                 text = '⚠️ Doable';
-            } else if (score >= -1) {
+            } else if (score >= -2) {
                 level = 'maybe';
                 text = '⚠️ Stretch';
-            } else if (score >= -3) {
-                level = 'no';
-                text = '🛑 Not Ideal';
             } else {
                 level = 'no';
                 text = '🛑 Not Today';
@@ -2191,8 +2186,10 @@
             let analysis = '';
             if (level === 'go') {
                 analysis = `${analysisIntro}This tour aligns well with your energy (${fitness}/10) and skill (${skill}/10). ${warningText || 'Enjoy the day!'}`;
-            } else if (level === 'maybe') {
-                analysis = `${analysisIntro}Consider carefully. ${warningText || 'Be conservative with decisions.'}`;
+            } else if (text.includes('Doable')) {
+                analysis = `${analysisIntro}Within reach but consider the challenges. ${warningText || 'Be prepared and conservative.'}`;
+            } else if (text.includes('Stretch')) {
+                analysis = `${analysisIntro}Pushing your limits. ${warningText || 'Have a backup plan and trusted partners.'}`;
             } else {
                 analysis = `${warningText || 'This tour exceeds your current capacity.'} Consider a different objective or wait for a better day.`;
             }
