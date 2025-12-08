@@ -503,7 +503,7 @@
     <div class="container">
         <header>
             <h1>⛷️ Ski Tour Decision Dashboard</h1>
-            <div class="location">Washington Cascades</div>
+            <div class="location" id="headerLocation">Enter your location to begin</div>
         </header>
 
         <!-- Setup Panel -->
@@ -511,9 +511,12 @@
             <div class="setup-title">🔧 Configuration</div>
             
             <div class="input-group">
-                <label class="input-label">Your Home Location</label>
-                <span class="input-sublabel">Latitude, Longitude (e.g., 47.606, -122.332 for Seattle)</span>
-                <input type="text" id="homeLocation" placeholder="47.606, -122.332">
+                <label class="input-label">📍 Trailhead/Tour Location</label>
+                <span class="input-sublabel">Enter coordinates for WHERE YOU'LL BE SKIING (not your home). Weather will be for this location.</span>
+                <input type="text" id="homeLocation" placeholder="47.745, -121.089 (Stevens Pass example)">
+                <p style="font-size: 0.75rem; color: var(--topo-gray); margin-top: 0.5rem;">
+                    💡 Tip: Get coordinates from Google Maps - drop a pin on your trailhead, right-click, copy coordinates
+                </p>
             </div>
 
             <div class="input-group">
@@ -591,7 +594,12 @@
             </div>
 
             <div class="tours-section">
-                <h2 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--forest-green);">📍 My Tour Options</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 2rem; color: var(--forest-green); margin: 0;">📍 Sample Tours for This Zone</h2>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--topo-gray); margin-bottom: 1.5rem; padding: 1rem; background: var(--cream); border-radius: 6px;">
+                    💡 These are example tours for <strong id="zoneName"></strong>. To add your own tours, edit the code or check the guide!
+                </p>
                 <div id="toursContent">
                     <div class="loading">
                         <div class="spinner"></div>
@@ -617,36 +625,154 @@
             fitnessLevel: 7
         };
 
-        // Sample tour data (in real app, this would come from CalTopo)
-        const sampleTours = [
-            {
-                name: "Kendall Peak - SW Chute",
-                location: "Snoqualmie Pass",
-                elevationGain: 3200,
-                distance: 4.5,
-                maxElevation: 5784,
-                aspect: "SW",
-                terrain: "35-40° open slopes"
-            },
-            {
-                name: "Tye Ridge - Mellow Trees",
-                location: "Stevens Pass",
-                elevationGain: 1800,
-                distance: 3,
-                maxElevation: 4800,
-                aspect: "NE",
-                terrain: "Treed, <30°"
-            },
-            {
-                name: "Granite Mountain - Summit Push",
-                location: "Snoqualmie Pass",
-                elevationGain: 3800,
-                distance: 8,
-                maxElevation: 5629,
-                aspect: "Multiple",
-                terrain: "Exposed ridge"
-            }
-        ];
+        // Tour database organized by zone
+        const toursByZone = {
+            'west-slopes-north': [
+                {
+                    name: "Bagley Lakes - Table Mountain",
+                    location: "Mt Baker",
+                    elevationGain: 1000,
+                    distance: 2.5,
+                    maxElevation: 5200,
+                    aspect: "Multiple",
+                    terrain: "Treed, <30°"
+                },
+                {
+                    name: "Herman Saddle",
+                    location: "Mt Baker",
+                    elevationGain: 1500,
+                    distance: 3,
+                    maxElevation: 5400,
+                    aspect: "N",
+                    terrain: "Open bowls, 30-35°"
+                },
+                {
+                    name: "Coleman Pinnacle",
+                    location: "Mt Baker",
+                    elevationGain: 2800,
+                    distance: 6,
+                    maxElevation: 6400,
+                    aspect: "NW",
+                    terrain: "Exposed ridge, 35-40°"
+                }
+            ],
+            'west-slopes-central': [
+                {
+                    name: "Tye Ridge - Mellow Trees",
+                    location: "Stevens Pass",
+                    elevationGain: 1800,
+                    distance: 3,
+                    maxElevation: 4800,
+                    aspect: "NE",
+                    terrain: "Treed, <30°"
+                },
+                {
+                    name: "Cowboy Mountain",
+                    location: "Stevens Pass",
+                    elevationGain: 2400,
+                    distance: 5,
+                    maxElevation: 5850,
+                    aspect: "Multiple",
+                    terrain: "Open slopes, 30-35°"
+                },
+                {
+                    name: "Big Chief Mountain",
+                    location: "Stevens Pass",
+                    elevationGain: 3200,
+                    distance: 6,
+                    maxElevation: 6440,
+                    aspect: "S",
+                    terrain: "Exposed, 35-40°"
+                }
+            ],
+            'snoqualmie-pass': [
+                {
+                    name: "Kendall Peak - SW Chute",
+                    location: "Snoqualmie Pass",
+                    elevationGain: 3200,
+                    distance: 4.5,
+                    maxElevation: 5784,
+                    aspect: "SW",
+                    terrain: "35-40° open slopes"
+                },
+                {
+                    name: "Snoqualmie Mountain",
+                    location: "Snoqualmie Pass",
+                    elevationGain: 2200,
+                    distance: 4,
+                    maxElevation: 6278,
+                    aspect: "Multiple",
+                    terrain: "Open slopes, 30-35°"
+                },
+                {
+                    name: "Granite Mountain - Summit Push",
+                    location: "Snoqualmie Pass",
+                    elevationGain: 3800,
+                    distance: 8,
+                    maxElevation: 5629,
+                    aspect: "Multiple",
+                    terrain: "Exposed ridge"
+                }
+            ],
+            'west-slopes-south': [
+                {
+                    name: "Tumac Mountain",
+                    location: "White Pass",
+                    elevationGain: 2000,
+                    distance: 6,
+                    maxElevation: 6340,
+                    aspect: "Multiple",
+                    terrain: "Gentle slopes, <30°"
+                },
+                {
+                    name: "Shoe Lake Basin",
+                    location: "White Pass",
+                    elevationGain: 1500,
+                    distance: 4,
+                    maxElevation: 5200,
+                    aspect: "N",
+                    terrain: "Treed basin, <30°"
+                },
+                {
+                    name: "Hogback Mountain",
+                    location: "White Pass",
+                    elevationGain: 2500,
+                    distance: 5,
+                    maxElevation: 6789,
+                    aspect: "Multiple",
+                    terrain: "Open slopes, 30-35°"
+                }
+            ],
+            'mt-hood': [
+                {
+                    name: "Illumination Saddle",
+                    location: "Mt Hood",
+                    elevationGain: 5000,
+                    distance: 8,
+                    maxElevation: 9500,
+                    aspect: "S",
+                    terrain: "Glacier travel required"
+                },
+                {
+                    name: "White River Canyon",
+                    location: "Mt Hood",
+                    elevationGain: 2000,
+                    distance: 4,
+                    maxElevation: 6500,
+                    aspect: "NE",
+                    terrain: "Open slopes, 30-35°"
+                },
+                {
+                    name: "Glade Trail",
+                    location: "Mt Hood",
+                    elevationGain: 1400,
+                    distance: 3,
+                    maxElevation: 5800,
+                    aspect: "Multiple",
+                    terrain: "Treed, <30°"
+                }
+            ]
+        };
 
         const fitnessLabels = {
             1: 'Really Tired', 2: 'Pretty Tired', 3: 'Below Average', 4: 'Slightly Tired',
@@ -664,6 +790,8 @@
             const nwacZone = document.getElementById('nwacZone').value;
             const caltopoMapId = document.getElementById('caltopoMapId').value.trim();
 
+            console.log('🔄 Loading data...', { homeLocation, nwacZone, caltopoMapId });
+
             if (!homeLocation || !nwacZone) {
                 alert('Please enter your home location and select a NWAC zone');
                 return;
@@ -680,22 +808,35 @@
             config.nwacZone = nwacZone;
             config.caltopoMapId = caltopoMapId || null;
 
+            console.log('✅ Config updated:', config);
+
             // Save to localStorage
             localStorage.setItem('skiTourConfig', JSON.stringify(config));
 
             // Show app content
             document.getElementById('setupPanel').style.display = 'none';
             document.getElementById('appContent').style.display = 'block';
+            
+            // Update header with location
+            document.getElementById('headerLocation').textContent = `📍 ${coords[0]}, ${coords[1]}`;
+
+            console.log('📊 Dashboard displayed for location:', `${coords[0]}, ${coords[1]}`);
 
             // Update date
             updateDate();
 
             // Load all data
-            await Promise.all([
-                loadAvalancheForecast(),
-                loadWeatherData(),
-                loadTours()
-            ]);
+            try {
+                await Promise.all([
+                    loadAvalancheForecast(),
+                    loadWeatherData(),
+                    loadTours()
+                ]);
+                console.log('✅ All data loaded successfully!');
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                alert('Error loading some data. Check browser console (F12) for details.');
+            }
         }
 
         function updateDate() {
@@ -707,6 +848,7 @@
 
         async function loadAvalancheForecast() {
             const content = document.getElementById('avalancheContent');
+            console.log('🏔️ Loading avalanche forecast for:', config.nwacZone);
             
             try {
                 // NWAC doesn't have an official public API, but we can show structure
@@ -721,45 +863,49 @@
                         API integration requires building a custom scraper or accessing unofficial endpoints.
                     </p>
                 `;
+                console.log('✅ Avalanche forecast loaded (placeholder)');
             } catch (error) {
+                console.error('❌ Error loading avalanche data:', error);
                 content.innerHTML = `<div class="error">Error loading avalanche data: ${error.message}</div>`;
             }
         }
 
         async function loadWeatherData() {
             const content = document.getElementById('weatherContent');
+            console.log('⛅ Loading weather data for:', config.homeLocation);
             
             try {
-                // Step 1: Get grid endpoint from NWS
+                // Fetch from Weather.gov API
                 const pointsUrl = `https://api.weather.gov/points/${config.homeLocation.lat},${config.homeLocation.lon}`;
-                const pointsResponse = await fetch(pointsUrl, {
-                    headers: {
-                        'User-Agent': '(SkiTourApp, contact@example.com)'
-                    }
-                });
+                console.log('📡 Fetching grid data from:', pointsUrl);
+                
+                const pointsResponse = await fetch(pointsUrl);
+                console.log('📡 Grid response status:', pointsResponse.status);
                 
                 if (!pointsResponse.ok) {
-                    throw new Error('Failed to get weather grid data');
+                    throw new Error(`Weather.gov returned ${pointsResponse.status}`);
                 }
                 
                 const pointsData = await pointsResponse.json();
                 const forecastUrl = pointsData.properties.forecast;
+                console.log('📡 Fetching forecast from:', forecastUrl);
                 
-                // Step 2: Get forecast
-                const forecastResponse = await fetch(forecastUrl, {
-                    headers: {
-                        'User-Agent': '(SkiTourApp, contact@example.com)'
-                    }
-                });
+                const forecastResponse = await fetch(forecastUrl);
+                console.log('📡 Forecast response status:', forecastResponse.status);
                 
                 if (!forecastResponse.ok) {
-                    throw new Error('Failed to get weather forecast');
+                    throw new Error(`Forecast request returned ${forecastResponse.status}`);
                 }
                 
                 const forecastData = await forecastResponse.json();
                 const current = forecastData.properties.periods[0];
                 
-                // Extract key weather metrics
+                console.log('✅ Weather data loaded:', {
+                    temp: current.temperature,
+                    wind: current.windSpeed,
+                    conditions: current.shortForecast
+                });
+                
                 const temp = current.temperature;
                 const windSpeed = current.windSpeed;
                 
@@ -785,12 +931,28 @@
                     <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--topo-gray);">
                         ${current.detailedForecast}
                     </p>
+                    <p style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--topo-gray); font-style: italic;">
+                        📍 Weather for coordinates: ${config.homeLocation.lat}, ${config.homeLocation.lon}
+                    </p>
                 `;
             } catch (error) {
-                console.error('Weather error:', error);
+                console.error('❌ Weather API failed:', error);
                 content.innerHTML = `
-                    <div class="error">
-                        Unable to load real-time weather. Check your coordinates and try again.
+                    <div style="text-align: center; padding: 2rem;">
+                        <p style="color: var(--warning-red); font-size: 1.1rem; margin-bottom: 1rem;">
+                            ⚠️ Unable to fetch weather from Weather.gov
+                        </p>
+                        <p style="font-size: 0.9rem; color: var(--topo-gray); margin-bottom: 1rem;">
+                            Error: ${error.message}
+                        </p>
+                        <p style="font-size: 0.85rem; color: var(--topo-gray);">
+                            This is likely a browser CORS issue. Try:<br>
+                            • Different browser (Chrome recommended)<br>
+                            • Disable ad-blocker/extensions<br>
+                            • Run from local web server<br>
+                            <br>
+                            Check console (F12) for details.
+                        </p>
                     </div>
                 `;
             }
@@ -798,10 +960,31 @@
 
         async function loadTours() {
             const content = document.getElementById('toursContent');
+            console.log('📍 Loading tours for zone:', config.nwacZone);
             
-            // For now, use sample tours. In production, you'd fetch from CalTopo
-            // or let users manually add tours with coordinates
-            const tours = sampleTours;
+            // Update zone name in header
+            document.getElementById('zoneName').textContent = getZoneName(config.nwacZone);
+            
+            // Get tours for the selected zone
+            const tours = toursByZone[config.nwacZone] || [];
+            
+            if (tours.length === 0) {
+                content.innerHTML = `
+                    <div class="tour-card">
+                        <div style="text-align: center; padding: 2rem;">
+                            <p style="font-size: 1.1rem; color: var(--topo-gray); margin-bottom: 1rem;">
+                                No sample tours available for this zone yet.
+                            </p>
+                            <p style="font-size: 0.9rem; color: var(--topo-gray);">
+                                To add your own tours, edit the <code>toursByZone</code> object in the code!
+                            </p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            console.log(`✅ Loaded ${tours.length} tours for ${config.nwacZone}`);
             
             content.innerHTML = tours.map((tour, index) => {
                 const rec = calculateRecommendation(tour);
