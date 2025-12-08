@@ -729,7 +729,7 @@
                         <a href="https://nwac.us/" target="_blank">NWAC</a> • 
                         <a href="https://avalanche.org/" target="_blank">Avalanche.org</a> • 
                         <a href="https://www.weather.gov/" target="_blank">NWS</a> • 
-                        <a href="https://synopticdata.com/" target="_blank">Synoptic Data</a> • 
+                        <a href="https://open-meteo.com/" target="_blank">Open-Meteo</a> • 
                         <a href="https://caltopo.com/" target="_blank">CalTopo</a>
                     </p>
                     
@@ -1483,13 +1483,11 @@
         }
 
         // ============================================
-        // SYNOPTIC DATA API CONFIGURATION
-        // Sign up at: https://customer.synopticdata.com/signup
-        // Free tier: 5,000 requests/month
+        // ZONE COORDINATES FOR WEATHER DATA
+        // Used by Open-Meteo API for snow data
         // ============================================
-        const SYNOPTIC_TOKEN = 'f26f2eb1c2c04cef95b94b2405949325';
         
-        // Zone center coordinates for Synoptic radius search
+        // Zone center coordinates for weather/snow data
         const zoneCoordinates = {
             'west-slopes-north': { lat: 48.85, lon: -121.68, name: 'Mt Baker Area' },
             'stevens-pass': { lat: 47.745, lon: -121.089, name: 'Stevens Pass' },
@@ -1568,247 +1566,75 @@
                 console.log('✅ NWS Weather loaded for', periodName, ':', { temp, windSpeed, conditions: selectedPeriod.shortForecast });
                 
                 // ============================================
-                // SNOW DATA FROM SYNOPTIC DATA API
-                // (Same data source as OpenSnow!)
+                // SNOW DATA FROM OPEN-METEO API
+                // Free, no API key required
+                // https://open-meteo.com/
                 // ============================================
                 let snowDepth = '--';
                 let newSnow24h = '--';
                 let newSnow7d = '--';
-                let stationName = '';
-                let stationElevation = '';
-                let synopticWorking = false;
+                let snowDataSource = '';
+                let snowDataWorking = false;
                 
-                if (SYNOPTIC_TOKEN !== 'YOUR_SYNOPTIC_TOKEN') {
-                    try {
-                        // Search for stations with snow data
-                        // Variables: snow_depth, snow_accum_24_hour (new snow), precip for 7-day calc
-                        const synopticUrl = `https://api.synopticdata.com/v2/stations/latest?` +
-                            `token=${SYNOPTIC_TOKEN}` +
-                            `&radius=${zoneInfo.lat},${zoneInfo.lon},50` +  // 50 mile radius
-                            `&vars=snow_depth,snow_accum,snow_accum_24_hour,precip_accum_24_hour,precip_accum_since_local_midnight` +
-                            `&within=1440` +  // Data within last 24 hours
-                            `&units=english` +
-                            `&status=active`;
+                try {
+                    // Open-Meteo API - get current snow depth and past 7 days of snowfall
+                    const openMeteoUrl = `https://api.open-meteo.com/v1/forecast?` +
+                        `latitude=${zoneInfo.lat}&longitude=${zoneInfo.lon}` +
+                        `&current=snow_depth,snowfall` +
+                        `&hourly=snowfall` +
+                        `&daily=snowfall_sum` +
+                        `&timezone=America/Los_Angeles` +
+                        `&past_days=7` +
+                        `&forecast_days=1`;
+                    
+                    console.log('❄️ Fetching Open-Meteo snow data for:', zoneInfo.name);
+                    const openMeteoResponse = await fetch(openMeteoUrl);
+                    
+                    if (openMeteoResponse.ok) {
+                        const meteoData = await openMeteoResponse.json();
+                        console.log('❄️ Open-Meteo response:', meteoData);
                         
-                        console.log('❄️ Fetching Synoptic snow data for:', zoneInfo.name);
-                        const synopticResponse = await fetch(synopticUrl);
+                        snowDataWorking = true;
+                        snowDataSource = `${zoneInfo.name} (${Math.round(meteoData.elevation || 0)}m)`;
                         
-                        if (synopticResponse.ok) {
-                            const synopticData = await synopticResponse.json();
-                            console.log('❄️ Synoptic API response:', synopticData);
-                            
-                            if (synopticData.SUMMARY && synopticData.SUMMARY.RESPONSE_CODE === 1) {
-                                console.log('❄️ Found', synopticData.SUMMARY.NUMBER_OF_OBJECTS, 'stations');
-                            } else if (synopticData.SUMMARY) {
-                                console.warn('❄️ Synoptic API response code:', synopticData.SUMMARY.RESPONSE_CODE, synopticData.SUMMARY.RESPONSE_MESSAGE);
-                            }
-                            
-                            if (synopticData.STATION && synopticData.STATION.length > 0) {
-                                // Find station with best snow data (prefer higher elevation with any snow/precip data)
-                                let bestStation = null;
-                                let bestElevation = 0;
-                                
-                                synopticData.STATION.forEach(station => {
-                                    const elev = parseFloat(station.ELEVATION) || 0;
-                                    const obs = station.OBSERVATIONS || {};
-                                    
-                                    // Check for ANY snow or precip related data using flexible key matching
-                                    const obsKeys = Object.keys(obs);
-                                    const hasSnowData = obsKeys.some(key => 
-                                        key.includes('snow') || 
-                                        key.includes('precip') ||
-                                        key.includes('SNOW') ||
-                                        key.includes('PRECIP')
-                                    );
-                                    
-                                    if (hasSnowData && elev > bestElevation) {
-                                        bestStation = station;
-                                        bestElevation = elev;
-                                        console.log('❄️ Found station with snow data:', station.NAME, 'at', elev, 'ft');
-                                    }
-                                });
-                                
-                                // Fallback to highest elevation station even without snow data
-                                if (!bestStation && synopticData.STATION.length > 0) {
-                                    synopticData.STATION.forEach(station => {
-                                        const elev = parseFloat(station.ELEVATION) || 0;
-                                        if (elev > bestElevation) {
-                                            bestStation = station;
-                                            bestElevation = elev;
-                                        }
-                                    });
-                                    console.log('❄️ Using highest elevation station:', bestStation?.NAME);
-                                }
-                                
-                                if (bestStation) {
-                                    stationName = bestStation.NAME || bestStation.STID;
-                                    stationElevation = Math.round(bestElevation) + ' ft';
-                                    synopticWorking = true;
-                                    
-                                    const obs = bestStation.OBSERVATIONS || {};
-                                    console.log('❄️ Best station:', stationName, 'Elevation:', stationElevation);
-                                    console.log('❄️ Available observation keys:', Object.keys(obs));
-                                    
-                                    // Helper function to get value from observation
-                                    // Synoptic returns either {value: X, date_time: Y} or just the value directly
-                                    const getValue = (key) => {
-                                        if (!obs[key]) return null;
-                                        if (typeof obs[key] === 'object' && obs[key].value != null) {
-                                            return obs[key].value;
-                                        }
-                                        if (typeof obs[key] === 'number') {
-                                            return obs[key];
-                                        }
-                                        // Handle array format (sometimes returns array of values)
-                                        if (Array.isArray(obs[key]) && obs[key].length > 0) {
-                                            const lastVal = obs[key][obs[key].length - 1];
-                                            if (typeof lastVal === 'number') return lastVal;
-                                            if (typeof lastVal === 'object' && lastVal.value != null) return lastVal.value;
-                                        }
-                                        return null;
-                                    };
-                                    
-                                    // Find any key that matches a pattern
-                                    const findKeyValue = (patterns) => {
-                                        const obsKeys = Object.keys(obs);
-                                        for (const pattern of patterns) {
-                                            const matchingKey = obsKeys.find(k => k.toLowerCase().includes(pattern.toLowerCase()));
-                                            if (matchingKey) {
-                                                const val = getValue(matchingKey);
-                                                if (val != null) {
-                                                    console.log(`❄️ Found ${pattern}:`, val, 'from key:', matchingKey);
-                                                    return { key: matchingKey, value: val };
-                                                }
-                                            }
-                                        }
-                                        return null;
-                                    };
-                                    
-                                    // Try to find snow depth
-                                    const depthResult = findKeyValue(['snow_depth', 'snowdepth', 'snow_total']);
-                                    if (depthResult && depthResult.value > 0) {
-                                        snowDepth = Math.round(depthResult.value) + '"';
-                                    }
-                                    
-                                    // Try to find 24hr snow
-                                    const snow24Result = findKeyValue(['snow_accum_24', 'snow_24', 'snow_accum', 'snow_interval', 'new_snow']);
-                                    if (snow24Result && snow24Result.value >= 0) {
-                                        newSnow24h = Math.round(snow24Result.value) + '"';
-                                    }
-                                    
-                                    // If no direct snow data, try precip conversion
-                                    if (newSnow24h === '--') {
-                                        const precipResult = findKeyValue(['precip_accum_24', 'precip_24', 'precip_accum']);
-                                        if (precipResult && precipResult.value > 0) {
-                                            // Convert liquid precip to snow (10:1 ratio)
-                                            newSnow24h = Math.round(precipResult.value * 10) + '"*';
-                                            console.log('❄️ Estimated 24hr snow from precip:', precipResult.value, '* 10 =', Math.round(precipResult.value * 10));
-                                        }
-                                    }
-                                    
-                                    console.log('✅ Synoptic snow data:', { stationName, stationElevation, snowDepth, newSnow24h });
-                                }
+                        // Current snow depth (in cm, convert to inches)
+                        if (meteoData.current && meteoData.current.snow_depth != null) {
+                            const depthCm = meteoData.current.snow_depth;
+                            const depthInches = Math.round(depthCm / 2.54);
+                            if (depthInches > 0) {
+                                snowDepth = depthInches + '"';
                             } else {
-                                console.log('❄️ No stations found in response');
+                                snowDepth = '0"';
                             }
-                        } else {
-                            console.warn('❄️ Synoptic API returned status:', synopticResponse.status);
-                            const errorText = await synopticResponse.text();
-                            console.warn('❄️ Synoptic error response:', errorText);
+                            console.log('❄️ Snow depth:', depthCm, 'cm =', depthInches, 'inches');
                         }
                         
-                        // Second API call: Get 7-day snow using timeseries
-                        try {
-                            const now = new Date();
-                            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                            const startDate = sevenDaysAgo.toISOString().replace(/[-:]/g, '').split('.')[0].slice(0, 12);
-                            const endDate = now.toISOString().replace(/[-:]/g, '').split('.')[0].slice(0, 12);
-                            
-                            // Use timeseries to get snow_depth changes over 7 days
-                            const timeseriesUrl = `https://api.synopticdata.com/v2/stations/timeseries?` +
-                                `token=${SYNOPTIC_TOKEN}` +
-                                `&radius=${zoneInfo.lat},${zoneInfo.lon},50` +
-                                `&start=${startDate}&end=${endDate}` +
-                                `&vars=snow_depth,precip_accum` +
-                                `&units=english` +
-                                `&obtimezone=local`;
-                            
-                            console.log('❄️ Fetching 7-day timeseries...');
-                            const tsResponse = await fetch(timeseriesUrl);
-                            
-                            if (tsResponse.ok) {
-                                const tsData = await tsResponse.json();
-                                console.log('❄️ 7-day timeseries stations found:', tsData?.SUMMARY?.NUMBER_OF_OBJECTS || 0);
-                                
-                                if (tsData.STATION && tsData.STATION.length > 0) {
-                                    // Find highest elevation station with snow_depth data
-                                    let bestTsStation = null;
-                                    let bestTsElev = 0;
-                                    
-                                    tsData.STATION.forEach(station => {
-                                        const elev = parseFloat(station.ELEVATION) || 0;
-                                        const obs = station.OBSERVATIONS || {};
-                                        const hasSnowTs = Object.keys(obs).some(k => 
-                                            k.startsWith('snow_depth') || k.startsWith('precip_accum'));
-                                        if (hasSnowTs && elev > bestTsElev) {
-                                            bestTsStation = station;
-                                            bestTsElev = elev;
-                                        }
-                                    });
-                                    
-                                    if (bestTsStation) {
-                                        const obs = bestTsStation.OBSERVATIONS;
-                                        console.log('❄️ Best 7-day station:', bestTsStation.NAME, 'Keys:', Object.keys(obs));
-                                        
-                                        // Try snow_depth change first
-                                        const snowDepthKey = Object.keys(obs).find(k => k.startsWith('snow_depth'));
-                                        if (snowDepthKey && Array.isArray(obs[snowDepthKey])) {
-                                            const depths = obs[snowDepthKey].filter(v => v != null);
-                                            if (depths.length >= 2) {
-                                                const maxDepth = Math.max(...depths);
-                                                const minDepth = Math.min(...depths);
-                                                const snowChange = maxDepth - minDepth;
-                                                if (snowChange > 0) {
-                                                    newSnow7d = Math.round(snowChange) + '"';
-                                                    console.log('✅ 7-day snow from depth:', snowChange);
-                                                }
-                                            }
-                                        }
-                                        
-                                        // Fallback: precip accumulation
-                                        if (newSnow7d === '--') {
-                                            const precipKey = Object.keys(obs).find(k => k.startsWith('precip_accum'));
-                                            if (precipKey && Array.isArray(obs[precipKey])) {
-                                                const precips = obs[precipKey].filter(v => v != null);
-                                                if (precips.length >= 2) {
-                                                    const maxP = Math.max(...precips);
-                                                    const minP = Math.min(...precips);
-                                                    const precipChange = maxP - minP;
-                                                    if (precipChange > 0) {
-                                                        newSnow7d = Math.round(precipChange * 10) + '"*';
-                                                        console.log('✅ 7-day snow from precip:', precipChange * 10);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (ts7Err) {
-                            console.warn('❄️ 7-day timeseries failed:', ts7Err.message);
+                        // Calculate 24hr snowfall from hourly data
+                        if (meteoData.hourly && meteoData.hourly.snowfall) {
+                            const hourlySnow = meteoData.hourly.snowfall;
+                            // Last 24 hours (last 24 entries)
+                            const last24 = hourlySnow.slice(-24);
+                            const snow24hCm = last24.reduce((sum, val) => sum + (val || 0), 0);
+                            const snow24hInches = Math.round(snow24hCm / 2.54 * 10) / 10;
+                            newSnow24h = snow24hInches > 0 ? snow24hInches + '"' : '0"';
+                            console.log('❄️ 24hr snowfall:', snow24hCm, 'cm =', snow24hInches, 'inches');
                         }
                         
-                    } catch (synopticErr) {
-                        console.warn('❄️ Synoptic fetch failed:', synopticErr.message);
-                        synopticWorking = false;
+                        // Calculate 7-day snowfall from daily data
+                        if (meteoData.daily && meteoData.daily.snowfall_sum) {
+                            const dailySnow = meteoData.daily.snowfall_sum;
+                            const snow7dCm = dailySnow.reduce((sum, val) => sum + (val || 0), 0);
+                            const snow7dInches = Math.round(snow7dCm / 2.54);
+                            newSnow7d = snow7dInches > 0 ? snow7dInches + '"' : '0"';
+                            console.log('❄️ 7-day snowfall:', snow7dCm, 'cm =', snow7dInches, 'inches');
+                        }
+                        
+                        console.log('✅ Open-Meteo snow data:', { snowDepth, newSnow24h, newSnow7d });
+                    } else {
+                        console.warn('❄️ Open-Meteo API returned status:', openMeteoResponse.status);
                     }
-                } else {
-                    console.log('ℹ️ Synoptic token not configured - using placeholder display');
-                }
-                
-                // If we still have no data but API was attempted, show station name at least
-                if (synopticWorking && snowDepth === '--' && newSnow24h === '--' && newSnow7d === '--') {
-                    console.log('❄️ Station found but no snow data available - may be early/late season');
+                } catch (meteoErr) {
+                    console.warn('❄️ Open-Meteo fetch failed:', meteoErr.message);
                 }
                 
                 // ============================================
@@ -1961,7 +1787,7 @@
                             </div>
                         </div>
                         
-                        <!-- Snow Data from Synoptic (OpenSnow's data source) -->
+                        <!-- Snow Data from Open-Meteo -->
                         <div style="background: linear-gradient(135deg, #e8f4fd 0%, #d4e9f7 100%); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
                             <div style="font-size: 0.7rem; color: #1565c0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
                                 ❄️ Recent Snow ${!isToday ? '(Current)' : ''}
@@ -1980,17 +1806,13 @@
                                     <div style="font-size: 0.65rem; color: var(--topo-gray);">Last 7 Days</div>
                                 </div>
                             </div>
-                            ${synopticWorking ? `
+                            ${snowDataWorking ? `
                             <div style="font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.5rem;">
-                                📍 ${stationName} (${stationElevation})
-                            </div>
-                            <div style="font-size: 0.6rem; color: var(--topo-gray); margin-top: 0.2rem; font-style: italic;">
-                                * Estimated from precipitation (10:1 ratio)
+                                📍 ${snowDataSource}
                             </div>
                             ` : `
                             <div style="font-size: 0.7rem; color: #856404; margin-top: 0.5rem; background: #fff3cd; padding: 0.5rem; border-radius: 6px;">
-                                ⚠️ Add your Synoptic token to enable live snow data
-                                <br><a href="https://customer.synopticdata.com/signup" target="_blank" style="color: #1565c0;">Get free API access →</a>
+                                ⚠️ Snow data loading...
                             </div>
                             `}
                         </div>
