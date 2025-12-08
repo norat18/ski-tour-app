@@ -603,10 +603,10 @@
 
             <div class="tours-section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h2 style="font-size: 2rem; color: var(--forest-green); margin: 0;">📍 Sample Tours for This Zone</h2>
+                    <h2 style="font-size: 2rem; color: var(--forest-green); margin: 0;">📍 Recommended Tours</h2>
                 </div>
-                <p style="font-size: 0.9rem; color: var(--topo-gray); margin-bottom: 1.5rem; padding: 1rem; background: var(--cream); border-radius: 6px;">
-                    💡 These are example tours for <strong id="zoneName"></strong>. To add your own tours, edit the code or check the guide!
+                <p id="toursSortMessage" style="font-size: 0.9rem; color: var(--topo-gray); margin-bottom: 1.5rem; padding: 1rem; background: var(--cream); border-radius: 6px;">
+                    💡 Tours sorted by best match for your fitness. Loading...
                 </p>
                 <div id="toursContent">
                     <div class="loading">
@@ -649,181 +649,218 @@
         // Tour database organized by zone
         const toursByZone = {
             'west-slopes-north': [
-                {
-                    name: "Bagley Lakes - Table Mountain",
-                    location: "Mt Baker",
-                    elevationGain: 1000,
-                    distance: 2.5,
-                    maxElevation: 5200,
-                    aspect: "Multiple",
-                    terrain: "Treed, <30°"
-                },
-                {
-                    name: "Herman Saddle",
-                    location: "Mt Baker",
-                    elevationGain: 1500,
-                    distance: 3,
-                    maxElevation: 5400,
-                    aspect: "N",
-                    terrain: "Open bowls, 30-35°"
-                },
-                {
-                    name: "Coleman Pinnacle",
-                    location: "Mt Baker",
-                    elevationGain: 2800,
-                    distance: 6,
-                    maxElevation: 6400,
-                    aspect: "NW",
-                    terrain: "Exposed ridge, 35-40°"
-                }
+                { name: "Winchester Mountain and Mount Larrabee", location: "Mt Baker", elevationGain: 7513, distance: 14, maxElevation: 8000, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Tomyhoi Peak", location: "Mt Baker", elevationGain: 3500, distance: 11, maxElevation: 7500, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Goat Mt.", location: "Mt Baker", elevationGain: 3000, distance: 8.8, maxElevation: 6800, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Ruth Mt.", location: "Mt Baker", elevationGain: 4035, distance: 8, maxElevation: 7100, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Skyline Divide", location: "Mt Baker", elevationGain: 2500, distance: 9, maxElevation: 6500, aspect: "Multiple", terrain: "Open slopes, <30°" },
+                { name: "Chowder Ridge", location: "Mt Baker", elevationGain: 2800, distance: 10, maxElevation: 6200, aspect: "Multiple", terrain: "Exposed ridge" },
+                { name: "Herman Saddle", location: "Mt Baker", elevationGain: 1500, distance: 9, maxElevation: 5400, aspect: "Multiple", terrain: "Open bowls, 30-35°" },
+                { name: "Table Mountain Circumnav", location: "Mt Baker", elevationGain: 1900, distance: 5, maxElevation: 5742, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Stoneman Couloir", location: "Mt Baker", elevationGain: 3020, distance: 5.5, maxElevation: 6000, aspect: "Multiple", terrain: "Couloir, 40-50°" },
+                { name: "Mount Ann", location: "Mt Baker", elevationGain: 2500, distance: 9, maxElevation: 5900, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Coleman Pinnacle", location: "Mt Baker", elevationGain: 2800, distance: 9, maxElevation: 6400, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Sholes Glacier", location: "Mt Baker", elevationGain: 3000, distance: 9, maxElevation: 6500, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Coleman Glacier", location: "Mt Baker", elevationGain: 7111, distance: 11, maxElevation: 10781, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Mount Shuksan: North Face", location: "Mt Baker", elevationGain: 6280, distance: 10, maxElevation: 9131, aspect: "Multiple", terrain: "Glacier travel, 40-50°" },
+                { name: "Mount Shuksan: White Salmon Glacier", location: "Mt Baker", elevationGain: 6600, distance: 11, maxElevation: 9131, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Mt Shuksan", location: "Mt Baker", elevationGain: 5000, distance: 12, maxElevation: 9131, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Mount Baker: Park Glacier", location: "Mt Baker", elevationGain: 9600, distance: 20, maxElevation: 10781, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Mt Baker: Easton Glacier", location: "Mt Baker", elevationGain: 7000, distance: 12, maxElevation: 10781, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Colfax Peak: South Couloir", location: "Mt Baker", elevationGain: 6100, distance: 10, maxElevation: 9400, aspect: "Multiple", terrain: "Couloir, 40-50°" },
+                { name: "Mt. Baker: Boulder Glacier", location: "Mt Baker", elevationGain: 8040, distance: 16, maxElevation: 10781, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Pickets Traverse", location: "North Cascades", elevationGain: 25000, distance: 50, maxElevation: 8200, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Park Butte", location: "Mt Baker", elevationGain: 2000, distance: 8, maxElevation: 5450, aspect: "Multiple", terrain: "Open slopes, <30°" },
+                { name: "Twin Sisters", location: "Mt Baker", elevationGain: 2500, distance: 7, maxElevation: 6932, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mt. Watson", location: "North Cascades", elevationGain: 2500, distance: 10, maxElevation: 6200, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Bacon Peak", location: "North Cascades", elevationGain: 4500, distance: 17, maxElevation: 7066, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Ruby Mountain", location: "North Cascades", elevationGain: 5230, distance: 8, maxElevation: 7408, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Neve Glacier", location: "North Cascades", elevationGain: 4000, distance: 11, maxElevation: 8000, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Isolation Traverse", location: "North Cascades", elevationGain: 13000, distance: 28, maxElevation: 8200, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Teebone Ridge", location: "North Cascades", elevationGain: 4500, distance: 14, maxElevation: 7200, aspect: "Multiple", terrain: "Exposed ridge" },
+                { name: "Forbidden Tour", location: "North Cascades", elevationGain: 10315, distance: 28, maxElevation: 8800, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Mt. Buckner: North Face", location: "North Cascades", elevationGain: 9300, distance: 20, maxElevation: 9112, aspect: "Multiple", terrain: "Glacier travel, 40-50°" },
+                { name: "Eldorado", location: "North Cascades", elevationGain: 5500, distance: 12, maxElevation: 8868, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Sauk Mt", location: "North Cascades", elevationGain: 2000, distance: 6, maxElevation: 5541, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Hidden Lake Peaks", location: "North Cascades", elevationGain: 4689, distance: 8, maxElevation: 7088, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Boston Basin", location: "North Cascades", elevationGain: 3500, distance: 8, maxElevation: 8065, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Sahale Arm/Peak", location: "North Cascades", elevationGain: 5440, distance: 12, maxElevation: 8680, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Cascade-Johannesburg Couloir", location: "North Cascades", elevationGain: 3160, distance: 7, maxElevation: 8200, aspect: "Multiple", terrain: "Couloir, 40-50°" },
+                { name: "Snowking Mt", location: "North Cascades", elevationGain: 4000, distance: 12, maxElevation: 7433, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Spider Mountain: North Face", location: "North Cascades", elevationGain: 9980, distance: 16, maxElevation: 8300, aspect: "Multiple", terrain: "Exposed couloirs, 40-50°" },
+                { name: "Ptarmigan Traverse", location: "North Cascades", elevationGain: 14000, distance: 40, maxElevation: 8200, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Dome Peak", location: "North Cascades", elevationGain: 8500, distance: 36, maxElevation: 8920, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Whitehorse Mt.", location: "North Cascades", elevationGain: 5925, distance: 8, maxElevation: 6852, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" }
             ],
             'west-slopes-central': [
-                {
-                    name: "Tye Ridge - Mellow Trees",
-                    location: "Stevens Pass",
-                    elevationGain: 1800,
-                    distance: 3,
-                    maxElevation: 4800,
-                    aspect: "NE",
-                    terrain: "Treed, <30°"
-                },
-                {
-                    name: "Cowboy Mountain",
-                    location: "Stevens Pass",
-                    elevationGain: 2400,
-                    distance: 5,
-                    maxElevation: 5850,
-                    aspect: "Multiple",
-                    terrain: "Open slopes, 30-35°"
-                },
-                {
-                    name: "Big Chief Mountain",
-                    location: "Stevens Pass",
-                    elevationGain: 3200,
-                    distance: 6,
-                    maxElevation: 6440,
-                    aspect: "S",
-                    terrain: "Exposed, 35-40°"
-                }
+                { name: "Three Fingers", location: "Stevens Pass", elevationGain: 4000, distance: 13, maxElevation: 6854, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Mt. Maude", location: "Stevens Pass", elevationGain: 8400, distance: 14, maxElevation: 9082, aspect: "Multiple", terrain: "Exposed ridge, 40-45°" },
+                { name: "Chiwawa Mt.", location: "Stevens Pass", elevationGain: 5000, distance: 19, maxElevation: 8459, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Glacier Peak (North)", location: "Stevens Pass", elevationGain: 8000, distance: 24, maxElevation: 10541, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Glacier Peak (South)", location: "Stevens Pass", elevationGain: 12960, distance: 24, maxElevation: 10541, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "North Central Cascades Traverse", location: "Stevens Pass", elevationGain: 30290, distance: 60, maxElevation: 10541, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "The Dakobed Traverse", location: "Stevens Pass", elevationGain: 17990, distance: 40, maxElevation: 9000, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Green Mountain", location: "Stevens Pass", elevationGain: 2500, distance: 8, maxElevation: 6500, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mt Pilchuck", location: "Stevens Pass", elevationGain: 2650, distance: 4, maxElevation: 5324, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Bandit Peak: Black Hole Couloir", location: "Stevens Pass", elevationGain: 5900, distance: 15, maxElevation: 7500, aspect: "Multiple", terrain: "Couloir, 40-50°" },
+                { name: "Johnson Ridge", location: "Stevens Pass", elevationGain: 2500, distance: 11, maxElevation: 6000, aspect: "Multiple", terrain: "Open slopes, <30°" },
+                { name: "Clark Mt", location: "Stevens Pass", elevationGain: 4500, distance: 24, maxElevation: 8600, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Vesper Peak", location: "Stevens Pass", elevationGain: 4150, distance: 6, maxElevation: 6214, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Kyes Peak", location: "Stevens Pass", elevationGain: 6160, distance: 16, maxElevation: 7280, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Jove Peak", location: "Stevens Pass", elevationGain: 2500, distance: 10, maxElevation: 6007, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Union Peak", location: "Stevens Pass", elevationGain: 2600, distance: 11, maxElevation: 6200, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Lichtenberg Mt", location: "Stevens Pass", elevationGain: 2700, distance: 8, maxElevation: 5844, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Skyline Ridge", location: "Stevens Pass", elevationGain: 2900, distance: 3, maxElevation: 5978, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Big Chief Mt.", location: "Stevens Pass", elevationGain: 3200, distance: 7, maxElevation: 6440, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Cowboy Mt.", location: "Stevens Pass", elevationGain: 1500, distance: 1.5, maxElevation: 5850, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Rock Mt.", location: "Stevens Pass", elevationGain: 3500, distance: 9, maxElevation: 6852, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Rock Mt. to Mt. Mastiff Traverse", location: "Stevens Pass", elevationGain: 7740, distance: 11, maxElevation: 7200, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Mt Mastiff", location: "Stevens Pass", elevationGain: 4000, distance: 9, maxElevation: 7200, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Alpine Lookout", location: "Stevens Pass", elevationGain: 3500, distance: 18, maxElevation: 6250, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Yodelin", location: "Stevens Pass", elevationGain: 2000, distance: 4, maxElevation: 5400, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Jim Hill Mt.", location: "Stevens Pass", elevationGain: 3130, distance: 8, maxElevation: 6765, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Arrowhead Mountain", location: "Stevens Pass", elevationGain: 2000, distance: 4.5, maxElevation: 6030, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Chiwaukum Mts", location: "Stevens Pass", elevationGain: 5500, distance: 16, maxElevation: 7200, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Chiwaukum Traverse", location: "Stevens Pass", elevationGain: 9800, distance: 24, maxElevation: 7200, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Big Jim Mt", location: "Stevens Pass", elevationGain: 4000, distance: 14, maxElevation: 7763, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" }
             ],
             'snoqualmie-pass': [
-                {
-                    name: "Kendall Peak - SW Chute",
-                    location: "Snoqualmie Pass",
-                    elevationGain: 3200,
-                    distance: 4.5,
-                    maxElevation: 5784,
-                    aspect: "SW",
-                    terrain: "35-40° open slopes"
-                },
-                {
-                    name: "Snoqualmie Mountain",
-                    location: "Snoqualmie Pass",
-                    elevationGain: 2200,
-                    distance: 4,
-                    maxElevation: 6278,
-                    aspect: "Multiple",
-                    terrain: "Open slopes, 30-35°"
-                },
-                {
-                    name: "Granite Mountain",
-                    location: "Snoqualmie Pass",
-                    elevationGain: 3800,
-                    distance: 8,
-                    maxElevation: 5629,
-                    aspect: "Multiple",
-                    terrain: "Exposed ridge"
-                }
+                { name: "Big Snow Mt.", location: "Snoqualmie Pass", elevationGain: 3500, distance: 15, maxElevation: 6680, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Wedge Mt.", location: "Snoqualmie Pass", elevationGain: 2000, distance: 10, maxElevation: 6000, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Ingalls Peak", location: "Snoqualmie Pass", elevationGain: 3500, distance: 11, maxElevation: 7662, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Mt. Stuart", location: "Snoqualmie Pass", elevationGain: 8185, distance: 14, maxElevation: 9415, aspect: "Multiple", terrain: "Exposed ridge, 40-45°" },
+                { name: "Enchantments / Central Cascades Traverse", location: "Snoqualmie Pass", elevationGain: 7250, distance: 50, maxElevation: 8500, aspect: "Multiple", terrain: "Exposed ridge" },
+                { name: "Cashmere Mt.", location: "Snoqualmie Pass", elevationGain: 5000, distance: 18, maxElevation: 8501, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Icicle Ridge", location: "Snoqualmie Pass", elevationGain: 3000, distance: 14, maxElevation: 6500, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Cannon Mountain Couloir", location: "Snoqualmie Pass", elevationGain: 5620, distance: 8.5, maxElevation: 8638, aspect: "Multiple", terrain: "Couloir, 40-50°" },
+                { name: "Colchuck Peak / Porcupine Creek", location: "Snoqualmie Pass", elevationGain: 6705, distance: 22, maxElevation: 8705, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Dragontail Peak", location: "Snoqualmie Pass", elevationGain: 5500, distance: 14, maxElevation: 8840, aspect: "Multiple", terrain: "Exposed couloirs, 40-45°" },
+                { name: "Mt. Daniel", location: "Snoqualmie Pass", elevationGain: 5380, distance: 14, maxElevation: 7986, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Jolly Mt.", location: "Snoqualmie Pass", elevationGain: 2500, distance: 12, maxElevation: 6443, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Howson Creek", location: "Snoqualmie Pass", elevationGain: 1500, distance: 6, maxElevation: 4800, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Forest Road 800", location: "Snoqualmie Pass", elevationGain: 800, distance: 6, maxElevation: 3800, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "Hog Loppet", location: "Snoqualmie Pass", elevationGain: 1200, distance: 21, maxElevation: 4200, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "Mission Peak", location: "Snoqualmie Pass", elevationGain: 1000, distance: 2, maxElevation: 6876, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Haney Meadow", location: "Snoqualmie Pass", elevationGain: 2000, distance: 9, maxElevation: 5500, aspect: "Multiple", terrain: "Open slopes, <30°" },
+                { name: "Diamond Head", location: "Snoqualmie Pass", elevationGain: 2200, distance: 5, maxElevation: 5915, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Tronsen Meadows", location: "Snoqualmie Pass", elevationGain: 800, distance: 3, maxElevation: 4600, aspect: "Multiple", terrain: "Open meadow, <25°" },
+                { name: "Mt. Thompson", location: "Snoqualmie Pass", elevationGain: 4000, distance: 16, maxElevation: 6554, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Snoqualmie Haute Route", location: "Snoqualmie Pass", elevationGain: 20000, distance: 50, maxElevation: 8500, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Little Snoqualmie Haute Route", location: "Snoqualmie Pass", elevationGain: 8000, distance: 24, maxElevation: 7000, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Overcoat Peak", location: "Snoqualmie Pass", elevationGain: 4000, distance: 9, maxElevation: 6720, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Alaska Mt.", location: "Snoqualmie Pass", elevationGain: 3500, distance: 10, maxElevation: 5800, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mt. Roosevelt", location: "Snoqualmie Pass", elevationGain: 2500, distance: 6, maxElevation: 5800, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Kaleetan Peak", location: "Snoqualmie Pass", elevationGain: 3500, distance: 7, maxElevation: 6259, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Chair Peak Circumnavigation", location: "Snoqualmie Pass", elevationGain: 4510, distance: 7, maxElevation: 6238, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Chair Peak Basin", location: "Snoqualmie Pass", elevationGain: 2500, distance: 5, maxElevation: 6238, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Pineapple Pass", location: "Snoqualmie Pass", elevationGain: 2000, distance: 4, maxElevation: 5200, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Snow Lake Divide", location: "Snoqualmie Pass", elevationGain: 2500, distance: 4, maxElevation: 5400, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mt. Snoqualmie", location: "Snoqualmie Pass", elevationGain: 4000, distance: 6, maxElevation: 6278, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Kendall Peak", location: "Snoqualmie Pass", elevationGain: 2000, distance: 4, maxElevation: 5784, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Kendall Ridge", location: "Snoqualmie Pass", elevationGain: 2500, distance: 8, maxElevation: 5784, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Lundin Peak", location: "Snoqualmie Pass", elevationGain: 3000, distance: 6, maxElevation: 5920, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Red Mt.", location: "Snoqualmie Pass", elevationGain: 3500, distance: 10, maxElevation: 5890, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Silver Peak", location: "Snoqualmie Pass", elevationGain: 3000, distance: 8, maxElevation: 5605, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Granite Mt.", location: "Snoqualmie Pass", elevationGain: 3800, distance: 8, maxElevation: 5629, aspect: "Multiple", terrain: "Exposed ridge" },
+                { name: "Humpback Mt.", location: "Snoqualmie Pass", elevationGain: 2000, distance: 9, maxElevation: 5174, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mt. Margaret", location: "Snoqualmie Pass", elevationGain: 2500, distance: 15, maxElevation: 5500, aspect: "Multiple", terrain: "Open slopes, <30°" },
+                { name: "Mt. Hyak", location: "Snoqualmie Pass", elevationGain: 1000, distance: 2, maxElevation: 5300, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mt. Catherine", location: "Snoqualmie Pass", elevationGain: 2000, distance: 5, maxElevation: 5052, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Amabilis Mt.", location: "Snoqualmie Pass", elevationGain: 1800, distance: 8, maxElevation: 4554, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "McClellan Butte", location: "Snoqualmie Pass", elevationGain: 3714, distance: 7, maxElevation: 5162, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Keechelus Ridge", location: "Snoqualmie Pass", elevationGain: 1500, distance: 8.4, maxElevation: 5000, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Roaring Ridge", location: "Snoqualmie Pass", elevationGain: 2000, distance: 6, maxElevation: 4800, aspect: "Multiple", terrain: "Treed, <30°" }
             ],
             'west-slopes-south': [
-                {
-                    name: "Tumac Mountain",
-                    location: "White Pass",
-                    elevationGain: 2000,
-                    distance: 6,
-                    maxElevation: 6340,
-                    aspect: "Multiple",
-                    terrain: "Gentle slopes, <30°"
-                },
-                {
-                    name: "Shoe Lake Basin",
-                    location: "White Pass",
-                    elevationGain: 1500,
-                    distance: 4,
-                    maxElevation: 5200,
-                    aspect: "N",
-                    terrain: "Treed basin, <30°"
-                },
-                {
-                    name: "Hogback Mountain",
-                    location: "White Pass",
-                    elevationGain: 2500,
-                    distance: 5,
-                    maxElevation: 6789,
-                    aspect: "Multiple",
-                    terrain: "Open slopes, 30-35°"
-                }
+                { name: "Silver King", location: "Mt Rainier", elevationGain: 2000, distance: 5, maxElevation: 5400, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Corral Pass", location: "Mt Rainier", elevationGain: 1500, distance: 12, maxElevation: 5600, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Chinook Pass to Crystal", location: "Mt Rainier", elevationGain: 6000, distance: 9, maxElevation: 7000, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Sheep Lake Couloir", location: "Mt Rainier", elevationGain: 5100, distance: 7, maxElevation: 6600, aspect: "Multiple", terrain: "Couloir, 40-50°" },
+                { name: "Norse Peak", location: "Mt Rainier", elevationGain: 2500, distance: 7, maxElevation: 6856, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Union Creek", location: "Mt Rainier", elevationGain: 2000, distance: 9, maxElevation: 6000, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "East Peak", location: "Mt Rainier", elevationGain: 2300, distance: 4, maxElevation: 6260, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Crystal Basin", location: "Mt Rainier", elevationGain: 6300, distance: 6, maxElevation: 7000, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Yakima Peak", location: "Mt Rainier", elevationGain: 1500, distance: 2, maxElevation: 6226, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Naches Peak", location: "Mt Rainier", elevationGain: 1000, distance: 2, maxElevation: 6000, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Bear Gap", location: "Mt Rainier", elevationGain: 1200, distance: 4, maxElevation: 5800, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Summerland", location: "Mt Rainier", elevationGain: 3000, distance: 9, maxElevation: 6500, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Goat Island", location: "Mt Rainier", elevationGain: 2500, distance: 14, maxElevation: 6800, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Cowlitz Chimneys", location: "Mt Rainier", elevationGain: 4300, distance: 13, maxElevation: 7600, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Interglacier", location: "Mt Rainier", elevationGain: 3500, distance: 12, maxElevation: 8200, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Mt Rainier Circumnav", location: "Mt Rainier", elevationGain: 16000, distance: 40, maxElevation: 14411, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Burroughs Mt.", location: "Mt Rainier", elevationGain: 2500, distance: 8, maxElevation: 7800, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Fryingpan Creek Couloir", location: "Mt Rainier", elevationGain: 3600, distance: 7, maxElevation: 7200, aspect: "Multiple", terrain: "Couloir, 40-50°" },
+                { name: "Liberty Ridge", location: "Mt Rainier", elevationGain: 11200, distance: 24, maxElevation: 14411, aspect: "Multiple", terrain: "Glacier travel, 40-50°" },
+                { name: "Emmons Glacier", location: "Mt Rainier", elevationGain: 10400, distance: 24, maxElevation: 14411, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Carbon Glacier", location: "Mt Rainier", elevationGain: 5000, distance: 10, maxElevation: 10000, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Russell Glacier", location: "Mt Rainier", elevationGain: 4500, distance: 10, maxElevation: 9500, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Puyallap Cleaver", location: "Mt Rainier", elevationGain: 5000, distance: 16, maxElevation: 11000, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Fuhrer Finger", location: "Mt Rainier", elevationGain: 9030, distance: 24, maxElevation: 14411, aspect: "Multiple", terrain: "Couloir, 40-50°" },
+                { name: "Muir Snowfield", location: "Mt Rainier", elevationGain: 4660, distance: 9, maxElevation: 10080, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Van Trump Park", location: "Mt Rainier", elevationGain: 6750, distance: 8, maxElevation: 10000, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Golden Gate Bowls", location: "Mt Rainier", elevationGain: 2000, distance: 2.8, maxElevation: 6500, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Nisqually Glacier", location: "Mt Rainier", elevationGain: 5000, distance: 9, maxElevation: 10000, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Alta Vista", location: "Mt Rainier", elevationGain: 800, distance: 1, maxElevation: 5900, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Paradise Glacier", location: "Mt Rainier", elevationGain: 3000, distance: 7, maxElevation: 7500, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Little Tahoma", location: "Mt Rainier", elevationGain: 5718, distance: 10, maxElevation: 11138, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Devil's Dip", location: "Mt Rainier", elevationGain: 600, distance: 2, maxElevation: 5500, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Paradise Valley", location: "Mt Rainier", elevationGain: 400, distance: 0.4, maxElevation: 5400, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Mazama Ridge", location: "Mt Rainier", elevationGain: 1200, distance: 3, maxElevation: 5600, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Edith's Rib", location: "Mt Rainier", elevationGain: 1000, distance: 2.2, maxElevation: 5600, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Reflection Lakes", location: "Mt Rainier", elevationGain: 600, distance: 6.8, maxElevation: 5000, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "Tatoosh Range", location: "Mt Rainier", elevationGain: 3500, distance: 7, maxElevation: 6310, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Tatoosh Traverse", location: "Mt Rainier", elevationGain: 6080, distance: 16, maxElevation: 6310, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Lane Peak: The Zipper", location: "Mt Rainier", elevationGain: 1700, distance: 4, maxElevation: 6013, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "West Side Road", location: "Mt Rainier", elevationGain: 1000, distance: 9.6, maxElevation: 4500, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "Longmire Area", location: "Mt Rainier", elevationGain: 600, distance: 3, maxElevation: 3000, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "White Pass", location: "White Pass", elevationGain: 2000, distance: 6, maxElevation: 5800, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Goat Rocks", location: "White Pass", elevationGain: 5000, distance: 17, maxElevation: 8200, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Forest Rd 1284", location: "White Pass", elevationGain: 1000, distance: 3.5, maxElevation: 4500, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "Goat Rocks: Gilbert Peak", location: "White Pass", elevationGain: 4200, distance: 16, maxElevation: 8201, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "North Fork Tieton River", location: "White Pass", elevationGain: 1000, distance: 9.8, maxElevation: 4000, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "Sand Lake", location: "White Pass", elevationGain: 1500, distance: 4, maxElevation: 5200, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Round Mt.", location: "White Pass", elevationGain: 2000, distance: 8.8, maxElevation: 5970, aspect: "Multiple", terrain: "Open slopes, 30-35°" }
             ],
-            'east-slopes-central': [
-                {
-                    name: "Mission Ridge Backcountry",
-                    location: "Mission Ridge",
-                    elevationGain: 2000,
-                    distance: 4,
-                    maxElevation: 6800,
-                    aspect: "Multiple",
-                    terrain: "Open slopes, 30-35°"
-                },
-                {
-                    name: "Blewett Pass Trees",
-                    location: "Blewett Pass",
-                    elevationGain: 1500,
-                    distance: 3,
-                    maxElevation: 5500,
-                    aspect: "N",
-                    terrain: "Treed, <30°"
-                }
-            ],
-            'mt-hood': [
-                {
-                    name: "Illumination Saddle",
-                    location: "Mt Hood",
-                    elevationGain: 5000,
-                    distance: 8,
-                    maxElevation: 9500,
-                    aspect: "S",
-                    terrain: "Glacier travel required"
-                },
-                {
-                    name: "White River Canyon",
-                    location: "Mt Hood",
-                    elevationGain: 2000,
-                    distance: 4,
-                    maxElevation: 6500,
-                    aspect: "NE",
-                    terrain: "Open slopes, 30-35°"
-                },
-                {
-                    name: "Glade Trail",
-                    location: "Mt Hood",
-                    elevationGain: 1400,
-                    distance: 3,
-                    maxElevation: 5800,
-                    aspect: "Multiple",
-                    terrain: "Treed, <30°"
-                }
+            'east-slopes-north': [
+                { name: "Slate Peak", location: "Methow Valley", elevationGain: 1500, distance: 4, maxElevation: 7440, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Delancy Ridge", location: "Methow Valley", elevationGain: 2500, distance: 4, maxElevation: 7000, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Mesahchie Peak", location: "Methow Valley", elevationGain: 5200, distance: 8, maxElevation: 8795, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Silver Star Mt", location: "Methow Valley", elevationGain: 5436, distance: 8, maxElevation: 8876, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Cutthroat Pass Alternative", location: "Methow Valley", elevationGain: 2000, distance: 10, maxElevation: 6800, aspect: "Multiple", terrain: "Open slopes, <30°" },
+                { name: "Cutthroat Pass", location: "Methow Valley", elevationGain: 2200, distance: 15.6, maxElevation: 6820, aspect: "Multiple", terrain: "Open slopes, <30°" },
+                { name: "Heather and Maple Pass", location: "Methow Valley", elevationGain: 4200, distance: 6.5, maxElevation: 7000, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Black Peak: South Face", location: "Methow Valley", elevationGain: 4630, distance: 10, maxElevation: 8970, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Washington Pass Birthday Tour", location: "Methow Valley", elevationGain: 3600, distance: 5, maxElevation: 6500, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Early Winters", location: "Methow Valley", elevationGain: 1800, distance: 4, maxElevation: 6200, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Loup Loup", location: "Methow Valley", elevationGain: 800, distance: 10, maxElevation: 4400, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "North Star Mt", location: "Methow Valley", elevationGain: 5500, distance: 26, maxElevation: 8300, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Bonanza West Peak", location: "Methow Valley", elevationGain: 8300, distance: 30, maxElevation: 9511, aspect: "Multiple", terrain: "Exposed ridge, 40-45°" }
             ],
             'olympics': [
-                {
-                    name: "Hurricane Ridge",
-                    location: "Olympics",
-                    elevationGain: 1000,
-                    distance: 3,
-                    maxElevation: 5700,
-                    aspect: "Multiple",
-                    terrain: "Open slopes, <30°"
-                }
-            ]
+                { name: "Lodge Run & Toilet Bowl", location: "Olympics", elevationGain: 500, distance: 1, maxElevation: 5200, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mt. Angeles", location: "Olympics", elevationGain: 1500, distance: 2, maxElevation: 6454, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mount Angeles with Klahhane Ridge", location: "Olympics", elevationGain: 4400, distance: 6, maxElevation: 6454, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Wolf Creek Trail", location: "Olympics", elevationGain: 1500, distance: 8.7, maxElevation: 5000, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Waterhole Trail", location: "Olympics", elevationGain: 1200, distance: 8, maxElevation: 4500, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Obstruction Point", location: "Olympics", elevationGain: 3500, distance: 16, maxElevation: 6450, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Hurricane Hill", location: "Olympics", elevationGain: 2000, distance: 6, maxElevation: 5757, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Second Peak", location: "Olympics", elevationGain: 2500, distance: 8, maxElevation: 5500, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Deer Park", location: "Olympics", elevationGain: 2500, distance: 14, maxElevation: 6007, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "High Divide", location: "Olympics", elevationGain: 4000, distance: 17, maxElevation: 5500, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Potholes", location: "Olympics", elevationGain: 2500, distance: 10, maxElevation: 5000, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mt Ellinor", location: "Olympics", elevationGain: 3280, distance: 8, maxElevation: 5944, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Olympic Hot Springs", location: "Olympics", elevationGain: 1000, distance: 7.6, maxElevation: 3000, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "Mount Deception", location: "Olympics", elevationGain: 5000, distance: 16, maxElevation: 7788, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "The Brothers: East Basin", location: "Olympics", elevationGain: 6740, distance: 12, maxElevation: 6866, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" }
+            ],
+            'mt-hood': [
+                { name: "Mt. Adams", location: "Mt Adams", elevationGain: 6756, distance: 10, maxElevation: 12276, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Mt Saint Helens", location: "Mt St Helens", elevationGain: 5665, distance: 8, maxElevation: 8363, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Marble Mt.", location: "Mt St Helens", elevationGain: 1500, distance: 12, maxElevation: 4128, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "June Lake", location: "Mt St Helens", elevationGain: 1500, distance: 4.8, maxElevation: 4200, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Aiken Lava Bed", location: "Mt Adams", elevationGain: 1200, distance: 7.6, maxElevation: 4000, aspect: "Multiple", terrain: "Treed, <25°" },
+                { name: "Mt Adams: North Face", location: "Mt Adams", elevationGain: 8970, distance: 16, maxElevation: 12276, aspect: "Multiple", terrain: "Exposed ridge, 40-45°" }
+            ],
         };
 
         const fitnessLabels = {
@@ -1059,7 +1096,13 @@
             const content = document.getElementById('toursContent');
             console.log('📍 Loading tours for zone:', config.nwacZone, 'with fitness level:', config.fitnessLevel);
             
-            document.getElementById('zoneName').textContent = getZoneName(config.nwacZone);
+            const zoneName = getZoneName(config.nwacZone);
+            
+            // Update the sort message
+            document.getElementById('toursSortMessage').innerHTML = `
+                💡 Showing <strong>top 5 tours</strong> sorted by best match for your fitness (${config.fitnessLevel}/10) in <strong>${zoneName}</strong>. 
+                <br>Move the slider above to see recommendations update!
+            `;
             
             const tours = toursByZone[config.nwacZone] || [];
             
@@ -1081,10 +1124,37 @@
             
             console.log(`✅ Loaded ${tours.length} tours for ${config.nwacZone} - Calculating recommendations with fitness ${config.fitnessLevel}/10`);
             
-            content.innerHTML = tours.map((tour) => {
+            // Calculate recommendations for all tours
+            const toursWithRecs = tours.map((tour) => {
                 const rec = calculateRecommendation(tour);
-                return generateTourCard(tour, rec);
+                return { tour, rec };
+            });
+            
+            // Sort by recommendation score (highest first)
+            toursWithRecs.sort((a, b) => b.rec.score - a.rec.score);
+            
+            // Take only top 5
+            const topTours = toursWithRecs.slice(0, 5);
+            
+            console.log('📊 Top 5 tours by score:', topTours.map(t => ({ 
+                name: t.tour.name, 
+                score: t.rec.score, 
+                level: t.rec.level 
+            })));
+            
+            // Generate HTML for top 5 tours
+            content.innerHTML = topTours.map(({ tour, rec }, index) => {
+                return generateTourCard(tour, rec, index + 1);
             }).join('');
+            
+            // Add note if there are more tours available
+            if (tours.length > 5) {
+                content.innerHTML += `
+                    <div style="text-align: center; padding: 1.5rem; color: var(--topo-gray); font-size: 0.9rem;">
+                        <p>Showing top 5 of ${tours.length} tours. Add more tours to your zone for more options!</p>
+                    </div>
+                `;
+            }
         }
 
         function calculateRecommendation(tour) {
@@ -1186,12 +1256,14 @@
             }
         }
 
-        function generateTourCard(tour, rec) {
+        function generateTourCard(tour, rec, rank = null) {
+            const rankBadge = rank ? `<div style="display: inline-block; background: var(--burnt-orange); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 700; font-size: 0.85rem; margin-right: 0.5rem;">#${rank}</div>` : '';
+            
             return `
                 <div class="tour-card">
                     <div class="tour-header">
                         <div>
-                            <div class="tour-name">${tour.name}</div>
+                            <div class="tour-name">${rankBadge}${tour.name}</div>
                             <div class="tour-stats">
                                 ${tour.location} • ${tour.elevationGain.toLocaleString()} ft gain • ${tour.distance} mi RT
                             </div>
@@ -1289,4 +1361,3 @@
     </script>
 </body>
 </html>
-
