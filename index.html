@@ -1370,21 +1370,28 @@
                 
                 if (SYNOPTIC_TOKEN !== 'YOUR_SYNOPTIC_TOKEN') {
                     try {
-                        // Search for stations with snow data within 30 miles of zone center
+                        // Search for SNOTEL stations (network 2) which have snow data
+                        // Also include other networks that report snow
                         const synopticUrl = `https://api.synopticdata.com/v2/stations/latest?` +
                             `token=${SYNOPTIC_TOKEN}` +
-                            `&radius=${zoneInfo.lat},${zoneInfo.lon},30` +  // 30 mile radius
-                            `&vars=snow_depth,precip_accum_24_hour,precip_accum_seven_day` +
-                            `&within=180` +  // Data within last 3 hours
+                            `&radius=${zoneInfo.lat},${zoneInfo.lon},50` +  // 50 mile radius
+                            `&vars=snow_depth,snow_water_equiv,precip_accum_24_hour` +
+                            `&within=1440` +  // Data within last 24 hours
                             `&units=english` +
                             `&status=active`;
                         
-                        console.log('❄️ Fetching Synoptic snow data...');
+                        console.log('❄️ Fetching Synoptic snow data for:', zoneInfo.name);
+                        console.log('❄️ API URL:', synopticUrl);
                         const synopticResponse = await fetch(synopticUrl);
                         
                         if (synopticResponse.ok) {
                             const synopticData = await synopticResponse.json();
-                            console.log('❄️ Synoptic response:', synopticData);
+                            console.log('❄️ Synoptic API response:', synopticData);
+                            
+                            // Check for API errors
+                            if (synopticData.SUMMARY && synopticData.SUMMARY.RESPONSE_CODE === 1) {
+                                console.log('❄️ Found', synopticData.SUMMARY.NUMBER_OF_OBJECTS, 'stations');
+                            }
                             
                             if (synopticData.STATION && synopticData.STATION.length > 0) {
                                 // Find station with best snow data (prefer higher elevation)
@@ -1393,16 +1400,23 @@
                                 
                                 synopticData.STATION.forEach(station => {
                                     const elev = parseFloat(station.ELEVATION) || 0;
-                                    const hasSnowDepth = station.OBSERVATIONS?.snow_depth_value_1?.value !== undefined;
+                                    const obs = station.OBSERVATIONS || {};
                                     
-                                    if (hasSnowDepth && elev > bestElevation) {
+                                    // Check for any snow-related data
+                                    const hasSnowData = obs.snow_depth_value_1 || 
+                                                       obs.snow_water_equiv_value_1 ||
+                                                       obs.precip_accum_24_hour_value_1;
+                                    
+                                    console.log(`❄️ Station: ${station.NAME} (${elev} ft) - Has snow data: ${!!hasSnowData}`);
+                                    
+                                    if (hasSnowData && elev > bestElevation) {
                                         bestStation = station;
                                         bestElevation = elev;
                                     }
                                 });
                                 
-                                // If no snow depth, just get highest elevation station
-                                if (!bestStation) {
+                                // If no snow data stations, just get highest elevation station
+                                if (!bestStation && synopticData.STATION.length > 0) {
                                     synopticData.STATION.forEach(station => {
                                         const elev = parseFloat(station.ELEVATION) || 0;
                                         if (elev > bestElevation) {
@@ -1418,28 +1432,36 @@
                                     synopticWorking = true;
                                     
                                     const obs = bestStation.OBSERVATIONS || {};
+                                    console.log('❄️ Best station observations:', obs);
                                     
-                                    // Snow depth (inches)
-                                    if (obs.snow_depth_value_1?.value !== undefined) {
+                                    // Snow depth (inches) - try multiple possible keys
+                                    if (obs.snow_depth_value_1?.value !== undefined && obs.snow_depth_value_1?.value !== null) {
                                         snowDepth = Math.round(obs.snow_depth_value_1.value) + '"';
                                     }
                                     
-                                    // 24-hour precip (convert to estimated snowfall: multiply by ~10)
-                                    if (obs.precip_accum_24_hour_value_1?.value !== undefined) {
+                                    // Snow water equivalent
+                                    if (obs.snow_water_equiv_value_1?.value !== undefined && obs.snow_water_equiv_value_1?.value !== null) {
+                                        // SWE in inches, estimate snow depth with 10:1 ratio if no direct depth
+                                        if (snowDepth === '--') {
+                                            snowDepth = Math.round(obs.snow_water_equiv_value_1.value * 10) + '"*';
+                                        }
+                                        newSnow7d = obs.snow_water_equiv_value_1.value.toFixed(1) + '" SWE';
+                                    }
+                                    
+                                    // 24-hour precip (convert to estimated snowfall)
+                                    if (obs.precip_accum_24_hour_value_1?.value !== undefined && obs.precip_accum_24_hour_value_1?.value !== null) {
                                         const precip = obs.precip_accum_24_hour_value_1.value;
-                                        // Estimate snow from precip (10:1 ratio typical for Cascades)
+                                        // Estimate snow from liquid precip (10:1 ratio for Cascades)
                                         newSnow24h = Math.round(precip * 10) + '"';
                                     }
                                     
-                                    // 7-day precip
-                                    if (obs.precip_accum_seven_day_value_1?.value !== undefined) {
-                                        const precip7 = obs.precip_accum_seven_day_value_1.value;
-                                        newSnow7d = Math.round(precip7 * 10) + '"';
-                                    }
-                                    
-                                    console.log('✅ Synoptic snow data:', { stationName, snowDepth, newSnow24h, newSnow7d });
+                                    console.log('✅ Synoptic snow data:', { stationName, stationElevation, snowDepth, newSnow24h, newSnow7d });
                                 }
+                            } else {
+                                console.log('❄️ No stations found in response');
                             }
+                        } else {
+                            console.warn('❄️ Synoptic API returned status:', synopticResponse.status);
                         }
                     } catch (synopticErr) {
                         console.warn('❄️ Synoptic fetch failed:', synopticErr.message);
@@ -1483,15 +1505,15 @@
                             <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
                                 <div style="text-align: center; min-width: 70px;">
                                     <div style="font-size: 1.4rem; font-weight: 700; color: #1565c0;">${snowDepth}</div>
-                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">Base Depth</div>
+                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">Snow Depth</div>
                                 </div>
                                 <div style="text-align: center; min-width: 70px;">
                                     <div style="font-size: 1.4rem; font-weight: 700; color: #1565c0;">${newSnow24h}</div>
-                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">24hr Snow*</div>
+                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">24hr New</div>
                                 </div>
                                 <div style="text-align: center; min-width: 70px;">
                                     <div style="font-size: 1.4rem; font-weight: 700; color: #1565c0;">${newSnow7d}</div>
-                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">7-Day Snow*</div>
+                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">SWE</div>
                                 </div>
                             </div>
                             ${synopticWorking ? `
@@ -1499,7 +1521,7 @@
                                 📍 ${stationName} (${stationElevation})
                             </div>
                             <div style="font-size: 0.6rem; color: var(--topo-gray); margin-top: 0.2rem; font-style: italic;">
-                                *Estimated from precip • Powered by Synoptic Data
+                                Data via Synoptic • SWE = Snow Water Equivalent
                             </div>
                             ` : `
                             <div style="font-size: 0.7rem; color: #856404; margin-top: 0.5rem; background: #fff3cd; padding: 0.5rem; border-radius: 6px;">
