@@ -692,8 +692,15 @@
                 </div>
 
                 <div class="tours-section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                         <h2 style="font-size: 2rem; color: var(--forest-green); margin: 0;">📍 Recommended Tours</h2>
+                        <button onclick="refreshTours()" id="refreshToursBtn"
+                                style="background: var(--forest-green); color: white; border: none; padding: 0.6rem 1.2rem; 
+                                       border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+                                       display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s ease;
+                                       box-shadow: 0 2px 8px rgba(45, 80, 45, 0.2);">
+                            🔄 New Top 5
+                        </button>
                     </div>
                     <p id="toursSortMessage" style="font-size: 0.9rem; color: var(--topo-gray); margin-bottom: 1.5rem; padding: 1rem; background: var(--cream); border-radius: 6px;">
                         💡 Tours sorted by best match for your fitness. Loading...
@@ -1047,6 +1054,7 @@
             // Update config
             config.nwacZone = nwacZone;
             config.location = zoneDefaults[nwacZone];
+            config.excludedTours = []; // Reset excluded tours for new zone
             
             console.log('✅ Config updated:', JSON.stringify(config));
             console.log('📍 Location set to:', config.location);
@@ -1188,8 +1196,25 @@
                         weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
                     }) : '';
                     
+                    // Check if viewing a future date
+                    const tourDate = new Date(config.tourDate + 'T12:00:00');
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const daysFromNow = Math.round((tourDate - today) / (1000 * 60 * 60 * 24));
+                    const isFutureDate = daysFromNow > 0;
+                    
                     content.innerHTML = `
                         <div style="text-align: center;">
+                            <!-- Future Date Warning -->
+                            ${isFutureDate ? `
+                            <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 0.6rem; margin-bottom: 0.75rem;">
+                                <div style="font-size: 0.75rem; color: #856404;">
+                                    ⚠️ <strong>Viewing ${daysFromNow === 1 ? 'tomorrow' : daysFromNow + ' days ahead'}</strong><br>
+                                    <span style="font-size: 0.7rem;">This is today's forecast. A new forecast will be issued daily at 6 PM. Check again before your tour.</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                            
                             <!-- Zone Name & Issue Date -->
                             <div style="margin-bottom: 1rem;">
                                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--forest-green);">
@@ -1199,8 +1224,8 @@
                             </div>
                             
                             <!-- Danger Rating Display -->
-                            <div style="background: ${dangerColor}; color: ${fontColor}; padding: 1.25rem; border-radius: 12px; margin-bottom: 1rem;">
-                                <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.9; margin-bottom: 0.25rem;">Avalanche Danger</div>
+                            <div style="background: ${dangerColor}; color: ${fontColor}; padding: 1.25rem; border-radius: 12px; margin-bottom: 1rem; ${isFutureDate ? 'opacity: 0.85;' : ''}">
+                                <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.9; margin-bottom: 0.25rem;">${isFutureDate ? "Today's " : ''}Avalanche Danger</div>
                                 <div style="font-size: 2rem; font-weight: 700; text-transform: uppercase;">${dangerText}</div>
                             </div>
                             
@@ -1702,6 +1727,33 @@
             }
         }
 
+        function refreshTours() {
+            const btn = document.getElementById('refreshToursBtn');
+            const tours = toursByZone[config.nwacZone] || [];
+            
+            // Visual feedback
+            btn.innerHTML = '🔄 Loading...';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            
+            // Check if we have enough tours to show new ones
+            const shownCount = config.excludedTours ? config.excludedTours.length : 0;
+            const remainingTours = tours.length - shownCount;
+            
+            if (remainingTours < 5 && tours.length > 5) {
+                // Reset excluded list to start fresh
+                config.excludedTours = [];
+            }
+            
+            // Small delay for visual feedback
+            setTimeout(() => {
+                loadTours();
+                btn.innerHTML = '🔄 New Top 5';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }, 300);
+        }
+
         async function loadTours() {
             const content = document.getElementById('toursContent');
             console.log('📍 Loading tours for zone:', config.nwacZone, 'with fitness:', config.fitnessLevel, 'skill:', config.skillLevel);
@@ -1741,11 +1793,39 @@
                 return { tour, rec };
             });
             
-            // Sort by recommendation score (highest first)
-            toursWithRecs.sort((a, b) => b.rec.score - a.rec.score);
+            // Sort by recommendation score (highest first) with randomization for similar scores
+            toursWithRecs.sort((a, b) => {
+                const scoreDiff = b.rec.score - a.rec.score;
+                // If scores are within 2 points, randomize order
+                if (Math.abs(scoreDiff) <= 2) {
+                    return Math.random() - 0.5;
+                }
+                return scoreDiff;
+            });
             
-            // Take only top 5
-            const topTours = toursWithRecs.slice(0, 5);
+            // Filter out previously shown tours if refreshing
+            let availableTours = toursWithRecs;
+            if (config.excludedTours && config.excludedTours.length > 0) {
+                availableTours = toursWithRecs.filter(t => 
+                    !config.excludedTours.includes(t.tour.name)
+                );
+                // If we've excluded too many, reset
+                if (availableTours.length < 5) {
+                    config.excludedTours = [];
+                    availableTours = toursWithRecs;
+                }
+            }
+            
+            // Take top 5 from available tours
+            const topTours = availableTours.slice(0, 5);
+            
+            // Track these tours as shown
+            if (!config.excludedTours) config.excludedTours = [];
+            topTours.forEach(t => {
+                if (!config.excludedTours.includes(t.tour.name)) {
+                    config.excludedTours.push(t.tour.name);
+                }
+            });
             
             console.log('📊 Top 5 tours by score:', topTours.map(t => ({ 
                 name: t.tour.name, 
@@ -1760,9 +1840,15 @@
             
             // Add note if there are more tours available
             if (tours.length > 5) {
+                const remainingTours = tours.length - (config.excludedTours ? config.excludedTours.length : 0);
                 content.innerHTML += `
-                    <div style="text-align: center; padding: 1.5rem; color: var(--topo-gray); font-size: 0.9rem;">
-                        <p>Showing top 5 of ${tours.length} tours. Add more tours to your zone for more options!</p>
+                    <div style="text-align: center; padding: 1.5rem; color: var(--topo-gray); font-size: 0.9rem; background: var(--cream); border-radius: 8px; margin-top: 1rem;">
+                        <p style="margin: 0;">
+                            📊 Showing 5 of ${tours.length} tours in this zone
+                            ${remainingTours > 0 && remainingTours < tours.length ? 
+                                `<br><span style="font-size: 0.8rem;">Click "New Top 5" to see ${Math.min(5, remainingTours)} more options</span>` : 
+                                ''}
+                        </p>
                     </div>
                 `;
             }
