@@ -9,7 +9,7 @@ A web-based decision support tool for backcountry skiers in the Pacific Northwes
 ## 🎯 Features
 
 ### 📍 Zone Selection
-- **11 NWAC forecast zones** covering Washington and Oregon
+- **10 NWAC forecast zones** covering Washington and Oregon
 - West Slopes: Mt Baker, Stevens Pass, Central, Snoqualmie, White Pass
 - East Slopes: North, Central (Mission Ridge), South
 - Olympics and Mt Hood
