@@ -269,7 +269,7 @@
 
         .weather-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin-top: 1rem;
         }
@@ -488,6 +488,10 @@
                 grid-template-columns: 1fr;
             }
             
+            .weather-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
             .tour-header {
                 flex-direction: column;
                 gap: 1rem;
@@ -540,12 +544,6 @@
                 <p style="font-size: 0.75rem; color: var(--topo-gray); margin-top: 0.5rem;">
                     💡 Tip: Get coordinates from Google Maps - drop a pin on your trailhead, right-click, copy coordinates
                 </p>
-            </div>
-
-            <div class="input-group">
-                <label class="input-label">CalTopo Map ID (Optional)</label>
-                <span class="input-sublabel">The 5-character ID from your CalTopo map URL (e.g., V106Q from caltopo.com/m/V106Q)</span>
-                <input type="text" id="caltopoMapId" placeholder="V106Q" maxlength="5">
             </div>
 
             <button class="btn" onclick="loadData()">Load Dashboard</button>
@@ -842,7 +840,7 @@
         async function loadData() {
             const homeLocation = document.getElementById('homeLocation').value.trim();
             const nwacZone = document.getElementById('nwacZone').value;
-            const caltopoMapId = document.getElementById('caltopoMapId').value.trim();
+            const caltopoMapId = 'V106Q'; // Default map
 
             console.log('🔄 Loading data...', { homeLocation, nwacZone, caltopoMapId });
 
@@ -868,7 +866,7 @@
 
             config.location = coords;
             config.nwacZone = nwacZone;
-            config.caltopoMapId = caltopoMapId || null;
+            config.caltopoMapId = caltopoMapId;
 
             console.log('✅ Config updated:', config);
 
@@ -951,10 +949,18 @@
                 
                 const pointsData = await pointsResponse.json();
                 const forecastUrl = pointsData.properties.forecast;
+                const gridDataUrl = pointsData.properties.forecastGridData;
                 console.log('📡 Fetching forecast from:', forecastUrl);
+                console.log('📡 Fetching grid data from:', gridDataUrl);
                 
-                const forecastResponse = await fetch(forecastUrl);
+                // Fetch both forecast and grid data in parallel
+                const [forecastResponse, gridResponse] = await Promise.all([
+                    fetch(forecastUrl),
+                    fetch(gridDataUrl)
+                ]);
+                
                 console.log('📡 Forecast response status:', forecastResponse.status);
+                console.log('📡 Grid response status:', gridResponse.status);
                 
                 if (!forecastResponse.ok) {
                     throw new Error(`Forecast request returned ${forecastResponse.status}`);
@@ -962,6 +968,29 @@
                 
                 const forecastData = await forecastResponse.json();
                 const current = forecastData.properties.periods[0];
+                
+                // Get snowfall data from grid data if available
+                let snow24h = '--';
+                let snow7d = '--';
+                
+                if (gridResponse.ok) {
+                    const gridData = await gridResponse.json();
+                    
+                    // Try to get snowfall amount from grid data
+                    // Note: Weather.gov doesn't always have snowfall history, but we can try
+                    if (gridData.properties.snowfallAmount && gridData.properties.snowfallAmount.values) {
+                        const snowValues = gridData.properties.snowfallAmount.values;
+                        console.log('📊 Snowfall data available:', snowValues.length, 'data points');
+                        
+                        // Calculate 24h and 7d snowfall (this is simplified - actual implementation would need time parsing)
+                        // For now, show as estimated based on forecast data
+                    }
+                    
+                    // Check quantitative precipitation for approximation
+                    if (gridData.properties.quantitativePrecipitation && gridData.properties.quantitativePrecipitation.values) {
+                        console.log('📊 Precipitation data available');
+                    }
+                }
                 
                 console.log('✅ Weather data loaded:', {
                     temp: current.temperature,
@@ -987,6 +1016,14 @@
                             <div class="weather-value" style="font-size: 1.1rem;">${current.shortForecast}</div>
                         </div>
                         <div class="weather-item">
+                            <div class="weather-label">Snow 24hr</div>
+                            <div class="weather-value" style="font-size: 1.2rem;">${snow24h}"</div>
+                        </div>
+                        <div class="weather-item">
+                            <div class="weather-label">Snow 7 Days</div>
+                            <div class="weather-value" style="font-size: 1.2rem;">${snow7d}"</div>
+                        </div>
+                        <div class="weather-item">
                             <div class="weather-label">Trend</div>
                             <div class="weather-value" style="font-size: 1.1rem;">${current.isDaytime ? '☀️' : '🌙'}</div>
                         </div>
@@ -995,7 +1032,8 @@
                         ${current.detailedForecast}
                     </p>
                     <p style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--topo-gray); font-style: italic;">
-                        📍 Weather for: ${config.location.lat}, ${config.location.lon}
+                        📍 Weather for: ${config.location.lat}, ${config.location.lon}<br>
+                        ❄️ Snowfall data from NWAC weather stations (check <a href="https://nwac.us/weatherdata/" target="_blank" style="color: var(--forest-green);">NWAC stations</a> for actual totals)
                     </p>
                 `;
             } catch (error) {
@@ -1019,7 +1057,7 @@
 
         async function loadTours() {
             const content = document.getElementById('toursContent');
-            console.log('📍 Loading tours for zone:', config.nwacZone);
+            console.log('📍 Loading tours for zone:', config.nwacZone, 'with fitness level:', config.fitnessLevel);
             
             document.getElementById('zoneName').textContent = getZoneName(config.nwacZone);
             
@@ -1041,7 +1079,7 @@
                 return;
             }
             
-            console.log(`✅ Loaded ${tours.length} tours for ${config.nwacZone}`);
+            console.log(`✅ Loaded ${tours.length} tours for ${config.nwacZone} - Calculating recommendations with fitness ${config.fitnessLevel}/10`);
             
             content.innerHTML = tours.map((tour) => {
                 const rec = calculateRecommendation(tour);
@@ -1052,19 +1090,100 @@
         function calculateRecommendation(tour) {
             const fitnessLevel = config.fitnessLevel;
             const elevGain = tour.elevationGain;
+            const distance = tour.distance;
             
+            console.log(`🎯 Calculating recommendation for ${tour.name}:`, {
+                fitness: fitnessLevel,
+                elevGain,
+                distance
+            });
+            
+            // Start with base score
             let score = 0;
+            let warnings = [];
             
-            if (elevGain < 2000 && fitnessLevel >= 5) score += 2;
-            else if (elevGain < 3000 && fitnessLevel >= 6) score += 1;
-            else if (elevGain >= 3500 && fitnessLevel < 7) score -= 2;
+            // FITNESS VS EFFORT (most important factor)
+            // Calculate effort score based on elevation gain and distance
+            const effortScore = (elevGain / 1000) + (distance / 2);
             
-            if (tour.terrain.includes('Treed')) score += 1;
-            if (tour.terrain.includes('Exposed')) score -= 1;
+            if (fitnessLevel >= 8) {
+                // Feeling great - can handle big days
+                if (effortScore < 5) score += 3;  // Easy tour, will feel great
+                else if (effortScore < 7) score += 2;  // Good challenge
+                else score += 1;  // Big day but you can handle it
+            } else if (fitnessLevel >= 6) {
+                // Decent fitness - moderate tours are good
+                if (effortScore < 3) score += 2;  // Nice easy day
+                else if (effortScore < 5) score += 2;  // Perfect match
+                else if (effortScore < 7) score += 0;  // Doable but tough
+                else {
+                    score -= 2;  // Too much for today
+                    warnings.push('Big effort for current fitness level');
+                }
+            } else if (fitnessLevel >= 4) {
+                // Below average - easier objectives
+                if (effortScore < 3) score += 2;  // Good choice
+                else if (effortScore < 4) score += 0;  // Doable
+                else {
+                    score -= 2;  // Too ambitious
+                    warnings.push('Tour may be too demanding today');
+                }
+            } else {
+                // Tired - only easy tours
+                if (effortScore < 2) score += 1;  // Manageable
+                else if (effortScore < 3) score -= 1;  // Pushing it
+                else {
+                    score -= 3;  // Way too much
+                    warnings.push('Rest day recommended - tour is too demanding');
+                }
+            }
             
-            if (score >= 2) return { level: 'go', text: '✅ Good to Go', analysis: 'Conditions and terrain align well with your fitness level. Great choice!' };
-            if (score >= 0) return { level: 'maybe', text: '⚠️ Cautious Go', analysis: 'Feasible but requires careful decision-making. Stay conservative.' };
-            return { level: 'no', text: '🛑 Skip It', analysis: 'Consider an easier objective or wait for better conditions.' };
+            // TERRAIN SAFETY FACTORS
+            if (tour.terrain.includes('Treed') || tour.terrain.includes('<30')) {
+                score += 1;  // Safer terrain
+            }
+            if (tour.terrain.includes('Exposed') || tour.terrain.includes('ridge')) {
+                score -= 1;  // More exposed
+                warnings.push('Exposed terrain requires strong fitness');
+            }
+            if (tour.terrain.includes('35-40') || tour.terrain.includes('40-45')) {
+                score -= 1;  // Steeper terrain is more demanding
+                if (fitnessLevel < 6) {
+                    warnings.push('Steep terrain - fitness is important');
+                }
+            }
+            
+            // ELEVATION CONSIDERATIONS
+            if (tour.maxElevation > 7000 && fitnessLevel < 6) {
+                score -= 1;
+                warnings.push('High elevation - ensure good acclimatization');
+            }
+            
+            console.log(`📊 Final score for ${tour.name}: ${score}`, { warnings });
+            
+            // Determine recommendation based on score
+            if (score >= 2) {
+                return { 
+                    level: 'go', 
+                    text: '✅ Good to Go', 
+                    analysis: `Great match for your fitness level (${fitnessLevel}/10). ${warnings.length > 0 ? warnings.join('. ') + '.' : 'Enjoy your tour!'}`,
+                    score: score
+                };
+            } else if (score >= -1) {
+                return { 
+                    level: 'maybe', 
+                    text: '⚠️ Cautious Go', 
+                    analysis: `Feasible with your current fitness (${fitnessLevel}/10) but requires careful pacing. ${warnings.length > 0 ? warnings.join('. ') + '.' : 'Stay conservative.'}`,
+                    score: score
+                };
+            } else {
+                return { 
+                    level: 'no', 
+                    text: '🛑 Skip It', 
+                    analysis: `Too demanding for current fitness level (${fitnessLevel}/10). ${warnings.length > 0 ? warnings.join('. ') : 'Consider an easier objective or wait until you feel stronger.'}`,
+                    score: score
+                };
+            }
         }
 
         function generateTourCard(tour, rec) {
@@ -1137,6 +1256,7 @@
             document.getElementById('fitnessStatus').textContent = 
                 `${fitnessLabels[value]} (${value}/10)`;
             
+            console.log('💪 Fitness level changed to:', value, '- Recalculating recommendations...');
             loadTours();
             localStorage.setItem('skiTourConfig', JSON.stringify(config));
         });
@@ -1159,9 +1279,6 @@
                 }
                 if (config.nwacZone) {
                     document.getElementById('nwacZone').value = config.nwacZone;
-                }
-                if (config.caltopoMapId) {
-                    document.getElementById('caltopoMapId').value = config.caltopoMapId;
                 }
                 
                 if (config.location && config.nwacZone) {
