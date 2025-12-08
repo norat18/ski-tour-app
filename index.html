@@ -797,10 +797,11 @@
             console.log('📅 Date changed to:', selectedDate);
             config.tourDate = selectedDate;
             
-            // Reload weather data for new date
+            // Reload weather and avalanche data for new date
             if (config.nwacZone) {
                 updateDate();
                 loadWeatherData();
+                loadAvalancheForecast();
             }
         }
 
@@ -1230,11 +1231,19 @@
                     }) : '';
                     
                     // Check if viewing a future date
-                    const tourDate = new Date(config.tourDate + 'T12:00:00');
+                    // Parse tour date as local date (YYYY-MM-DD)
+                    const tourDateParts = config.tourDate.split('-');
+                    const tourDate = new Date(tourDateParts[0], tourDateParts[1] - 1, tourDateParts[2]);
+                    tourDate.setHours(12, 0, 0, 0);
+                    
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
-                    const daysFromNow = Math.round((tourDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    const diffTime = tourDate.getTime() - today.getTime();
+                    const daysFromNow = Math.floor(diffTime / (1000 * 60 * 60 * 24));
                     const isFutureDate = daysFromNow > 0;
+                    
+                    console.log('📅 Avalanche date check:', { tourDate: config.tourDate, daysFromNow, isFutureDate });
                     
                     content.innerHTML = `
                         <div style="text-align: center;">
@@ -1894,8 +1903,7 @@
             const distance = tour.distance;
             const terrain = tour.terrain.toLowerCase();
             const maxElev = tour.maxElevation;
-            
-            console.log(`🎯 Calculating for ${tour.name}:`, { fitness, skill, elevGain, distance });
+            const aspect = (tour.aspect || '').toLowerCase();
             
             let score = 0;
             let warnings = [];
@@ -1905,232 +1913,300 @@
             // TOUR DIFFICULTY RATING (1-10 scale)
             // ============================================
             
-            // Physical difficulty based on elevation gain
+            // Physical difficulty based on elevation gain (more granular)
+            // Typical day tour ranges from 2000-4000ft gain
             let physicalDifficulty = 1;
-            if (elevGain < 1500) physicalDifficulty = 2;
-            else if (elevGain < 2500) physicalDifficulty = 3;
-            else if (elevGain < 3500) physicalDifficulty = 4;
-            else if (elevGain < 4500) physicalDifficulty = 5;
-            else if (elevGain < 6000) physicalDifficulty = 6;
-            else if (elevGain < 8000) physicalDifficulty = 7;
-            else if (elevGain < 10000) physicalDifficulty = 8;
-            else if (elevGain < 15000) physicalDifficulty = 9;
+            if (elevGain < 1000) physicalDifficulty = 1;
+            else if (elevGain < 1500) physicalDifficulty = 2;
+            else if (elevGain < 2000) physicalDifficulty = 3;
+            else if (elevGain < 2500) physicalDifficulty = 4;
+            else if (elevGain < 3000) physicalDifficulty = 5;
+            else if (elevGain < 4000) physicalDifficulty = 6;
+            else if (elevGain < 5000) physicalDifficulty = 7;
+            else if (elevGain < 6500) physicalDifficulty = 8;
+            else if (elevGain < 8000) physicalDifficulty = 9;
             else physicalDifficulty = 10;
             
-            // Adjust for distance (long flat tours are tiring too)
-            if (distance > 15) physicalDifficulty = Math.min(10, physicalDifficulty + 1);
+            // Adjust for distance (skinning efficiency matters)
+            // Typical day tour is 6-12 miles
+            if (distance > 10) physicalDifficulty = Math.min(10, physicalDifficulty + 0.5);
+            if (distance > 14) physicalDifficulty = Math.min(10, physicalDifficulty + 0.5);
+            if (distance > 18) physicalDifficulty = Math.min(10, physicalDifficulty + 1);
             if (distance > 25) physicalDifficulty = Math.min(10, physicalDifficulty + 1);
             
-            // Technical difficulty based on terrain
+            // Calculate vertical-to-distance ratio (steeper = harder skinning but shorter)
+            const vertPerMile = elevGain / Math.max(distance, 1);
+            
+            // Technical difficulty based on terrain description
             let technicalDifficulty = 3; // default moderate
-            if (terrain.includes('treed') || terrain.includes('<25') || terrain.includes('<30')) {
+            
+            // Slope angle parsing
+            if (terrain.includes('<25') || terrain.includes('< 25') || terrain.includes('mellow')) {
                 technicalDifficulty = 2;
             }
-            if (terrain.includes('30-35')) technicalDifficulty = 4;
-            if (terrain.includes('35-40')) technicalDifficulty = 5;
-            if (terrain.includes('40-45') || terrain.includes('40-50')) technicalDifficulty = 7;
-            if (terrain.includes('couloir')) technicalDifficulty = 8;
-            if (terrain.includes('glacier')) technicalDifficulty = 7;
-            if (terrain.includes('exposed')) technicalDifficulty = Math.min(10, technicalDifficulty + 1);
+            if (terrain.includes('25-30') || terrain.includes('<30') || terrain.includes('treed')) {
+                technicalDifficulty = 2;
+            }
+            if (terrain.includes('30-35') || terrain.includes('moderate')) {
+                technicalDifficulty = 4;
+            }
+            if (terrain.includes('35-40') || terrain.includes('steep')) {
+                technicalDifficulty = 5;
+            }
+            if (terrain.includes('40-45') || terrain.includes('very steep')) {
+                technicalDifficulty = 7;
+            }
+            if (terrain.includes('45-50') || terrain.includes('40-50')) {
+                technicalDifficulty = 8;
+            }
+            if (terrain.includes('>50') || terrain.includes('50+')) {
+                technicalDifficulty = 9;
+            }
             
-            // High elevation adds technical challenge
-            if (maxElev > 8000) technicalDifficulty = Math.min(10, technicalDifficulty + 1);
-            if (maxElev > 10000) technicalDifficulty = Math.min(10, technicalDifficulty + 1);
+            // Terrain features that add difficulty
+            if (terrain.includes('couloir')) technicalDifficulty = Math.max(technicalDifficulty, 8);
+            if (terrain.includes('glacier')) technicalDifficulty = Math.max(technicalDifficulty, 6);
+            if (terrain.includes('exposed') || terrain.includes('exposure')) technicalDifficulty = Math.min(10, technicalDifficulty + 1);
+            if (terrain.includes('ridge')) technicalDifficulty = Math.min(10, technicalDifficulty + 0.5);
+            if (terrain.includes('alpine')) technicalDifficulty = Math.min(10, technicalDifficulty + 0.5);
+            if (terrain.includes('complex') || terrain.includes('variable')) technicalDifficulty = Math.min(10, technicalDifficulty + 1);
             
-            console.log(`📊 ${tour.name}: Physical=${physicalDifficulty}, Technical=${technicalDifficulty}`);
+            // Easier terrain indicators
+            if (terrain.includes('mellow') || terrain.includes('gentle') || terrain.includes('beginner')) {
+                technicalDifficulty = Math.max(1, technicalDifficulty - 1);
+            }
+            if (terrain.includes('road') || terrain.includes('trail')) {
+                technicalDifficulty = Math.max(1, technicalDifficulty - 0.5);
+            }
+            
+            // High elevation adds challenge (altitude, weather exposure, navigation)
+            if (maxElev > 7000) technicalDifficulty = Math.min(10, technicalDifficulty + 0.5);
+            if (maxElev > 9000) technicalDifficulty = Math.min(10, technicalDifficulty + 0.5);
+            if (maxElev > 11000) technicalDifficulty = Math.min(10, technicalDifficulty + 1);
+            
+            // Round to nearest 0.5
+            physicalDifficulty = Math.round(physicalDifficulty * 2) / 2;
+            technicalDifficulty = Math.round(technicalDifficulty * 2) / 2;
             
             // ============================================
             // FITNESS MATCHING (physical capacity)
             // ============================================
-            // Higher fitness = prefer HARDER physical tours
+            // Goal: Match tour difficulty to energy level
+            // Perfect match = difficulty equals fitness level
             
             const fitnessDiff = fitness - physicalDifficulty;
             
-            if (fitness >= 8) {
-                // Peak fitness - wants challenging tours
-                if (physicalDifficulty >= 6) {
-                    score += 4;  // Love a big day!
-                    bonuses.push('Great physical challenge');
-                } else if (physicalDifficulty >= 4) {
-                    score += 2;  // Moderate is fine
-                } else {
-                    score += 0;  // Too easy, but acceptable
-                }
-            } else if (fitness >= 6) {
-                // Good fitness - moderate to challenging
-                if (physicalDifficulty >= 7) {
-                    score += 1;  // Pushing it
-                    warnings.push('Physically demanding for current energy');
-                } else if (physicalDifficulty >= 4) {
-                    score += 3;  // Sweet spot
-                    bonuses.push('Good match for energy level');
-                } else {
-                    score += 2;  // Easy day is fine
-                }
-            } else if (fitness >= 4) {
-                // Moderate fitness - prefer easier
-                if (physicalDifficulty >= 6) {
-                    score -= 2;  // Too hard
-                    warnings.push('Tour is too physically demanding today');
-                } else if (physicalDifficulty >= 4) {
-                    score += 1;  // Doable
-                } else {
-                    score += 3;  // Good choice
-                    bonuses.push('Appropriate for current energy');
-                }
+            // Ideal match: tour difficulty is 0-2 points below fitness level
+            if (fitnessDiff >= 0 && fitnessDiff <= 2) {
+                score += 3;
+                bonuses.push('Good match for energy level');
+            } else if (fitnessDiff > 2 && fitnessDiff <= 4) {
+                // Tour is easier than capacity - fine for easy day
+                score += 2;
+                bonuses.push('Comfortable day within your capacity');
+            } else if (fitnessDiff > 4) {
+                // Tour is much easier than capacity
+                score += 1;
+                if (fitness >= 7) bonuses.push('Easy day - great for recovery');
+            } else if (fitnessDiff >= -1 && fitnessDiff < 0) {
+                // Slightly challenging
+                score += 2;
+                bonuses.push('Achievable challenge');
+            } else if (fitnessDiff >= -2 && fitnessDiff < -1) {
+                // Challenging
+                score += 0;
+                warnings.push('Physically demanding for current energy');
+            } else if (fitnessDiff >= -3 && fitnessDiff < -2) {
+                // Hard
+                score -= 2;
+                warnings.push('Tour exceeds current energy level');
             } else {
-                // Low fitness - easy tours only
-                if (physicalDifficulty >= 4) {
-                    score -= 3;  // Way too much
-                    warnings.push('Rest recommended - tour exceeds current energy');
-                } else if (physicalDifficulty >= 3) {
-                    score -= 1;  // Pushing it
-                    warnings.push('Consider a shorter option');
-                } else {
-                    score += 2;  // Manageable
-                    bonuses.push('Low-key day within reach');
-                }
+                // Way too hard
+                score -= 4;
+                warnings.push('Tour is too physically demanding today');
             }
             
             // ============================================
             // SKILL MATCHING (technical ability)
             // ============================================
-            // Higher skill = can handle more technical terrain
+            // Goal: Match terrain difficulty to skill level
             
             const skillDiff = skill - technicalDifficulty;
             
-            if (skill >= 8) {
-                // Expert - wants technical terrain
-                if (technicalDifficulty >= 7) {
-                    score += 3;
-                    bonuses.push('Challenging terrain you can handle');
-                } else if (technicalDifficulty >= 5) {
-                    score += 2;
-                } else {
-                    score += 1;  // Easy terrain is fine for recovery
-                }
-            } else if (skill >= 6) {
-                // Competent - moderate technical
-                if (technicalDifficulty >= 8) {
-                    score -= 2;
-                    warnings.push('Terrain exceeds current skill level');
-                } else if (technicalDifficulty >= 6) {
-                    score += 1;
-                    warnings.push('Challenging terrain - stay alert');
-                } else if (technicalDifficulty >= 4) {
-                    score += 3;
-                    bonuses.push('Good terrain match');
-                } else {
-                    score += 2;
-                }
-            } else if (skill >= 4) {
-                // Developing - easier terrain
-                if (technicalDifficulty >= 6) {
-                    score -= 3;
-                    warnings.push('Terrain too technical - gain more experience first');
-                } else if (technicalDifficulty >= 4) {
-                    score += 0;
-                    warnings.push('At the edge of your comfort zone');
-                } else {
-                    score += 3;
-                    bonuses.push('Good terrain for skill building');
-                }
-            } else {
-                // Beginner - stick to easy terrain
-                if (technicalDifficulty >= 4) {
-                    score -= 4;
-                    warnings.push('Not appropriate for skill level - need easier terrain');
-                } else if (technicalDifficulty >= 3) {
-                    score -= 1;
-                    warnings.push('Go with experienced partners');
-                } else {
-                    score += 2;
-                    bonuses.push('Appropriate for learning');
-                }
-            }
-            
-            // ============================================
-            // SPECIAL TERRAIN WARNINGS
-            // ============================================
-            
-            if (terrain.includes('glacier') && skill < 6) {
-                score -= 2;
-                warnings.push('Glacier travel requires crevasse rescue skills');
-            }
-            
-            if (terrain.includes('couloir') && skill < 7) {
-                score -= 2;
-                warnings.push('Couloir skiing requires expert skills');
-            }
-            
-            if (maxElev > 10000 && skill < 5) {
+            // Ideal: terrain is at or slightly below skill level
+            if (skillDiff >= 0 && skillDiff <= 2) {
+                score += 3;
+                bonuses.push('Terrain matches your skill');
+            } else if (skillDiff > 2 && skillDiff <= 4) {
+                score += 2;
+                bonuses.push('Well within your abilities');
+            } else if (skillDiff > 4) {
+                score += 1;
+                // Very easy terrain for skill level
+            } else if (skillDiff >= -1 && skillDiff < 0) {
+                // Slightly above skill
+                score += 1;
+                warnings.push('Terrain at the edge of your skill level');
+            } else if (skillDiff >= -2 && skillDiff < -1) {
+                // Above skill
                 score -= 1;
-                warnings.push('High alpine environment - ensure proper preparation');
+                warnings.push('Terrain exceeds current skill - go with experienced partners');
+            } else if (skillDiff >= -3 && skillDiff < -2) {
+                // Well above skill
+                score -= 3;
+                warnings.push('Terrain too technical for current skill level');
+            } else {
+                // Way above skill
+                score -= 5;
+                warnings.push('Not recommended - terrain far exceeds skill level');
             }
             
-            // Multi-day indicators
+            // ============================================
+            // SYNERGY BONUS
+            // ============================================
+            // Tours that match BOTH fitness and skill get a bonus
+            
+            if (fitnessDiff >= -1 && fitnessDiff <= 2 && skillDiff >= -1 && skillDiff <= 2) {
+                score += 2;
+                bonuses.push('Great overall match');
+            }
+            
+            // ============================================
+            // SPECIAL TERRAIN CONSIDERATIONS
+            // ============================================
+            
+            // Glacier travel requirements
+            if (terrain.includes('glacier')) {
+                if (skill < 6) {
+                    score -= 3;
+                    warnings.push('Glacier travel requires crevasse rescue training');
+                } else if (skill < 8) {
+                    warnings.push('Glacier travel - ensure rope team skills');
+                }
+            }
+            
+            // Couloir skiing requirements
+            if (terrain.includes('couloir')) {
+                if (skill < 7) {
+                    score -= 3;
+                    warnings.push('Couloir skiing requires expert ability');
+                }
+                if (fitness < 6) {
+                    score -= 1;
+                    warnings.push('Couloir approaches are often strenuous');
+                }
+            }
+            
+            // Exposed terrain
+            if (terrain.includes('exposed') && skill < 5) {
+                score -= 1;
+                warnings.push('Exposed terrain requires solid skills');
+            }
+            
+            // High alpine
+            if (maxElev > 10000) {
+                if (skill < 5) {
+                    score -= 1;
+                    warnings.push('High alpine requires mountain experience');
+                }
+                if (fitness < 5) {
+                    score -= 1;
+                    warnings.push('Altitude adds physical challenge');
+                }
+            }
+            
+            // Long days / multi-day indicators
+            if (elevGain > 6000 || distance > 20) {
+                if (fitness < 6) {
+                    score -= 2;
+                    warnings.push('Big day - requires high fitness');
+                }
+                if (skill < 5) {
+                    score -= 1;
+                    warnings.push('Long tour - navigation and pacing skills important');
+                }
+            }
+            
+            // Multi-day tours
             if (elevGain > 10000 || distance > 30) {
                 if (skill < 7 || fitness < 7) {
-                    score -= 2;
-                    warnings.push('Multi-day tour requires high fitness AND skill');
+                    score -= 3;
+                    warnings.push('Multi-day objective requires advanced fitness and skills');
                 }
             }
             
-            console.log(`📊 Final score for ${tour.name}: ${score}`, { bonuses, warnings });
+            // ============================================
+            // ASPECT CONSIDERATIONS (avalanche terrain)
+            // ============================================
+            
+            if (aspect.includes('north') || aspect.includes('n-facing')) {
+                // North aspects hold snow longer, can be more persistent slab prone
+                if (skill < 4) {
+                    warnings.push('North aspects require avalanche awareness');
+                }
+            }
+            
+            // Multiple aspects = more complex avalanche assessment
+            if (aspect.includes('multiple') || aspect.includes('all') || aspect.includes('various')) {
+                if (skill < 5) {
+                    score -= 0.5;
+                    warnings.push('Multiple aspects require careful terrain selection');
+                }
+            }
             
             // ============================================
             // GENERATE RECOMMENDATION
             // ============================================
             
+            // Remove duplicate warnings/bonuses
+            warnings = [...new Set(warnings)];
+            bonuses = [...new Set(bonuses)];
+            
             const analysisIntro = bonuses.length > 0 ? bonuses[0] + '. ' : '';
             const warningText = warnings.length > 0 ? warnings.join('. ') + '.' : '';
             
-            if (score >= 4) {
-                return { 
-                    level: 'go', 
-                    text: '✅ Perfect Match', 
-                    analysis: `${analysisIntro}This tour aligns well with your energy (${fitness}/10) and skill (${skill}/10). ${warningText || 'Enjoy!'}`,
-                    score: score,
-                    physicalDifficulty,
-                    technicalDifficulty
-                };
-            } else if (score >= 2) {
-                return { 
-                    level: 'go', 
-                    text: '✅ Good to Go', 
-                    analysis: `${analysisIntro}Solid choice for your current state. ${warningText || 'Have fun out there!'}`,
-                    score: score,
-                    physicalDifficulty,
-                    technicalDifficulty
-                };
-            } else if (score >= 0) {
-                return { 
-                    level: 'maybe', 
-                    text: '⚠️ Possible', 
-                    analysis: `Doable but consider carefully. ${warningText || 'Be conservative with decisions.'}`,
-                    score: score,
-                    physicalDifficulty,
-                    technicalDifficulty
-                };
-            } else if (score >= -2) {
-                return { 
-                    level: 'maybe', 
-                    text: '⚠️ Stretch', 
-                    analysis: `Pushing your limits today. ${warningText || 'Have a backup plan.'}`,
-                    score: score,
-                    physicalDifficulty,
-                    technicalDifficulty
-                };
+            // Determine recommendation level based on score
+            let level, text;
+            if (score >= 5) {
+                level = 'go';
+                text = '✅ Perfect Match';
+            } else if (score >= 3) {
+                level = 'go';
+                text = '✅ Good Choice';
+            } else if (score >= 1) {
+                level = 'maybe';
+                text = '⚠️ Doable';
+            } else if (score >= -1) {
+                level = 'maybe';
+                text = '⚠️ Stretch';
+            } else if (score >= -3) {
+                level = 'no';
+                text = '🛑 Not Ideal';
             } else {
-                return { 
-                    level: 'no', 
-                    text: '🛑 Not Today', 
-                    analysis: `${warningText || 'This tour exceeds your current fitness or skill level.'} Consider a different objective.`,
-                    score: score,
-                    physicalDifficulty,
-                    technicalDifficulty
-                };
+                level = 'no';
+                text = '🛑 Not Today';
             }
+            
+            // Build analysis text
+            let analysis = '';
+            if (level === 'go') {
+                analysis = `${analysisIntro}This tour aligns well with your energy (${fitness}/10) and skill (${skill}/10). ${warningText || 'Enjoy the day!'}`;
+            } else if (level === 'maybe') {
+                analysis = `${analysisIntro}Consider carefully. ${warningText || 'Be conservative with decisions.'}`;
+            } else {
+                analysis = `${warningText || 'This tour exceeds your current capacity.'} Consider a different objective or wait for a better day.`;
+            }
+            
+            return { 
+                level, 
+                text, 
+                analysis,
+                score: Math.round(score * 10) / 10,
+                physicalDifficulty,
+                technicalDifficulty,
+                warnings,
+                bonuses
+            };
         }
 
         function generateTourCard(tour, rec, rank = null) {
