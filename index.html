@@ -1073,86 +1073,263 @@
                 'mt-hood': 'https://nwac.us/avalanche-forecast/#/mt-hood'
             };
             
+            // Map our zone IDs to avalanche.org zone IDs
+            const avyOrgZoneIds = {
+                'west-slopes-north': 1129,      // Mt Baker
+                'stevens-pass': 1130,           // Stevens Pass
+                'west-slopes-central': 1131,    // West Central
+                'snoqualmie-pass': 1132,        // Snoqualmie Pass
+                'west-slopes-south': 1133,      // West South
+                'east-slopes-north': 1134,      // East North
+                'east-slopes-central': 1135,    // East Central
+                'east-slopes-south': 1136,      // East South
+                'olympics': 1137,               // Olympics
+                'mt-hood': 1138                 // Mt Hood
+            };
+            
             const zoneUrl = nwacZoneUrls[config.nwacZone] || 'https://nwac.us/avalanche-forecast/';
             const zoneName = getZoneName(config.nwacZone);
             
+            // Danger level colors and labels
+            const dangerColors = {
+                0: { color: '#cccccc', label: 'No Rating', textColor: '#333' },
+                1: { color: '#50B848', label: 'Low', textColor: '#fff' },
+                2: { color: '#FFF200', label: 'Moderate', textColor: '#333' },
+                3: { color: '#F7941E', label: 'Considerable', textColor: '#fff' },
+                4: { color: '#ED1C24', label: 'High', textColor: '#fff' },
+                5: { color: '#000000', label: 'Extreme', textColor: '#fff' }
+            };
+            
+            // Show loading state
+            content.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🏔️</div>
+                    <div style="color: var(--topo-gray);">Loading avalanche forecast...</div>
+                </div>
+            `;
+            
             try {
+                // Try to fetch from avalanche.org API
+                const apiUrl = 'https://api.avalanche.org/v2/public/products?avalanche_center_id=NWAC&type=forecast';
+                console.log('🏔️ Fetching from avalanche.org API:', apiUrl);
+                
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                const forecasts = await response.json();
+                console.log('🏔️ Avalanche.org API response:', forecasts);
+                
+                // Find the forecast for our zone
+                const zoneId = avyOrgZoneIds[config.nwacZone];
+                let forecast = null;
+                
+                if (forecasts && Array.isArray(forecasts)) {
+                    forecast = forecasts.find(f => f.forecast_zone && f.forecast_zone.some(z => z.id === zoneId));
+                }
+                
+                if (forecast) {
+                    // Parse danger levels
+                    const dangerAbove = forecast.danger ? forecast.danger.find(d => d.upper !== undefined)?.upper || 0 : 0;
+                    const dangerNear = forecast.danger ? forecast.danger.find(d => d.middle !== undefined)?.middle || 0 : 0;
+                    const dangerBelow = forecast.danger ? forecast.danger.find(d => d.lower !== undefined)?.lower || 0 : 0;
+                    
+                    // Get the highest danger for display
+                    const maxDanger = Math.max(dangerAbove, dangerNear, dangerBelow);
+                    const dangerInfo = dangerColors[maxDanger] || dangerColors[0];
+                    
+                    // Parse avalanche problems
+                    const problems = forecast.forecast_avalanche_problems || [];
+                    
+                    // Parse bottom line
+                    const bottomLine = forecast.bottom_line || '';
+                    
+                    // Issue date
+                    const issueDate = forecast.published_time ? new Date(forecast.published_time).toLocaleDateString('en-US', {
+                        weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                    }) : '';
+                    
+                    content.innerHTML = `
+                        <div style="text-align: center;">
+                            <!-- Zone Name & Issue Date -->
+                            <div style="margin-bottom: 1rem;">
+                                <div style="font-size: 1.1rem; font-weight: 700; color: var(--forest-green);">
+                                    ${zoneName}
+                                </div>
+                                ${issueDate ? `<div style="font-size: 0.7rem; color: var(--topo-gray);">Updated: ${issueDate}</div>` : ''}
+                            </div>
+                            
+                            <!-- Danger Rating Display -->
+                            <div style="background: ${dangerInfo.color}; color: ${dangerInfo.textColor}; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
+                                <div style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.9; margin-bottom: 0.25rem;">Current Danger</div>
+                                <div style="font-size: 1.75rem; font-weight: 700;">${dangerInfo.label}</div>
+                            </div>
+                            
+                            <!-- Elevation Breakdown -->
+                            <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                                <div style="background: ${dangerColors[dangerAbove].color}; color: ${dangerColors[dangerAbove].textColor}; padding: 0.5rem 0.75rem; border-radius: 8px; min-width: 80px;">
+                                    <div style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.8;">Above TL</div>
+                                    <div style="font-size: 0.85rem; font-weight: 700;">${dangerColors[dangerAbove].label}</div>
+                                </div>
+                                <div style="background: ${dangerColors[dangerNear].color}; color: ${dangerColors[dangerNear].textColor}; padding: 0.5rem 0.75rem; border-radius: 8px; min-width: 80px;">
+                                    <div style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.8;">Near TL</div>
+                                    <div style="font-size: 0.85rem; font-weight: 700;">${dangerColors[dangerNear].label}</div>
+                                </div>
+                                <div style="background: ${dangerColors[dangerBelow].color}; color: ${dangerColors[dangerBelow].textColor}; padding: 0.5rem 0.75rem; border-radius: 8px; min-width: 80px;">
+                                    <div style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.8;">Below TL</div>
+                                    <div style="font-size: 0.85rem; font-weight: 700;">${dangerColors[dangerBelow].label}</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Avalanche Problems -->
+                            ${problems.length > 0 ? `
+                            <div style="background: var(--cream); border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem; text-align: left;">
+                                <div style="font-size: 0.7rem; color: var(--topo-gray); text-transform: uppercase; margin-bottom: 0.5rem;">Avalanche Problems</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                    ${problems.map(p => `
+                                        <span style="background: #e8e8e8; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">
+                                            ${p.name || p.avalanche_problem_id || 'Unknown'}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
+                            
+                            <!-- Bottom Line Summary -->
+                            ${bottomLine ? `
+                            <div style="background: var(--cream); border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem; text-align: left;">
+                                <div style="font-size: 0.7rem; color: var(--topo-gray); text-transform: uppercase; margin-bottom: 0.4rem;">Bottom Line</div>
+                                <div style="font-size: 0.8rem; color: #333; line-height: 1.4;">${bottomLine.replace(/<[^>]*>/g, '').substring(0, 300)}${bottomLine.length > 300 ? '...' : ''}</div>
+                            </div>
+                            ` : ''}
+                            
+                            <!-- CTA Button -->
+                            <a href="${zoneUrl}" target="_blank" 
+                               style="display: inline-block; background: var(--forest-green); color: white; 
+                                      padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; 
+                                      font-weight: 700; font-size: 0.9rem; margin-bottom: 0.75rem;
+                                      box-shadow: 0 4px 12px rgba(45, 80, 45, 0.3);">
+                                🏔️ Full Forecast →
+                            </a>
+                            
+                            <!-- Quick Links -->
+                            <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                                <a href="https://nwac.us/observations/" target="_blank" 
+                                   style="color: var(--forest-green); font-size: 0.75rem; text-decoration: none;">
+                                    👁️ Observations
+                                </a>
+                                <a href="https://nwac.us/weatherdata/" target="_blank" 
+                                   style="color: var(--forest-green); font-size: 0.75rem; text-decoration: none;">
+                                    🌡️ Weather Stations
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    console.log('✅ Avalanche forecast loaded from API for zone:', config.nwacZone);
+                } else {
+                    throw new Error('Zone forecast not found in API response');
+                }
+                
+            } catch (error) {
+                console.warn('⚠️ Avalanche API failed, showing fallback:', error.message);
+                
+                // Fallback to static display with link
                 content.innerHTML = `
                     <div style="text-align: center;">
-                        <div style="margin-bottom: 1rem;">
-                            <div style="font-size: 1.1rem; font-weight: 700; color: var(--forest-green); margin-bottom: 0.25rem;">
-                                ${zoneName}
+                        <!-- Zone Name -->
+                        <div style="font-size: 1.2rem; font-weight: 700; color: var(--forest-green); margin-bottom: 1rem;">
+                            ${zoneName}
+                        </div>
+                        
+                        <!-- Danger Scale Legend -->
+                        <div style="background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                            <div style="font-size: 0.7rem; color: var(--topo-gray); text-transform: uppercase; margin-bottom: 0.5rem;">
+                                Danger Scale
+                            </div>
+                            <div style="display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 0.2rem; background: white; padding: 0.3rem 0.5rem; border-radius: 5px;">
+                                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #50B848;"></div>
+                                    <span style="font-size: 0.65rem; font-weight: 600;">Low</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.2rem; background: white; padding: 0.3rem 0.5rem; border-radius: 5px;">
+                                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #FFF200; border: 1px solid #ddd;"></div>
+                                    <span style="font-size: 0.65rem; font-weight: 600;">Mod</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.2rem; background: white; padding: 0.3rem 0.5rem; border-radius: 5px;">
+                                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #F7941E;"></div>
+                                    <span style="font-size: 0.65rem; font-weight: 600;">Cons</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.2rem; background: white; padding: 0.3rem 0.5rem; border-radius: 5px;">
+                                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #ED1C24;"></div>
+                                    <span style="font-size: 0.65rem; font-weight: 600;">High</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.2rem; background: white; padding: 0.3rem 0.5rem; border-radius: 5px;">
+                                    <div style="width: 14px; height: 14px; border-radius: 50%; background: #000000;"></div>
+                                    <span style="font-size: 0.65rem; font-weight: 600;">Ext</span>
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Embedded NWAC Forecast -->
-                        <div style="position: relative; width: 100%; height: 450px; border: 2px solid var(--forest-green); border-radius: 8px; overflow: hidden; margin-bottom: 1rem;">
-                            <iframe 
-                                src="${zoneUrl}" 
-                                style="width: 100%; height: 100%; border: none;"
-                                title="NWAC Avalanche Forecast for ${zoneName}"
-                                loading="lazy">
-                            </iframe>
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.25rem; margin-bottom: 1rem;">
-                            <div style="text-align: center;">
-                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #50B848; margin: 0 auto 0.15rem;"></div>
-                                <div style="font-size: 0.6rem; color: var(--topo-gray);">Low</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #FFF200; margin: 0 auto 0.15rem;"></div>
-                                <div style="font-size: 0.6rem; color: var(--topo-gray);">Moderate</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #F7941E; margin: 0 auto 0.15rem;"></div>
-                                <div style="font-size: 0.6rem; color: var(--topo-gray);">Considerable</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #ED1C24; margin: 0 auto 0.15rem;"></div>
-                                <div style="font-size: 0.6rem; color: var(--topo-gray);">High</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="width: 28px; height: 28px; border-radius: 50%; background: #000000; margin: 0 auto 0.15rem;"></div>
-                                <div style="font-size: 0.6rem; color: var(--topo-gray);">Extreme</div>
+                        <!-- Warning -->
+                        <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem;">
+                            <div style="font-size: 0.8rem; color: #856404;">
+                                ⚠️ <strong>Check NWAC for current conditions</strong>
                             </div>
                         </div>
                         
+                        <!-- CTA Button -->
                         <a href="${zoneUrl}" target="_blank" 
                            style="display: inline-block; background: var(--forest-green); color: white; 
-                                  padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; 
-                                  font-weight: 700; font-size: 0.85rem;
-                                  transition: all 0.2s ease;">
-                            🏔️ Open Full Forecast →
+                                  padding: 1rem 2rem; border-radius: 10px; text-decoration: none; 
+                                  font-weight: 700; font-size: 1rem; margin-bottom: 0.75rem;
+                                  box-shadow: 0 4px 12px rgba(45, 80, 45, 0.3);">
+                            🏔️ View Forecast
                         </a>
+                        
+                        <!-- Quick Links -->
+                        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                            <a href="https://nwac.us/avalanche-forecast/" target="_blank" 
+                               style="color: var(--forest-green); font-size: 0.75rem; text-decoration: none;">
+                                📍 All Zones
+                            </a>
+                            <a href="https://nwac.us/observations/" target="_blank" 
+                               style="color: var(--forest-green); font-size: 0.75rem; text-decoration: none;">
+                                👁️ Observations
+                            </a>
+                        </div>
                     </div>
                 `;
-                console.log('✅ Avalanche forecast section loaded with zone:', config.nwacZone);
-            } catch (error) {
-                console.error('❌ Error loading avalanche data:', error);
-                content.innerHTML = `<div class="error">Error loading avalanche data: ${error.message}</div>`;
             }
         }
 
-        // SNOTEL station mapping by zone - used ONLY for historical snowfall data
-        const snotelStations = {
-            'west-slopes-north': { id: '909:WA:SNTL', name: 'Wells Creek', elevation: '4230 ft' },
-            'stevens-pass': { id: '791:WA:SNTL', name: 'Stevens Pass', elevation: '4060 ft' },
-            'west-slopes-central': { id: '791:WA:SNTL', name: 'Stevens Pass', elevation: '4060 ft' },
-            'snoqualmie-pass': { id: '867:WA:SNTL', name: 'Snoqualmie Pass', elevation: '3040 ft' },
-            'west-slopes-south': { id: '679:WA:SNTL', name: 'Paradise', elevation: '5400 ft' },
-            'east-slopes-north': { id: '515:WA:SNTL', name: 'Harts Pass', elevation: '6500 ft' },
-            'east-slopes-central': { id: '896:WA:SNTL', name: 'Blewett Pass', elevation: '4240 ft' },
-            'east-slopes-south': { id: '896:WA:SNTL', name: 'Blewett Pass', elevation: '4240 ft' },
-            'olympics': { id: '1011:WA:SNTL', name: 'Waterhole', elevation: '5150 ft' },
-            'mt-hood': { id: '651:OR:SNTL', name: 'Mt Hood Test Site', elevation: '5380 ft' }
+        // ============================================
+        // SYNOPTIC DATA API CONFIGURATION
+        // Sign up at: https://customer.synopticdata.com/signup
+        // Free tier: 5,000 requests/month
+        // ============================================
+        const SYNOPTIC_TOKEN = 'f26f2eb1c2c04cef95b94b2405949325';
+        
+        // Zone center coordinates for Synoptic radius search
+        const zoneCoordinates = {
+            'west-slopes-north': { lat: 48.85, lon: -121.68, name: 'Mt Baker Area' },
+            'stevens-pass': { lat: 47.745, lon: -121.089, name: 'Stevens Pass' },
+            'west-slopes-central': { lat: 47.50, lon: -121.40, name: 'Central Cascades' },
+            'snoqualmie-pass': { lat: 47.40, lon: -121.40, name: 'Snoqualmie Pass' },
+            'west-slopes-south': { lat: 46.85, lon: -121.75, name: 'Paradise/Rainier' },
+            'east-slopes-north': { lat: 48.50, lon: -120.50, name: 'East North Cascades' },
+            'east-slopes-central': { lat: 47.30, lon: -120.60, name: 'Mission Ridge Area' },
+            'east-slopes-south': { lat: 46.60, lon: -121.00, name: 'East South Cascades' },
+            'olympics': { lat: 47.80, lon: -123.50, name: 'Olympics' },
+            'mt-hood': { lat: 45.37, lon: -121.70, name: 'Mt Hood' }
         };
 
         async function loadWeatherData() {
             const content = document.getElementById('weatherContent');
             console.log('⛅ Loading weather data for:', config.location);
             
-            const snotelStation = snotelStations[config.nwacZone];
+            const zoneInfo = zoneCoordinates[config.nwacZone] || zoneCoordinates['stevens-pass'];
             
             try {
                 // ============================================
@@ -1181,56 +1358,94 @@
                 console.log('✅ NWS Weather loaded:', { temp, windSpeed, conditions: current.shortForecast });
                 
                 // ============================================
-                // HISTORICAL SNOWFALL FROM SNOTEL ONLY
+                // SNOW DATA FROM SYNOPTIC DATA API
+                // (Same data source as OpenSnow!)
                 // ============================================
-                let seasonSnowfall = '--';
-                let currentSnowDepth = '--';
+                let snowDepth = '--';
+                let newSnow24h = '--';
+                let newSnow7d = '--';
+                let stationName = '';
+                let stationElevation = '';
+                let synopticWorking = false;
                 
-                if (snotelStation) {
+                if (SYNOPTIC_TOKEN !== 'YOUR_SYNOPTIC_TOKEN') {
                     try {
-                        // Get season start (Oct 1) and today
-                        const now = new Date();
-                        const seasonStart = new Date(now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1, 9, 1);
-                        const startDate = seasonStart.toISOString().split('T')[0];
-                        const endDate = now.toISOString().split('T')[0];
+                        // Search for stations with snow data within 30 miles of zone center
+                        const synopticUrl = `https://api.synopticdata.com/v2/stations/latest?` +
+                            `token=${SYNOPTIC_TOKEN}` +
+                            `&radius=${zoneInfo.lat},${zoneInfo.lon},30` +  // 30 mile radius
+                            `&vars=snow_depth,precip_accum_24_hour,precip_accum_seven_day` +
+                            `&within=180` +  // Data within last 3 hours
+                            `&units=english` +
+                            `&status=active`;
                         
-                        // Fetch SNOTEL data: SNWD (snow depth), PREC (precipitation accumulation)
-                        const snotelUrl = `https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1/data?stationTriplets=${snotelStation.id}&elements=SNWD,PREC&duration=DAILY&beginDate=${endDate}&endDate=${endDate}`;
+                        console.log('❄️ Fetching Synoptic snow data...');
+                        const synopticResponse = await fetch(synopticUrl);
                         
-                        console.log('❄️ Fetching SNOTEL historical data from:', snotelUrl);
-                        const snotelResponse = await fetch(snotelUrl);
-                        
-                        if (snotelResponse.ok) {
-                            const snotelData = await snotelResponse.json();
-                            console.log('❄️ SNOTEL response:', snotelData);
+                        if (synopticResponse.ok) {
+                            const synopticData = await synopticResponse.json();
+                            console.log('❄️ Synoptic response:', synopticData);
                             
-                            if (snotelData && snotelData.length > 0) {
-                                const stationData = snotelData[0];
-                                if (stationData.data) {
-                                    stationData.data.forEach(d => {
-                                        // Current snow depth
-                                        if (d.stationElement === 'SNWD' && d.values && d.values.length > 0) {
-                                            const val = d.values[d.values.length - 1];
-                                            if (val && val.value !== null) {
-                                                currentSnowDepth = Math.round(val.value) + '"';
-                                            }
-                                        }
-                                        // Season precipitation (proxy for snowfall at elevation)
-                                        if (d.stationElement === 'PREC' && d.values && d.values.length > 0) {
-                                            const val = d.values[d.values.length - 1];
-                                            if (val && val.value !== null) {
-                                                // PREC is water equivalent, rough estimate: multiply by 10-12 for snow
-                                                const estimatedSnow = Math.round(val.value * 10);
-                                                seasonSnowfall = estimatedSnow + '"';
-                                            }
+                            if (synopticData.STATION && synopticData.STATION.length > 0) {
+                                // Find station with best snow data (prefer higher elevation)
+                                let bestStation = null;
+                                let bestElevation = 0;
+                                
+                                synopticData.STATION.forEach(station => {
+                                    const elev = parseFloat(station.ELEVATION) || 0;
+                                    const hasSnowDepth = station.OBSERVATIONS?.snow_depth_value_1?.value !== undefined;
+                                    
+                                    if (hasSnowDepth && elev > bestElevation) {
+                                        bestStation = station;
+                                        bestElevation = elev;
+                                    }
+                                });
+                                
+                                // If no snow depth, just get highest elevation station
+                                if (!bestStation) {
+                                    synopticData.STATION.forEach(station => {
+                                        const elev = parseFloat(station.ELEVATION) || 0;
+                                        if (elev > bestElevation) {
+                                            bestStation = station;
+                                            bestElevation = elev;
                                         }
                                     });
                                 }
+                                
+                                if (bestStation) {
+                                    stationName = bestStation.NAME || bestStation.STID;
+                                    stationElevation = Math.round(bestElevation) + ' ft';
+                                    synopticWorking = true;
+                                    
+                                    const obs = bestStation.OBSERVATIONS || {};
+                                    
+                                    // Snow depth (inches)
+                                    if (obs.snow_depth_value_1?.value !== undefined) {
+                                        snowDepth = Math.round(obs.snow_depth_value_1.value) + '"';
+                                    }
+                                    
+                                    // 24-hour precip (convert to estimated snowfall: multiply by ~10)
+                                    if (obs.precip_accum_24_hour_value_1?.value !== undefined) {
+                                        const precip = obs.precip_accum_24_hour_value_1.value;
+                                        // Estimate snow from precip (10:1 ratio typical for Cascades)
+                                        newSnow24h = Math.round(precip * 10) + '"';
+                                    }
+                                    
+                                    // 7-day precip
+                                    if (obs.precip_accum_seven_day_value_1?.value !== undefined) {
+                                        const precip7 = obs.precip_accum_seven_day_value_1.value;
+                                        newSnow7d = Math.round(precip7 * 10) + '"';
+                                    }
+                                    
+                                    console.log('✅ Synoptic snow data:', { stationName, snowDepth, newSnow24h, newSnow7d });
+                                }
                             }
                         }
-                    } catch (snotelErr) {
-                        console.warn('❄️ SNOTEL fetch failed (will show links instead):', snotelErr.message);
+                    } catch (synopticErr) {
+                        console.warn('❄️ Synoptic fetch failed:', synopticErr.message);
                     }
+                } else {
+                    console.log('ℹ️ Synoptic token not configured - using placeholder display');
                 }
                 
                 // ============================================
@@ -1260,29 +1475,38 @@
                             </div>
                         </div>
                         
-                        <!-- Historical Snowfall from SNOTEL -->
+                        <!-- Snow Data from Synoptic (OpenSnow's data source) -->
                         <div style="background: linear-gradient(135deg, #e8f4fd 0%, #d4e9f7 100%); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
                             <div style="font-size: 0.7rem; color: #1565c0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
-                                ❄️ Snowpack (SNOTEL)
+                                ❄️ Snow Conditions
                             </div>
-                            <div style="display: flex; justify-content: center; gap: 2rem;">
-                                <div style="text-align: center;">
-                                    <div style="font-size: 1.5rem; font-weight: 700; color: #1565c0;">${currentSnowDepth}</div>
-                                    <div style="font-size: 0.7rem; color: var(--topo-gray);">Current Depth</div>
+                            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                                <div style="text-align: center; min-width: 70px;">
+                                    <div style="font-size: 1.4rem; font-weight: 700; color: #1565c0;">${snowDepth}</div>
+                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">Base Depth</div>
                                 </div>
-                                <div style="text-align: center;">
-                                    <div style="font-size: 1.5rem; font-weight: 700; color: #1565c0;">${seasonSnowfall}</div>
-                                    <div style="font-size: 0.7rem; color: var(--topo-gray);">Season Total*</div>
+                                <div style="text-align: center; min-width: 70px;">
+                                    <div style="font-size: 1.4rem; font-weight: 700; color: #1565c0;">${newSnow24h}</div>
+                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">24hr Snow*</div>
+                                </div>
+                                <div style="text-align: center; min-width: 70px;">
+                                    <div style="font-size: 1.4rem; font-weight: 700; color: #1565c0;">${newSnow7d}</div>
+                                    <div style="font-size: 0.65rem; color: var(--topo-gray);">7-Day Snow*</div>
                                 </div>
                             </div>
-                            ${snotelStation ? `
+                            ${synopticWorking ? `
                             <div style="font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.5rem;">
-                                📍 ${snotelStation.name} (${snotelStation.elevation})
+                                📍 ${stationName} (${stationElevation})
                             </div>
-                            ` : ''}
-                            <div style="font-size: 0.6rem; color: var(--topo-gray); margin-top: 0.25rem; font-style: italic;">
-                                *Estimated from precipitation data
+                            <div style="font-size: 0.6rem; color: var(--topo-gray); margin-top: 0.2rem; font-style: italic;">
+                                *Estimated from precip • Powered by Synoptic Data
                             </div>
+                            ` : `
+                            <div style="font-size: 0.7rem; color: #856404; margin-top: 0.5rem; background: #fff3cd; padding: 0.5rem; border-radius: 6px;">
+                                ⚠️ Add your Synoptic token to enable live snow data
+                                <br><a href="https://customer.synopticdata.com/signup" target="_blank" style="color: #1565c0;">Get free API access →</a>
+                            </div>
+                            `}
                         </div>
                         
                         <!-- NWS Detailed Forecast -->
@@ -1297,11 +1521,11 @@
                         
                         <!-- Data source links -->
                         <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
-                            <a href="https://www.wcc.nrcs.usda.gov/snow/" target="_blank" 
+                            <a href="https://opensnow.com/location/stevenspass" target="_blank" 
                                style="display: inline-flex; align-items: center; gap: 0.3rem; color: var(--forest-green); 
                                       font-size: 0.75rem; text-decoration: none; padding: 0.4rem 0.8rem; 
                                       background: var(--cream); border-radius: 6px;">
-                                📊 SNOTEL Data
+                                🎿 OpenSnow
                             </a>
                             <a href="https://nwac.us/weatherdata/" target="_blank" 
                                style="display: inline-flex; align-items: center; gap: 0.3rem; color: var(--forest-green); 
