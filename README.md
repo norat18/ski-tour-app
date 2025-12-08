@@ -96,12 +96,10 @@ The algorithm calculates a match score based on your profile and tour characteri
 ### Recommendation Tiers
 | Score | Recommendation |
 |-------|----------------|
-| 5+ | ✅ Perfect Match |
-| 3 to 5 | ✅ Good Choice |
+| 3+ | ✅ Good Choice |
 | 1 to 3 | ⚠️ Doable |
-| -1 to 1 | ⚠️ Stretch |
-| -3 to -1 | 🛑 Not Ideal |
-| < -3 | 🛑 Not Today |
+| -2 to 1 | ⚠️ Stretch |
+| < -2 | 🛑 Not Today |
 
 ### Special Considerations
 - **Glacier terrain:** Requires skill ≥ 6, warns about crevasse rescue
