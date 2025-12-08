@@ -651,42 +651,47 @@
                         </div>
                     </div>
 
-                    <!-- Fitness Card -->
+                    <!-- Combined Fitness & Skill Card -->
                     <div class="card">
                         <div class="card-header">
-                            <div class="card-title">💪 How I'm Feeling Today</div>
+                            <div class="card-title">🎯 My Profile</div>
                         </div>
-                        <div class="fitness-slider">
-                            <div class="slider-label">
-                                <span>Exhausted</span>
-                                <span>Peak Energy</span>
+                        
+                        <!-- Energy Section -->
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+                            <div style="font-size: 2rem; width: 50px; text-align: center;">💪</div>
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Today's Energy</span>
+                                    <span id="fitnessStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Strong (7/10)</span>
+                                </div>
+                                <input type="range" id="fitnessSlider" min="1" max="10" value="7" step="1" style="margin: 0;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
+                                    <span>Exhausted</span>
+                                    <span>Peak Energy</span>
+                                </div>
                             </div>
-                            <input type="range" id="fitnessSlider" min="1" max="10" value="7" step="1">
-                            <div class="fitness-status" id="fitnessStatus">Strong (7/10)</div>
                         </div>
-                        <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--topo-gray); line-height: 1.5;">
-                            How's your energy today? Higher = longer, harder tours recommended.
-                        </p>
-                    </div>
-
-                    <!-- Skill Level Card -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">🎿 Touring Skill Level</div>
-                        </div>
-                        <div class="fitness-slider">
-                            <div class="slider-label">
-                                <span>Beginner</span>
-                                <span>Expert</span>
+                        
+                        <!-- Skill Section -->
+                        <div style="display: flex; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid #eee;">
+                            <div style="font-size: 2rem; width: 50px; text-align: center;">🎿</div>
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Touring Skill</span>
+                                    <span id="skillStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
+                                </div>
+                                <input type="range" id="skillSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
+                                    <span>Beginner</span>
+                                    <span>Expert</span>
+                                </div>
                             </div>
-                            <input type="range" id="skillSlider" min="1" max="10" value="5" step="1">
-                            <div class="fitness-status" id="skillStatus">Intermediate (5/10)</div>
                         </div>
-                        <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--topo-gray); line-height: 1.5;">
-                            Your backcountry experience: skinning, route-finding, avalanche assessment, glacier travel.
-                        </p>
-                        <div id="skillDescription" style="margin-top: 0.75rem; padding: 0.75rem; background: var(--cream); border-radius: 6px; font-size: 0.8rem; color: var(--topo-gray);">
-                            Can handle moderate terrain, some route-finding, comfortable with avalanche basics.
+                        
+                        <!-- Skill Description -->
+                        <div id="skillDescription" style="margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 8px; font-size: 0.8rem; color: var(--topo-gray); line-height: 1.4;">
+                            💡 Can handle moderate terrain, some route-finding, comfortable with avalanche basics.
                         </div>
                     </div>
                 </div>
@@ -714,8 +719,36 @@
                 </div>
 
                 <div class="footer">
-                    <p>Data sources: <a href="https://nwac.us/" target="_blank">NWAC</a> • <a href="https://www.weather.gov/" target="_blank">NWS</a> • <a href="https://caltopo.com/" target="_blank">CalTopo</a></p>
-                    <p style="margin-top: 0.5rem;">⚠️ This is a decision support tool. Always make your own informed choices in the backcountry.</p>
+                    <p style="margin-bottom: 0.75rem;">
+                        <strong>Data Sources:</strong><br>
+                        <a href="https://nwac.us/" target="_blank">NWAC</a> • 
+                        <a href="https://avalanche.org/" target="_blank">Avalanche.org</a> • 
+                        <a href="https://www.weather.gov/" target="_blank">NWS</a> • 
+                        <a href="https://synopticdata.com/" target="_blank">Synoptic Data</a> • 
+                        <a href="https://caltopo.com/" target="_blank">CalTopo</a>
+                    </p>
+                    <p style="margin-bottom: 1rem;">⚠️ This is a decision support tool. Always make your own informed choices in the backcountry.</p>
+                    
+                    <div style="border-top: 1px solid #ddd; padding-top: 1rem; margin-top: 0.5rem;">
+                        <p style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.5rem;">💬 Feedback</p>
+                        <p style="font-size: 0.85rem; margin-bottom: 0.75rem;">
+                            Have suggestions, found a bug, or want to add tours?
+                        </p>
+                        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                            <a href="https://github.com/norat18/ski-tour-app/issues" target="_blank" 
+                               style="display: inline-flex; align-items: center; gap: 0.3rem; background: var(--forest-green); 
+                                      color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; 
+                                      font-size: 0.85rem; font-weight: 600;">
+                                🐛 Report Issue
+                            </a>
+                            <a href="https://github.com/norat18/ski-tour-app" target="_blank" 
+                               style="display: inline-flex; align-items: center; gap: 0.3rem; background: #333; 
+                                      color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; 
+                                      font-size: 0.85rem; font-weight: 600;">
+                                ⭐ GitHub
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2228,14 +2261,14 @@
             if (skillSlider) {
                 skillSlider.value = 5;
                 document.getElementById('skillStatus').textContent = `${skillLabels[5]} (5/10)`;
-                document.getElementById('skillDescription').textContent = skillDescriptions[5];
+                document.getElementById('skillDescription').innerHTML = `💡 ${skillDescriptions[5]}`;
                 
                 skillSlider.addEventListener('input', function() {
                     const value = parseInt(this.value);
                     config.skillLevel = value;
                     document.getElementById('skillStatus').textContent = 
                         `${skillLabels[value]} (${value}/10)`;
-                    document.getElementById('skillDescription').textContent = skillDescriptions[value];
+                    document.getElementById('skillDescription').innerHTML = `💡 ${skillDescriptions[value]}`;
                     
                     console.log('🎿 Skill level changed to:', value, '- Recalculating recommendations...');
                     if (config.nwacZone) loadTours();
