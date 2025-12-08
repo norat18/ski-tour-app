@@ -581,7 +581,8 @@
                     <option value="">Choose your zone...</option>
                     <optgroup label="Washington Cascades - West">
                         <option value="west-slopes-north">West Slopes North (Mt Baker)</option>
-                        <option value="west-slopes-central">West Slopes Central (Stevens Pass)</option>
+                        <option value="stevens-pass">Stevens Pass</option>
+                        <option value="west-slopes-central">West Slopes Central</option>
                         <option value="snoqualmie-pass">Snoqualmie Pass</option>
                         <option value="west-slopes-south">West Slopes South (White Pass)</option>
                     </optgroup>
@@ -713,7 +714,8 @@
         // Default coordinates for each NWAC zone
         const zoneDefaults = {
             'west-slopes-north': { lat: 48.868, lon: -121.813, name: 'Mt Baker Area' },
-            'west-slopes-central': { lat: 47.745, lon: -121.089, name: 'Stevens Pass Area' },
+            'stevens-pass': { lat: 47.745, lon: -121.089, name: 'Stevens Pass' },
+            'west-slopes-central': { lat: 47.500, lon: -121.400, name: 'West Slopes Central' },
             'snoqualmie-pass': { lat: 47.424, lon: -121.413, name: 'Snoqualmie Pass' },
             'west-slopes-south': { lat: 46.600, lon: -121.400, name: 'White Pass Area' },
             'east-slopes-north': { lat: 48.500, lon: -120.650, name: 'North Cascades East' },
@@ -778,37 +780,46 @@
                 { name: "Dome Peak", location: "North Cascades", elevationGain: 8500, distance: 36, maxElevation: 8920, aspect: "Multiple", terrain: "Glacier travel" },
                 { name: "Whitehorse Mt.", location: "North Cascades", elevationGain: 5925, distance: 8, maxElevation: 6852, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" }
             ],
-            'west-slopes-central': [
-                { name: "Three Fingers", location: "Stevens Pass", elevationGain: 4000, distance: 13, maxElevation: 6854, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
-                { name: "Mt. Maude", location: "Stevens Pass", elevationGain: 8400, distance: 14, maxElevation: 9082, aspect: "Multiple", terrain: "Exposed ridge, 40-45°" },
-                { name: "Chiwawa Mt.", location: "Stevens Pass", elevationGain: 5000, distance: 19, maxElevation: 8459, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
-                { name: "Glacier Peak (North)", location: "Stevens Pass", elevationGain: 8000, distance: 24, maxElevation: 10541, aspect: "Multiple", terrain: "Glacier travel" },
-                { name: "Glacier Peak (South)", location: "Stevens Pass", elevationGain: 12960, distance: 24, maxElevation: 10541, aspect: "Multiple", terrain: "Glacier travel" },
-                { name: "North Central Cascades Traverse", location: "Stevens Pass", elevationGain: 30290, distance: 60, maxElevation: 10541, aspect: "Multiple", terrain: "Glacier travel" },
-                { name: "The Dakobed Traverse", location: "Stevens Pass", elevationGain: 17990, distance: 40, maxElevation: 9000, aspect: "Multiple", terrain: "Glacier travel" },
-                { name: "Green Mountain", location: "Stevens Pass", elevationGain: 2500, distance: 8, maxElevation: 6500, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
-                { name: "Mt Pilchuck", location: "Stevens Pass", elevationGain: 2650, distance: 4, maxElevation: 5324, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
-                { name: "Bandit Peak: Black Hole Couloir", location: "Stevens Pass", elevationGain: 5900, distance: 15, maxElevation: 7500, aspect: "Multiple", terrain: "Couloir, 40-50°" },
-                { name: "Johnson Ridge", location: "Stevens Pass", elevationGain: 2500, distance: 11, maxElevation: 6000, aspect: "Multiple", terrain: "Open slopes, <30°" },
-                { name: "Clark Mt", location: "Stevens Pass", elevationGain: 4500, distance: 24, maxElevation: 8600, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
-                { name: "Vesper Peak", location: "Stevens Pass", elevationGain: 4150, distance: 6, maxElevation: 6214, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
-                { name: "Kyes Peak", location: "Stevens Pass", elevationGain: 6160, distance: 16, maxElevation: 7280, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
-                { name: "Jove Peak", location: "Stevens Pass", elevationGain: 2500, distance: 10, maxElevation: 6007, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
-                { name: "Union Peak", location: "Stevens Pass", elevationGain: 2600, distance: 11, maxElevation: 6200, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
-                { name: "Lichtenberg Mt", location: "Stevens Pass", elevationGain: 2700, distance: 8, maxElevation: 5844, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+            'stevens-pass': [
+                // Tours accessed directly from Highway 2 near Stevens Pass
+                { name: "Cowboy Mt.", location: "Stevens Pass", elevationGain: 1500, distance: 1.5, maxElevation: 5850, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
                 { name: "Skyline Ridge", location: "Stevens Pass", elevationGain: 2900, distance: 3, maxElevation: 5978, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
                 { name: "Big Chief Mt.", location: "Stevens Pass", elevationGain: 3200, distance: 7, maxElevation: 6440, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
-                { name: "Cowboy Mt.", location: "Stevens Pass", elevationGain: 1500, distance: 1.5, maxElevation: 5850, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
-                { name: "Rock Mt.", location: "Stevens Pass", elevationGain: 3500, distance: 9, maxElevation: 6852, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
-                { name: "Rock Mt. to Mt. Mastiff Traverse", location: "Stevens Pass", elevationGain: 7740, distance: 11, maxElevation: 7200, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
-                { name: "Mt Mastiff", location: "Stevens Pass", elevationGain: 4000, distance: 9, maxElevation: 7200, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
-                { name: "Alpine Lookout", location: "Stevens Pass", elevationGain: 3500, distance: 18, maxElevation: 6250, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Lichtenberg Mt", location: "Stevens Pass", elevationGain: 2700, distance: 8, maxElevation: 5844, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Union Peak", location: "Stevens Pass", elevationGain: 2600, distance: 11, maxElevation: 6200, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Jove Peak", location: "Stevens Pass", elevationGain: 2500, distance: 10, maxElevation: 6007, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
                 { name: "Yodelin", location: "Stevens Pass", elevationGain: 2000, distance: 4, maxElevation: 5400, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
                 { name: "Jim Hill Mt.", location: "Stevens Pass", elevationGain: 3130, distance: 8, maxElevation: 6765, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
-                { name: "Arrowhead Mountain", location: "Stevens Pass", elevationGain: 2000, distance: 4.5, maxElevation: 6030, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
-                { name: "Chiwaukum Mts", location: "Stevens Pass", elevationGain: 5500, distance: 16, maxElevation: 7200, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
-                { name: "Chiwaukum Traverse", location: "Stevens Pass", elevationGain: 9800, distance: 24, maxElevation: 7200, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
-                { name: "Big Jim Mt", location: "Stevens Pass", elevationGain: 4000, distance: 14, maxElevation: 7763, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" }
+                { name: "Rock Mt.", location: "Stevens Pass", elevationGain: 3500, distance: 9, maxElevation: 6852, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Mt Mastiff", location: "Stevens Pass", elevationGain: 4000, distance: 9, maxElevation: 7200, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Alpine Lookout", location: "Stevens Pass", elevationGain: 3500, distance: 18, maxElevation: 6250, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Skyline Lake", location: "Stevens Pass", elevationGain: 1400, distance: 4, maxElevation: 5092, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Lanham Lake", location: "Stevens Pass", elevationGain: 1200, distance: 5, maxElevation: 4800, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Josephine Lake", location: "Stevens Pass", elevationGain: 1600, distance: 6, maxElevation: 5000, aspect: "Multiple", terrain: "Treed, <30°" },
+                { name: "Tye Ridge", location: "Stevens Pass", elevationGain: 1800, distance: 4, maxElevation: 5600, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Labyrinth Mountain", location: "Stevens Pass", elevationGain: 2800, distance: 8, maxElevation: 6376, aspect: "Multiple", terrain: "Open slopes, 35-40°" }
+            ],
+            'west-slopes-central': [
+                // Glacier Peak Wilderness, Chiwaukum Range, Mountain Loop Highway area
+                { name: "Mt. Maude", location: "Entiat Mountains", elevationGain: 8400, distance: 14, maxElevation: 9082, aspect: "Multiple", terrain: "Exposed ridge, 40-45°" },
+                { name: "Chiwawa Mt.", location: "Chiwawa River", elevationGain: 5000, distance: 19, maxElevation: 8459, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Glacier Peak (North)", location: "Glacier Peak Wilderness", elevationGain: 8000, distance: 24, maxElevation: 10541, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Glacier Peak (South)", location: "Glacier Peak Wilderness", elevationGain: 12960, distance: 24, maxElevation: 10541, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "North Central Cascades Traverse", location: "Glacier Peak Wilderness", elevationGain: 30290, distance: 60, maxElevation: 10541, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "The Dakobed Traverse", location: "Glacier Peak Wilderness", elevationGain: 17990, distance: 40, maxElevation: 9000, aspect: "Multiple", terrain: "Glacier travel" },
+                { name: "Clark Mt", location: "Entiat Mountains", elevationGain: 4500, distance: 24, maxElevation: 8600, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Chiwaukum Mts", location: "Chiwaukum Range", elevationGain: 5500, distance: 16, maxElevation: 7200, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Chiwaukum Traverse", location: "Chiwaukum Range", elevationGain: 9800, distance: 24, maxElevation: 7200, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Big Jim Mt", location: "Chiwaukum Range", elevationGain: 4000, distance: 14, maxElevation: 7763, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Green Mountain", location: "Mountain Loop Hwy", elevationGain: 2500, distance: 8, maxElevation: 6500, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Mt Pilchuck", location: "Mountain Loop Hwy", elevationGain: 2650, distance: 4, maxElevation: 5324, aspect: "Multiple", terrain: "Open slopes, 30-35°" },
+                { name: "Three Fingers", location: "Mountain Loop Hwy", elevationGain: 4000, distance: 13, maxElevation: 6854, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Vesper Peak", location: "Mountain Loop Hwy", elevationGain: 4150, distance: 6, maxElevation: 6214, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Kyes Peak", location: "Mountain Loop Hwy", elevationGain: 6160, distance: 16, maxElevation: 7280, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
+                { name: "Bandit Peak: Black Hole Couloir", location: "Nason Ridge", elevationGain: 5900, distance: 15, maxElevation: 7500, aspect: "Multiple", terrain: "Couloir, 40-50°" },
+                { name: "Johnson Ridge", location: "Mountain Loop Hwy", elevationGain: 2500, distance: 11, maxElevation: 6000, aspect: "Multiple", terrain: "Open slopes, <30°" },
+                { name: "Rock Mt. to Mt. Mastiff Traverse", location: "Nason Ridge", elevationGain: 7740, distance: 11, maxElevation: 7200, aspect: "Multiple", terrain: "Exposed ridge, 35-40°" },
+                { name: "Arrowhead Mountain", location: "Nason Ridge", elevationGain: 2000, distance: 4.5, maxElevation: 6030, aspect: "Multiple", terrain: "Open slopes, 30-35°" }
             ],
             'snoqualmie-pass': [
                 { name: "Big Snow Mt.", location: "Snoqualmie Pass", elevationGain: 3500, distance: 15, maxElevation: 6680, aspect: "Multiple", terrain: "Open slopes, 35-40°" },
@@ -976,6 +987,7 @@
 
         function onZoneChange() {
             const nwacZone = document.getElementById('nwacZone').value;
+            console.log('🔄 onZoneChange called, zone:', nwacZone);
             
             if (!nwacZone) {
                 // Show welcome message, hide dashboard
@@ -992,7 +1004,8 @@
             config.nwacZone = nwacZone;
             config.location = zoneDefaults[nwacZone];
             
-            console.log('🔄 Zone changed to:', nwacZone);
+            console.log('✅ Config updated:', config);
+            console.log('📍 Location set to:', config.location);
             
             // Load all data
             loadDashboard();
@@ -1031,6 +1044,7 @@
             // NWAC zone URLs mapping
             const nwacZoneUrls = {
                 'west-slopes-north': 'https://nwac.us/avalanche-forecast/#/west-slopes-north',
+                'stevens-pass': 'https://nwac.us/avalanche-forecast/#/stevens-pass',
                 'west-slopes-central': 'https://nwac.us/avalanche-forecast/#/west-slopes-central',
                 'snoqualmie-pass': 'https://nwac.us/avalanche-forecast/#/snoqualmie-pass',
                 'west-slopes-south': 'https://nwac.us/avalanche-forecast/#/west-slopes-south',
@@ -1632,7 +1646,8 @@
         function getZoneName(zoneId) {
             const zones = {
                 'west-slopes-north': 'West Slopes North (Mt Baker)',
-                'west-slopes-central': 'West Slopes Central (Stevens Pass)',
+                'stevens-pass': 'Stevens Pass',
+                'west-slopes-central': 'West Slopes Central',
                 'snoqualmie-pass': 'Snoqualmie Pass',
                 'west-slopes-south': 'West Slopes South (White Pass)',
                 'east-slopes-north': 'East Slopes North',
@@ -1644,51 +1659,60 @@
             return zones[zoneId] || zoneId;
         }
 
-        // Fitness slider event listener
-        document.getElementById('fitnessSlider').addEventListener('input', function() {
-            const value = parseInt(this.value);
-            config.fitnessLevel = value;
-            document.getElementById('fitnessStatus').textContent = 
-                `${fitnessLabels[value]} (${value}/10)`;
-            
-            console.log('💪 Fitness level changed to:', value, '- Recalculating recommendations...');
-            loadTours();
-        });
-
-        // Skill slider event listener
-        document.getElementById('skillSlider').addEventListener('input', function() {
-            const value = parseInt(this.value);
-            config.skillLevel = value;
-            document.getElementById('skillStatus').textContent = 
-                `${skillLabels[value]} (${value}/10)`;
-            document.getElementById('skillDescription').textContent = skillDescriptions[value];
-            
-            console.log('🎿 Skill level changed to:', value, '- Recalculating recommendations...');
-            loadTours();
-        });
-
         window.addEventListener('load', () => {
-            // Always start fresh - clear any saved config
+            // Always start fresh
             localStorage.removeItem('skiTourConfig');
             
-            // Reset sliders to defaults
+            // Reset config to defaults
             config.fitnessLevel = 7;
             config.skillLevel = 5;
             config.nwacZone = null;
             config.location = null;
             
-            document.getElementById('fitnessSlider').value = 7;
-            document.getElementById('fitnessStatus').textContent = `${fitnessLabels[7]} (7/10)`;
-            
-            document.getElementById('skillSlider').value = 5;
-            document.getElementById('skillStatus').textContent = `${skillLabels[5]} (5/10)`;
-            document.getElementById('skillDescription').textContent = skillDescriptions[5];
-            
+            // Reset zone selector
             document.getElementById('nwacZone').value = '';
             
-            // Show welcome message
+            // Show welcome message, hide dashboard
             document.getElementById('welcomeMessage').style.display = 'block';
             document.getElementById('dashboardContent').style.display = 'none';
+            
+            // Set up slider event listeners
+            const fitnessSlider = document.getElementById('fitnessSlider');
+            const skillSlider = document.getElementById('skillSlider');
+            
+            if (fitnessSlider) {
+                fitnessSlider.value = 7;
+                document.getElementById('fitnessStatus').textContent = `${fitnessLabels[7]} (7/10)`;
+                
+                fitnessSlider.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    config.fitnessLevel = value;
+                    document.getElementById('fitnessStatus').textContent = 
+                        `${fitnessLabels[value]} (${value}/10)`;
+                    
+                    console.log('💪 Fitness level changed to:', value, '- Recalculating recommendations...');
+                    if (config.nwacZone) loadTours();
+                });
+            }
+            
+            if (skillSlider) {
+                skillSlider.value = 5;
+                document.getElementById('skillStatus').textContent = `${skillLabels[5]} (5/10)`;
+                document.getElementById('skillDescription').textContent = skillDescriptions[5];
+                
+                skillSlider.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    config.skillLevel = value;
+                    document.getElementById('skillStatus').textContent = 
+                        `${skillLabels[value]} (${value}/10)`;
+                    document.getElementById('skillDescription').textContent = skillDescriptions[value];
+                    
+                    console.log('🎿 Skill level changed to:', value, '- Recalculating recommendations...');
+                    if (config.nwacZone) loadTours();
+                });
+            }
+            
+            console.log('✅ App initialized - ready for zone selection');
         });
     </script>
 </body>
