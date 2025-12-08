@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ski Tour Decision - PNW Backcountry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #F5F1E8;
+            --burnt-orange: #D6622C;
+            --forest-green: #2C5530;
+            --dark-green: #1A3320;
+            --steel-blue: #5B7C99;
+            --warning-red: #C14236;
+            --snow-white: #FDFCFA;
+            --topo-gray: #8A8478;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Archivo', sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, #E8DCC8 100%);
+            color: var(--dark-green);
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(42, 85, 48, 0.03) 49px, rgba(42, 85, 48, 0.03) 50px),
+                repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(42, 85, 48, 0.03) 49px, rgba(42, 85, 48, 0.03) 50px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--forest-green) 0%, var(--dark-green) 100%);
+            padding: 2rem 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--burnt-orange), var(--warning-red), var(--burnt-orange));
+        }
+
+        h1 {
+            color: var(--snow-white);
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .location {
+            color: var(--cream);
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.95rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .setup-panel {
+            background: var(--snow-white);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .setup-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--forest-green);
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 600;
+            color: var(--dark-green);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-sublabel {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--topo-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--cream);
+            border-radius: 6px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--forest-green);
+        }
+
+        .btn {
+            background: var(--forest-green);
+            color: white;
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: var(--dark-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 85, 48, 0.3);
+        }
+
+        .btn:disabled {
+            background: var(--topo-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--topo-gray);
+            font-size: 1.1rem;
+        }
+
+        .spinner {
+            border: 4px solid var(--cream);
+            border-top: 4px solid var(--forest-green);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #FFE5E5;
+            color: var(--warning-red);
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid var(--warning-red);
+            margin-bottom: 1rem;
+        }
+
+        .date-banner {
+            background: var(--burnt-orange);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(214, 98, 44, 0.3);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--snow-white);
+            border-radius: 10px;
+            padding: 1.75rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            border: 2px solid rgba(44, 85, 48, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--cream);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--forest-green);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .danger-level {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .danger-low {
+            background: #90EE90;
+            color: #006400;
+        }
+
+        .danger-moderate {
+            background: #FFB84D;
+            color: #664400;
+        }
+
+        .danger-considerable {
+            background: var(--burnt-orange);
+            color: white;
+        }
+
+        .danger-high {
+            background: var(--warning-red);
+            color: white;
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .weather-item {
+            background: var(--cream);
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .weather-label {
+            font-size: 0.8rem;
+            color: var(--topo-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .weather-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--forest-green);
+            font-family: 'Courier Prime', monospace;
+        }
+
+        .fitness-slider {
+            margin-top: 1.5rem;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--topo-gray);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(to right, var(--warning-red) 0%, #FFB84D 50%, var(--forest-green) 100%);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--dark-green);
+            border: 3px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: var(--dark-green);
+            border: 3px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .fitness-status {
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--forest-green);
+        }
+
+        .tours-section {
+            margin-top: 2rem;
+        }
+
+        .tour-card {
+            background: var(--snow-white);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            border-left: 6px solid var(--forest-green);
+            transition: all 0.3s ease;
+        }
+
+        .tour-card:hover {
+            transform: translateX(8px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .tour-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .tour-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--forest-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .tour-stats {
+            font-family: 'Courier Prime', monospace;
+            color: var(--topo-gray);
+            font-size: 0.9rem;
+        }
+
+        .recommendation {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.95rem;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .rec-go {
+            background: var(--forest-green);
+            color: white;
+        }
+
+        .rec-maybe {
+            background: #FFB84D;
+            color: #664400;
+        }
+
+        .rec-no {
+            background: var(--warning-red);
+            color: white;
+        }
+
+        .tour-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--cream);
+            border-radius: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .detail-icon {
+            font-size: 1.5rem;
+        }
+
+        .detail-text {
+            font-size: 0.9rem;
+        }
+
+        .detail-label {
+            color: var(--topo-gray);
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--dark-green);
+        }
+
+        .footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--topo-gray);
+            font-size: 0.85rem;
+            padding: 2rem;
+            background: rgba(255,255,255,0.5);
+            border-radius: 8px;
+        }
+
+        .footer a {
+            color: var(--forest-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        #setupPanel {
+            display: block;
+        }
+
+        #appContent {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .tour-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .recommendation {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⛷️ Ski Tour Decision Dashboard</h1>
+            <div class="location">Washington Cascades</div>
+        </header>
+
+        <!-- Setup Panel -->
+        <div id="setupPanel" class="setup-panel">
+            <div class="setup-title">🔧 Configuration</div>
+            
+            <div class="input-group">
+                <label class="input-label">Your Home Location</label>
+                <span class="input-sublabel">Latitude, Longitude (e.g., 47.606, -122.332 for Seattle)</span>
+                <input type="text" id="homeLocation" placeholder="47.606, -122.332">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">NWAC Zone</label>
+                <span class="input-sublabel">Select your primary avalanche forecast zone</span>
+                <select id="nwacZone">
+                    <option value="">Choose a zone...</option>
+                    <option value="west-slopes-north">West Slopes North (Mt Baker)</option>
+                    <option value="west-slopes-central">West Slopes Central (Stevens Pass)</option>
+                    <option value="snoqualmie-pass">Snoqualmie Pass</option>
+                    <option value="west-slopes-south">West Slopes South (White Pass)</option>
+                    <option value="mt-hood">Mt Hood</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">CalTopo Map ID (Optional)</label>
+                <span class="input-sublabel">The 5-character ID from your CalTopo map URL (e.g., V106Q from caltopo.com/m/V106Q)</span>
+                <input type="text" id="caltopoMapId" placeholder="V106Q" maxlength="5">
+            </div>
+
+            <button class="btn" onclick="loadData()">Load Dashboard</button>
+        </div>
+
+        <!-- Main App Content -->
+        <div id="appContent">
+            <div class="date-banner" id="dateBanner">
+                📅 Loading...
+            </div>
+
+            <div class="dashboard">
+                <!-- Avalanche Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🏔️ Avalanche Forecast</div>
+                    </div>
+                    <div id="avalancheContent">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading avalanche forecast...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">⛅ Weather</div>
+                    </div>
+                    <div id="weatherContent">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Loading weather data...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fitness Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">💪 How I'm Feeling</div>
+                    </div>
+                    <div class="fitness-slider">
+                        <div class="slider-label">
+                            <span>Tired</span>
+                            <span>Fresh</span>
+                        </div>
+                        <input type="range" id="fitnessSlider" min="1" max="10" value="7" step="1">
+                        <div class="fitness-status" id="fitnessStatus">Feeling Strong (7/10)</div>
+                    </div>
+                    <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--topo-gray); line-height: 1.6;">
+                        Consider your energy, recent training, and any aches/pains. Be honest - it affects your decision making and stamina.
+                    </p>
+                </div>
+            </div>
+
+            <div class="tours-section">
+                <h2 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--forest-green);">📍 My Tour Options</h2>
+                <div id="toursContent">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading tour options...
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>Data sources: <a href="https://nwac.us/" target="_blank">NWAC</a> • <a href="https://www.weather.gov/" target="_blank">NWS</a> • <a href="https://caltopo.com/" target="_blank">CalTopo</a></p>
+                <p style="margin-top: 0.5rem;">⚠️ This is a decision support tool. Always make your own informed choices in the backcountry.</p>
+                <p style="margin-top: 1rem;"><button class="btn" onclick="showSetup()">⚙️ Change Settings</button></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        let config = {
+            homeLocation: null,
+            nwacZone: null,
+            caltopoMapId: null,
+            fitnessLevel: 7
+        };
+
+        // Sample tour data (in real app, this would come from CalTopo)
+        const sampleTours = [
+            {
+                name: "Kendall Peak - SW Chute",
+                location: "Snoqualmie Pass",
+                elevationGain: 3200,
+                distance: 4.5,
+                maxElevation: 5784,
+                aspect: "SW",
+                terrain: "35-40° open slopes"
+            },
+            {
+                name: "Tye Ridge - Mellow Trees",
+                location: "Stevens Pass",
+                elevationGain: 1800,
+                distance: 3,
+                maxElevation: 4800,
+                aspect: "NE",
+                terrain: "Treed, <30°"
+            },
+            {
+                name: "Granite Mountain - Summit Push",
+                location: "Snoqualmie Pass",
+                elevationGain: 3800,
+                distance: 8,
+                maxElevation: 5629,
+                aspect: "Multiple",
+                terrain: "Exposed ridge"
+            }
+        ];
+
+        const fitnessLabels = {
+            1: 'Really Tired', 2: 'Pretty Tired', 3: 'Below Average', 4: 'Slightly Tired',
+            5: 'Okay', 6: 'Decent', 7: 'Feeling Strong', 8: 'Feeling Great',
+            9: 'Excellent', 10: 'Peak Form'
+        };
+
+        function showSetup() {
+            document.getElementById('setupPanel').style.display = 'block';
+            document.getElementById('appContent').style.display = 'none';
+        }
+
+        async function loadData() {
+            const homeLocation = document.getElementById('homeLocation').value.trim();
+            const nwacZone = document.getElementById('nwacZone').value;
+            const caltopoMapId = document.getElementById('caltopoMapId').value.trim();
+
+            if (!homeLocation || !nwacZone) {
+                alert('Please enter your home location and select a NWAC zone');
+                return;
+            }
+
+            // Parse coordinates
+            const coords = homeLocation.split(',').map(c => parseFloat(c.trim()));
+            if (coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) {
+                alert('Invalid coordinates. Please use format: latitude, longitude');
+                return;
+            }
+
+            config.homeLocation = { lat: coords[0], lon: coords[1] };
+            config.nwacZone = nwacZone;
+            config.caltopoMapId = caltopoMapId || null;
+
+            // Save to localStorage
+            localStorage.setItem('skiTourConfig', JSON.stringify(config));
+
+            // Show app content
+            document.getElementById('setupPanel').style.display = 'none';
+            document.getElementById('appContent').style.display = 'block';
+
+            // Update date
+            updateDate();
+
+            // Load all data
+            await Promise.all([
+                loadAvalancheForecast(),
+                loadWeatherData(),
+                loadTours()
+            ]);
+        }
+
+        function updateDate() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('dateBanner').textContent = 
+                `📅 Today: ${today.toLocaleDateString('en-US', options)}`;
+        }
+
+        async function loadAvalancheForecast() {
+            const content = document.getElementById('avalancheContent');
+            
+            try {
+                // NWAC doesn't have an official public API, but we can show structure
+                // In production, you'd either scrape or use an unofficial endpoint
+                content.innerHTML = `
+                    <div style="margin-bottom: 1rem;">
+                        <strong>${getZoneName(config.nwacZone)}</strong>
+                        <div class="danger-level danger-moderate" style="margin-top: 0.5rem;">Moderate</div>
+                    </div>
+                    <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--topo-gray); line-height: 1.6;">
+                        ⚠️ Check <a href="https://nwac.us/" target="_blank" style="color: var(--forest-green);">NWAC.us</a> for the latest forecast. 
+                        API integration requires building a custom scraper or accessing unofficial endpoints.
+                    </p>
+                `;
+            } catch (error) {
+                content.innerHTML = `<div class="error">Error loading avalanche data: ${error.message}</div>`;
+            }
+        }
+
+        async function loadWeatherData() {
+            const content = document.getElementById('weatherContent');
+            
+            try {
+                // Step 1: Get grid endpoint from NWS
+                const pointsUrl = `https://api.weather.gov/points/${config.homeLocation.lat},${config.homeLocation.lon}`;
+                const pointsResponse = await fetch(pointsUrl, {
+                    headers: {
+                        'User-Agent': '(SkiTourApp, contact@example.com)'
+                    }
+                });
+                
+                if (!pointsResponse.ok) {
+                    throw new Error('Failed to get weather grid data');
+                }
+                
+                const pointsData = await pointsResponse.json();
+                const forecastUrl = pointsData.properties.forecast;
+                
+                // Step 2: Get forecast
+                const forecastResponse = await fetch(forecastUrl, {
+                    headers: {
+                        'User-Agent': '(SkiTourApp, contact@example.com)'
+                    }
+                });
+                
+                if (!forecastResponse.ok) {
+                    throw new Error('Failed to get weather forecast');
+                }
+                
+                const forecastData = await forecastResponse.json();
+                const current = forecastData.properties.periods[0];
+                
+                // Extract key weather metrics
+                const temp = current.temperature;
+                const windSpeed = current.windSpeed;
+                
+                content.innerHTML = `
+                    <div class="weather-grid">
+                        <div class="weather-item">
+                            <div class="weather-label">Temperature</div>
+                            <div class="weather-value">${temp}°F</div>
+                        </div>
+                        <div class="weather-item">
+                            <div class="weather-label">Wind</div>
+                            <div class="weather-value">${windSpeed}</div>
+                        </div>
+                        <div class="weather-item">
+                            <div class="weather-label">Conditions</div>
+                            <div class="weather-value" style="font-size: 1.1rem;">${current.shortForecast}</div>
+                        </div>
+                        <div class="weather-item">
+                            <div class="weather-label">Trend</div>
+                            <div class="weather-value" style="font-size: 1.1rem;">${current.isDaytime ? '☀️' : '🌙'}</div>
+                        </div>
+                    </div>
+                    <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--topo-gray);">
+                        ${current.detailedForecast}
+                    </p>
+                `;
+            } catch (error) {
+                console.error('Weather error:', error);
+                content.innerHTML = `
+                    <div class="error">
+                        Unable to load real-time weather. Check your coordinates and try again.
+                    </div>
+                `;
+            }
+        }
+
+        async function loadTours() {
+            const content = document.getElementById('toursContent');
+            
+            // For now, use sample tours. In production, you'd fetch from CalTopo
+            // or let users manually add tours with coordinates
+            const tours = sampleTours;
+            
+            content.innerHTML = tours.map((tour, index) => {
+                const rec = calculateRecommendation(tour);
+                return generateTourCard(tour, rec);
+            }).join('');
+        }
+
+        function calculateRecommendation(tour) {
+            // Simple recommendation algorithm
+            // In production, this would factor in avalanche danger, aspect, fitness, etc.
+            
+            const fitnessLevel = config.fitnessLevel;
+            const elevGain = tour.elevationGain;
+            
+            // Basic scoring
+            let score = 0;
+            
+            // Fitness vs effort
+            if (elevGain < 2000 && fitnessLevel >= 5) score += 2;
+            else if (elevGain < 3000 && fitnessLevel >= 6) score += 1;
+            else if (elevGain >= 3500 && fitnessLevel < 7) score -= 2;
+            
+            // Terrain considerations
+            if (tour.terrain.includes('Treed')) score += 1;
+            if (tour.terrain.includes('Exposed')) score -= 1;
+            
+            // Recommend based on score
+            if (score >= 2) return { level: 'go', text: '✅ Good to Go', analysis: 'Conditions and terrain align well with your fitness level. Great choice!' };
+            if (score >= 0) return { level: 'maybe', text: '⚠️ Cautious Go', analysis: 'Feasible but requires careful decision-making. Stay conservative.' };
+            return { level: 'no', text: '🛑 Skip It', analysis: 'Consider an easier objective or wait for better conditions.' };
+        }
+
+        function generateTourCard(tour, rec) {
+            return `
+                <div class="tour-card">
+                    <div class="tour-header">
+                        <div>
+                            <div class="tour-name">${tour.name}</div>
+                            <div class="tour-stats">
+                                ${tour.location} • ${tour.elevationGain.toLocaleString()} ft gain • ${tour.distance} mi RT
+                            </div>
+                        </div>
+                        <div class="recommendation rec-${rec.level}">${rec.text}</div>
+                    </div>
+                    <div class="tour-details">
+                        <div class="detail-item">
+                            <div class="detail-icon">🏔️</div>
+                            <div class="detail-text">
+                                <span class="detail-label">Elevation</span>
+                                <span class="detail-value">${tour.maxElevation.toLocaleString()} ft</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-icon">🎿</div>
+                            <div class="detail-text">
+                                <span class="detail-label">Aspect</span>
+                                <span class="detail-value">${tour.aspect}</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-icon">⛰️</div>
+                            <div class="detail-text">
+                                <span class="detail-label">Terrain</span>
+                                <span class="detail-value">${tour.terrain}</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-icon">💪</div>
+                            <div class="detail-text">
+                                <span class="detail-label">Your Fitness</span>
+                                <span class="detail-value">${config.fitnessLevel}/10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="margin-top: 1rem; color: var(--topo-gray); font-size: 0.9rem; line-height: 1.6;">
+                        <strong>Analysis:</strong> ${rec.analysis}
+                    </p>
+                </div>
+            `;
+        }
+
+        function getZoneName(zoneId) {
+            const zones = {
+                'west-slopes-north': 'West Slopes North (Mt Baker)',
+                'west-slopes-central': 'West Slopes Central (Stevens Pass)',
+                'snoqualmie-pass': 'Snoqualmie Pass',
+                'west-slopes-south': 'West Slopes South (White Pass)',
+                'mt-hood': 'Mt Hood'
+            };
+            return zones[zoneId] || zoneId;
+        }
+
+        // Fitness slider interaction
+        document.getElementById('fitnessSlider').addEventListener('input', function() {
+            const value = parseInt(this.value);
+            config.fitnessLevel = value;
+            document.getElementById('fitnessStatus').textContent = 
+                `${fitnessLabels[value]} (${value}/10)`;
+            
+            // Recalculate recommendations
+            loadTours();
+            
+            // Save to localStorage
+            localStorage.setItem('skiTourConfig', JSON.stringify(config));
+        });
+
+        // Load saved config on page load
+        window.addEventListener('load', () => {
+            const savedConfig = localStorage.getItem('skiTourConfig');
+            if (savedConfig) {
+                config = JSON.parse(savedConfig);
+                
+                // Pre-fill form
+                if (config.homeLocation) {
+                    document.getElementById('homeLocation').value = 
+                        `${config.homeLocation.lat}, ${config.homeLocation.lon}`;
+                }
+                if (config.nwacZone) {
+                    document.getElementById('nwacZone').value = config.nwacZone;
+                }
+                if (config.caltopoMapId) {
+                    document.getElementById('caltopoMapId').value = config.caltopoMapId;
+                }
+                
+                // Auto-load if we have minimum config
+                if (config.homeLocation && config.nwacZone) {
+                    loadData();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
