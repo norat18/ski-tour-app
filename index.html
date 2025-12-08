@@ -616,6 +616,9 @@
 
             <!-- Dashboard content (hidden until zone selected) -->
             <div id="dashboardContent" style="display: none;">
+                <div style="background: red; color: white; padding: 20px; font-size: 24px; text-align: center; margin-bottom: 20px;">
+                    🎉 DASHBOARD IS VISIBLE - If you see this, the show/hide is working!
+                </div>
                 <div class="date-banner" id="dateBanner">
                     📅 Loading...
                 </div>
@@ -989,35 +992,54 @@
             const nwacZone = document.getElementById('nwacZone').value;
             console.log('🔄 onZoneChange called, zone:', nwacZone);
             
+            const welcomeEl = document.getElementById('welcomeMessage');
+            const dashboardEl = document.getElementById('dashboardContent');
+            
+            console.log('📋 Welcome element:', welcomeEl);
+            console.log('📋 Dashboard element:', dashboardEl);
+            
             if (!nwacZone) {
-                // Show welcome message, hide dashboard
-                document.getElementById('welcomeMessage').style.display = 'block';
-                document.getElementById('dashboardContent').style.display = 'none';
+                console.log('❌ No zone selected, showing welcome');
+                if (welcomeEl) welcomeEl.style.display = 'block';
+                if (dashboardEl) dashboardEl.style.display = 'none';
                 return;
             }
             
-            // Hide welcome, show dashboard
-            document.getElementById('welcomeMessage').style.display = 'none';
-            document.getElementById('dashboardContent').style.display = 'block';
+            console.log('✅ Zone selected:', nwacZone);
+            console.log('📋 Hiding welcome, showing dashboard...');
+            
+            if (welcomeEl) {
+                welcomeEl.style.display = 'none';
+                console.log('📋 Welcome display now:', welcomeEl.style.display);
+            }
+            if (dashboardEl) {
+                dashboardEl.style.display = 'block';
+                console.log('📋 Dashboard display now:', dashboardEl.style.display);
+            }
             
             // Update config
             config.nwacZone = nwacZone;
             config.location = zoneDefaults[nwacZone];
             
-            console.log('✅ Config updated:', config);
+            console.log('✅ Config updated:', JSON.stringify(config));
             console.log('📍 Location set to:', config.location);
             
             // Load all data
+            console.log('📋 Calling loadDashboard...');
             loadDashboard();
         }
 
         async function loadDashboard() {
-            console.log('📊 Loading dashboard for zone:', config.nwacZone);
+            console.log('📊 loadDashboard() called');
+            console.log('📊 Zone:', config.nwacZone);
+            console.log('📊 Location:', config.location);
             
             // Update date
+            console.log('📊 Calling updateDate...');
             updateDate();
 
             // Load all data
+            console.log('📊 Loading avalanche, weather, and tours...');
             try {
                 await Promise.all([
                     loadAvalancheForecast(),
@@ -1027,6 +1049,7 @@
                 console.log('✅ All data loaded successfully!');
             } catch (error) {
                 console.error('❌ Error loading data:', error);
+                console.error('❌ Error stack:', error.stack);
             }
         }
 
