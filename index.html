@@ -585,19 +585,40 @@
                 <!-- Fitness Card -->
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">💪 How I'm Feeling</div>
+                        <div class="card-title">💪 How I'm Feeling Today</div>
                     </div>
                     <div class="fitness-slider">
                         <div class="slider-label">
-                            <span>Tired</span>
-                            <span>Fresh</span>
+                            <span>Exhausted</span>
+                            <span>Peak Energy</span>
                         </div>
                         <input type="range" id="fitnessSlider" min="1" max="10" value="7" step="1">
                         <div class="fitness-status" id="fitnessStatus">Feeling Strong (7/10)</div>
                     </div>
-                    <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--topo-gray); line-height: 1.6;">
-                        Consider your energy, recent training, and any aches/pains. Be honest - it affects your decision making and stamina.
+                    <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--topo-gray); line-height: 1.5;">
+                        How's your energy today? Higher = longer, harder tours recommended.
                     </p>
+                </div>
+
+                <!-- Skill Level Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🎿 Touring Skill Level</div>
+                    </div>
+                    <div class="fitness-slider">
+                        <div class="slider-label">
+                            <span>Beginner</span>
+                            <span>Expert</span>
+                        </div>
+                        <input type="range" id="skillSlider" min="1" max="10" value="5" step="1">
+                        <div class="fitness-status" id="skillStatus">Intermediate (5/10)</div>
+                    </div>
+                    <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--topo-gray); line-height: 1.5;">
+                        Your backcountry experience: skinning, route-finding, avalanche assessment, glacier travel.
+                    </p>
+                    <div id="skillDescription" style="margin-top: 0.75rem; padding: 0.75rem; background: var(--cream); border-radius: 6px; font-size: 0.8rem; color: var(--topo-gray);">
+                        Can handle moderate terrain, some route-finding, comfortable with avalanche basics.
+                    </div>
                 </div>
             </div>
 
@@ -643,7 +664,8 @@
             location: null,
             nwacZone: null,
             caltopoMapId: null,
-            fitnessLevel: 7
+            fitnessLevel: 7,
+            skillLevel: 5
         };
 
         // Tour database organized by zone
@@ -864,9 +886,28 @@
         };
 
         const fitnessLabels = {
-            1: 'Really Tired', 2: 'Pretty Tired', 3: 'Below Average', 4: 'Slightly Tired',
-            5: 'Okay', 6: 'Decent', 7: 'Feeling Strong', 8: 'Feeling Great',
-            9: 'Excellent', 10: 'Peak Form'
+            1: 'Exhausted', 2: 'Very Tired', 3: 'Tired', 4: 'Below Average',
+            5: 'Average', 6: 'Good', 7: 'Strong', 8: 'Very Strong',
+            9: 'Excellent', 10: 'Peak Energy'
+        };
+
+        const skillLabels = {
+            1: 'First Timer', 2: 'Novice', 3: 'Beginner', 4: 'Developing',
+            5: 'Intermediate', 6: 'Competent', 7: 'Advanced', 8: 'Expert',
+            9: 'Very Expert', 10: 'Professional Guide'
+        };
+
+        const skillDescriptions = {
+            1: 'New to backcountry skiing. Stick to groomed sidecountry or guided tours.',
+            2: 'Learning basics. Need easy, well-traveled routes with low avalanche terrain.',
+            3: 'Know the basics. Can handle mellow terrain, needs mentorship on longer tours.',
+            4: 'Building skills. Comfortable skinning, learning avalanche assessment.',
+            5: 'Can handle moderate terrain, some route-finding, comfortable with avalanche basics.',
+            6: 'Solid skills. Can plan tours, read terrain, make good decisions in variable conditions.',
+            7: 'Strong all-around. Handles complex terrain, glacier travel, leads groups safely.',
+            8: 'Expert level. Comfortable in steep couloirs, technical terrain, alpine starts.',
+            9: 'Highly skilled. Multi-day traverses, extreme terrain, rescue leadership.',
+            10: 'Professional guide level. Certified, can handle any objective safely.'
         };
 
         function showSetup() {
@@ -952,17 +993,93 @@
             const content = document.getElementById('avalancheContent');
             console.log('🏔️ Loading avalanche forecast for:', config.nwacZone);
             
+            // NWAC zone URLs mapping
+            const nwacZoneUrls = {
+                'west-slopes-north': 'https://nwac.us/avalanche-forecast/#/west-slopes-north',
+                'west-slopes-central': 'https://nwac.us/avalanche-forecast/#/west-slopes-central',
+                'snoqualmie-pass': 'https://nwac.us/avalanche-forecast/#/snoqualmie-pass',
+                'west-slopes-south': 'https://nwac.us/avalanche-forecast/#/west-slopes-south',
+                'east-slopes-north': 'https://nwac.us/avalanche-forecast/#/east-slopes-north',
+                'east-slopes-central': 'https://nwac.us/avalanche-forecast/#/east-slopes-central',
+                'east-slopes-south': 'https://nwac.us/avalanche-forecast/#/east-slopes-south',
+                'olympics': 'https://nwac.us/avalanche-forecast/#/olympics',
+                'mt-hood': 'https://nwac.us/avalanche-forecast/#/mt-hood'
+            };
+            
+            const zoneUrl = nwacZoneUrls[config.nwacZone] || 'https://nwac.us/avalanche-forecast/';
+            const zoneName = getZoneName(config.nwacZone);
+            
             try {
                 content.innerHTML = `
-                    <div style="margin-bottom: 1rem;">
-                        <strong>${getZoneName(config.nwacZone)}</strong>
-                        <div class="danger-level danger-moderate" style="margin-top: 0.5rem;">Check NWAC</div>
+                    <div style="text-align: center;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="font-size: 1.2rem; font-weight: 700; color: var(--forest-green); margin-bottom: 0.5rem;">
+                                ${zoneName}
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--topo-gray);">
+                                NWAC Avalanche Forecast Zone
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
+                            <div style="text-align: center;">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #50B848; margin: 0 auto 0.25rem;"></div>
+                                <div style="font-size: 0.7rem; color: var(--topo-gray);">Low</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #FFF200; margin: 0 auto 0.25rem;"></div>
+                                <div style="font-size: 0.7rem; color: var(--topo-gray);">Moderate</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #F7941E; margin: 0 auto 0.25rem;"></div>
+                                <div style="font-size: 0.7rem; color: var(--topo-gray);">Considerable</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #ED1C24; margin: 0 auto 0.25rem;"></div>
+                                <div style="font-size: 0.7rem; color: var(--topo-gray);">High</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #000000; margin: 0 auto 0.25rem;"></div>
+                                <div style="font-size: 0.7rem; color: var(--topo-gray);">Extreme</div>
+                            </div>
+                        </div>
+                        
+                        <a href="${zoneUrl}" target="_blank" 
+                           style="display: inline-block; background: var(--forest-green); color: white; 
+                                  padding: 1rem 2rem; border-radius: 8px; text-decoration: none; 
+                                  font-weight: 700; font-size: 1rem; margin-bottom: 1rem;
+                                  transition: all 0.2s ease;">
+                            🏔️ View Full NWAC Forecast
+                        </a>
+                        
+                        <div style="font-size: 0.85rem; color: var(--topo-gray); line-height: 1.6; margin-top: 1rem;">
+                            <p style="margin-bottom: 0.75rem;">
+                                <strong>⚠️ Always check the official forecast before heading out!</strong>
+                            </p>
+                            <p style="margin-bottom: 0.5rem;">
+                                The forecast includes:
+                            </p>
+                            <ul style="text-align: left; margin: 0 auto; max-width: 300px; padding-left: 1.5rem;">
+                                <li>Current danger rating by elevation</li>
+                                <li>Problem types (wind slab, storm slab, persistent slab, etc.)</li>
+                                <li>Likelihood and size of avalanches</li>
+                                <li>Recent observations and weather</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #ddd;">
+                            <div style="font-size: 0.8rem; color: var(--topo-gray);">
+                                Quick Links:
+                            </div>
+                            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 0.5rem; flex-wrap: wrap;">
+                                <a href="https://nwac.us/avalanche-forecast/" target="_blank" style="color: var(--forest-green); font-size: 0.85rem;">All Zones</a>
+                                <a href="https://nwac.us/weatherdata/" target="_blank" style="color: var(--forest-green); font-size: 0.85rem;">Weather Stations</a>
+                                <a href="https://nwac.us/observations/" target="_blank" style="color: var(--forest-green); font-size: 0.85rem;">Observations</a>
+                            </div>
+                        </div>
                     </div>
-                    <p style="margin-top: 1.5rem; font-size: 0.9rem; color: var(--topo-gray); line-height: 1.6;">
-                        ⚠️ Check <a href="https://nwac.us/" target="_blank" style="color: var(--forest-green);">NWAC.us</a> for the latest avalanche forecast for this zone.
-                    </p>
                 `;
-                console.log('✅ Avalanche forecast loaded (placeholder)');
+                console.log('✅ Avalanche forecast section loaded with zone:', config.nwacZone);
             } catch (error) {
                 console.error('❌ Error loading avalanche data:', error);
                 content.innerHTML = `<div class="error">Error loading avalanche data: ${error.message}</div>`;
@@ -1094,14 +1211,15 @@
 
         async function loadTours() {
             const content = document.getElementById('toursContent');
-            console.log('📍 Loading tours for zone:', config.nwacZone, 'with fitness level:', config.fitnessLevel);
+            console.log('📍 Loading tours for zone:', config.nwacZone, 'with fitness:', config.fitnessLevel, 'skill:', config.skillLevel);
             
             const zoneName = getZoneName(config.nwacZone);
             
             // Update the sort message
             document.getElementById('toursSortMessage').innerHTML = `
-                💡 Showing <strong>top 5 tours</strong> sorted by best match for your fitness (${config.fitnessLevel}/10) in <strong>${zoneName}</strong>. 
-                <br>Move the slider above to see recommendations update!
+                💡 Showing <strong>top 5 tours</strong> for <strong>${zoneName}</strong> based on:
+                <br>Energy: <strong>${fitnessLabels[config.fitnessLevel]}</strong> (${config.fitnessLevel}/10) • 
+                Skill: <strong>${skillLabels[config.skillLevel]}</strong> (${config.skillLevel}/10)
             `;
             
             const tours = toursByZone[config.nwacZone] || [];
@@ -1158,106 +1276,257 @@
         }
 
         function calculateRecommendation(tour) {
-            const fitnessLevel = config.fitnessLevel;
+            const fitness = config.fitnessLevel;
+            const skill = config.skillLevel;
             const elevGain = tour.elevationGain;
             const distance = tour.distance;
+            const terrain = tour.terrain.toLowerCase();
+            const maxElev = tour.maxElevation;
             
-            console.log(`🎯 Calculating recommendation for ${tour.name}:`, {
-                fitness: fitnessLevel,
-                elevGain,
-                distance
-            });
+            console.log(`🎯 Calculating for ${tour.name}:`, { fitness, skill, elevGain, distance });
             
-            // Start with base score
             let score = 0;
             let warnings = [];
+            let bonuses = [];
             
-            // FITNESS VS EFFORT (most important factor)
-            // Calculate effort score based on elevation gain and distance
-            const effortScore = (elevGain / 1000) + (distance / 2);
+            // ============================================
+            // TOUR DIFFICULTY RATING (1-10 scale)
+            // ============================================
             
-            if (fitnessLevel >= 8) {
-                // Feeling great - can handle big days
-                if (effortScore < 5) score += 3;  // Easy tour, will feel great
-                else if (effortScore < 7) score += 2;  // Good challenge
-                else score += 1;  // Big day but you can handle it
-            } else if (fitnessLevel >= 6) {
-                // Decent fitness - moderate tours are good
-                if (effortScore < 3) score += 2;  // Nice easy day
-                else if (effortScore < 5) score += 2;  // Perfect match
-                else if (effortScore < 7) score += 0;  // Doable but tough
-                else {
-                    score -= 2;  // Too much for today
-                    warnings.push('Big effort for current fitness level');
+            // Physical difficulty based on elevation gain
+            let physicalDifficulty = 1;
+            if (elevGain < 1500) physicalDifficulty = 2;
+            else if (elevGain < 2500) physicalDifficulty = 3;
+            else if (elevGain < 3500) physicalDifficulty = 4;
+            else if (elevGain < 4500) physicalDifficulty = 5;
+            else if (elevGain < 6000) physicalDifficulty = 6;
+            else if (elevGain < 8000) physicalDifficulty = 7;
+            else if (elevGain < 10000) physicalDifficulty = 8;
+            else if (elevGain < 15000) physicalDifficulty = 9;
+            else physicalDifficulty = 10;
+            
+            // Adjust for distance (long flat tours are tiring too)
+            if (distance > 15) physicalDifficulty = Math.min(10, physicalDifficulty + 1);
+            if (distance > 25) physicalDifficulty = Math.min(10, physicalDifficulty + 1);
+            
+            // Technical difficulty based on terrain
+            let technicalDifficulty = 3; // default moderate
+            if (terrain.includes('treed') || terrain.includes('<25') || terrain.includes('<30')) {
+                technicalDifficulty = 2;
+            }
+            if (terrain.includes('30-35')) technicalDifficulty = 4;
+            if (terrain.includes('35-40')) technicalDifficulty = 5;
+            if (terrain.includes('40-45') || terrain.includes('40-50')) technicalDifficulty = 7;
+            if (terrain.includes('couloir')) technicalDifficulty = 8;
+            if (terrain.includes('glacier')) technicalDifficulty = 7;
+            if (terrain.includes('exposed')) technicalDifficulty = Math.min(10, technicalDifficulty + 1);
+            
+            // High elevation adds technical challenge
+            if (maxElev > 8000) technicalDifficulty = Math.min(10, technicalDifficulty + 1);
+            if (maxElev > 10000) technicalDifficulty = Math.min(10, technicalDifficulty + 1);
+            
+            console.log(`📊 ${tour.name}: Physical=${physicalDifficulty}, Technical=${technicalDifficulty}`);
+            
+            // ============================================
+            // FITNESS MATCHING (physical capacity)
+            // ============================================
+            // Higher fitness = prefer HARDER physical tours
+            
+            const fitnessDiff = fitness - physicalDifficulty;
+            
+            if (fitness >= 8) {
+                // Peak fitness - wants challenging tours
+                if (physicalDifficulty >= 6) {
+                    score += 4;  // Love a big day!
+                    bonuses.push('Great physical challenge');
+                } else if (physicalDifficulty >= 4) {
+                    score += 2;  // Moderate is fine
+                } else {
+                    score += 0;  // Too easy, but acceptable
                 }
-            } else if (fitnessLevel >= 4) {
-                // Below average - easier objectives
-                if (effortScore < 3) score += 2;  // Good choice
-                else if (effortScore < 4) score += 0;  // Doable
-                else {
-                    score -= 2;  // Too ambitious
-                    warnings.push('Tour may be too demanding today');
+            } else if (fitness >= 6) {
+                // Good fitness - moderate to challenging
+                if (physicalDifficulty >= 7) {
+                    score += 1;  // Pushing it
+                    warnings.push('Physically demanding for current energy');
+                } else if (physicalDifficulty >= 4) {
+                    score += 3;  // Sweet spot
+                    bonuses.push('Good match for energy level');
+                } else {
+                    score += 2;  // Easy day is fine
+                }
+            } else if (fitness >= 4) {
+                // Moderate fitness - prefer easier
+                if (physicalDifficulty >= 6) {
+                    score -= 2;  // Too hard
+                    warnings.push('Tour is too physically demanding today');
+                } else if (physicalDifficulty >= 4) {
+                    score += 1;  // Doable
+                } else {
+                    score += 3;  // Good choice
+                    bonuses.push('Appropriate for current energy');
                 }
             } else {
-                // Tired - only easy tours
-                if (effortScore < 2) score += 1;  // Manageable
-                else if (effortScore < 3) score -= 1;  // Pushing it
-                else {
+                // Low fitness - easy tours only
+                if (physicalDifficulty >= 4) {
                     score -= 3;  // Way too much
-                    warnings.push('Rest day recommended - tour is too demanding');
+                    warnings.push('Rest recommended - tour exceeds current energy');
+                } else if (physicalDifficulty >= 3) {
+                    score -= 1;  // Pushing it
+                    warnings.push('Consider a shorter option');
+                } else {
+                    score += 2;  // Manageable
+                    bonuses.push('Low-key day within reach');
                 }
             }
             
-            // TERRAIN SAFETY FACTORS
-            if (tour.terrain.includes('Treed') || tour.terrain.includes('<30')) {
-                score += 1;  // Safer terrain
-            }
-            if (tour.terrain.includes('Exposed') || tour.terrain.includes('ridge')) {
-                score -= 1;  // More exposed
-                warnings.push('Exposed terrain requires strong fitness');
-            }
-            if (tour.terrain.includes('35-40') || tour.terrain.includes('40-45')) {
-                score -= 1;  // Steeper terrain is more demanding
-                if (fitnessLevel < 6) {
-                    warnings.push('Steep terrain - fitness is important');
+            // ============================================
+            // SKILL MATCHING (technical ability)
+            // ============================================
+            // Higher skill = can handle more technical terrain
+            
+            const skillDiff = skill - technicalDifficulty;
+            
+            if (skill >= 8) {
+                // Expert - wants technical terrain
+                if (technicalDifficulty >= 7) {
+                    score += 3;
+                    bonuses.push('Challenging terrain you can handle');
+                } else if (technicalDifficulty >= 5) {
+                    score += 2;
+                } else {
+                    score += 1;  // Easy terrain is fine for recovery
+                }
+            } else if (skill >= 6) {
+                // Competent - moderate technical
+                if (technicalDifficulty >= 8) {
+                    score -= 2;
+                    warnings.push('Terrain exceeds current skill level');
+                } else if (technicalDifficulty >= 6) {
+                    score += 1;
+                    warnings.push('Challenging terrain - stay alert');
+                } else if (technicalDifficulty >= 4) {
+                    score += 3;
+                    bonuses.push('Good terrain match');
+                } else {
+                    score += 2;
+                }
+            } else if (skill >= 4) {
+                // Developing - easier terrain
+                if (technicalDifficulty >= 6) {
+                    score -= 3;
+                    warnings.push('Terrain too technical - gain more experience first');
+                } else if (technicalDifficulty >= 4) {
+                    score += 0;
+                    warnings.push('At the edge of your comfort zone');
+                } else {
+                    score += 3;
+                    bonuses.push('Good terrain for skill building');
+                }
+            } else {
+                // Beginner - stick to easy terrain
+                if (technicalDifficulty >= 4) {
+                    score -= 4;
+                    warnings.push('Not appropriate for skill level - need easier terrain');
+                } else if (technicalDifficulty >= 3) {
+                    score -= 1;
+                    warnings.push('Go with experienced partners');
+                } else {
+                    score += 2;
+                    bonuses.push('Appropriate for learning');
                 }
             }
             
-            // ELEVATION CONSIDERATIONS
-            if (tour.maxElevation > 7000 && fitnessLevel < 6) {
+            // ============================================
+            // SPECIAL TERRAIN WARNINGS
+            // ============================================
+            
+            if (terrain.includes('glacier') && skill < 6) {
+                score -= 2;
+                warnings.push('Glacier travel requires crevasse rescue skills');
+            }
+            
+            if (terrain.includes('couloir') && skill < 7) {
+                score -= 2;
+                warnings.push('Couloir skiing requires expert skills');
+            }
+            
+            if (maxElev > 10000 && skill < 5) {
                 score -= 1;
-                warnings.push('High elevation - ensure good acclimatization');
+                warnings.push('High alpine environment - ensure proper preparation');
             }
             
-            console.log(`📊 Final score for ${tour.name}: ${score}`, { warnings });
+            // Multi-day indicators
+            if (elevGain > 10000 || distance > 30) {
+                if (skill < 7 || fitness < 7) {
+                    score -= 2;
+                    warnings.push('Multi-day tour requires high fitness AND skill');
+                }
+            }
             
-            // Determine recommendation based on score
-            if (score >= 2) {
+            console.log(`📊 Final score for ${tour.name}: ${score}`, { bonuses, warnings });
+            
+            // ============================================
+            // GENERATE RECOMMENDATION
+            // ============================================
+            
+            const analysisIntro = bonuses.length > 0 ? bonuses[0] + '. ' : '';
+            const warningText = warnings.length > 0 ? warnings.join('. ') + '.' : '';
+            
+            if (score >= 4) {
+                return { 
+                    level: 'go', 
+                    text: '✅ Perfect Match', 
+                    analysis: `${analysisIntro}This tour aligns well with your energy (${fitness}/10) and skill (${skill}/10). ${warningText || 'Enjoy!'}`,
+                    score: score,
+                    physicalDifficulty,
+                    technicalDifficulty
+                };
+            } else if (score >= 2) {
                 return { 
                     level: 'go', 
                     text: '✅ Good to Go', 
-                    analysis: `Great match for your fitness level (${fitnessLevel}/10). ${warnings.length > 0 ? warnings.join('. ') + '.' : 'Enjoy your tour!'}`,
-                    score: score
+                    analysis: `${analysisIntro}Solid choice for your current state. ${warningText || 'Have fun out there!'}`,
+                    score: score,
+                    physicalDifficulty,
+                    technicalDifficulty
                 };
-            } else if (score >= -1) {
+            } else if (score >= 0) {
                 return { 
                     level: 'maybe', 
-                    text: '⚠️ Cautious Go', 
-                    analysis: `Feasible with your current fitness (${fitnessLevel}/10) but requires careful pacing. ${warnings.length > 0 ? warnings.join('. ') + '.' : 'Stay conservative.'}`,
-                    score: score
+                    text: '⚠️ Possible', 
+                    analysis: `Doable but consider carefully. ${warningText || 'Be conservative with decisions.'}`,
+                    score: score,
+                    physicalDifficulty,
+                    technicalDifficulty
+                };
+            } else if (score >= -2) {
+                return { 
+                    level: 'maybe', 
+                    text: '⚠️ Stretch', 
+                    analysis: `Pushing your limits today. ${warningText || 'Have a backup plan.'}`,
+                    score: score,
+                    physicalDifficulty,
+                    technicalDifficulty
                 };
             } else {
                 return { 
                     level: 'no', 
-                    text: '🛑 Skip It', 
-                    analysis: `Too demanding for current fitness level (${fitnessLevel}/10). ${warnings.length > 0 ? warnings.join('. ') : 'Consider an easier objective or wait until you feel stronger.'}`,
-                    score: score
+                    text: '🛑 Not Today', 
+                    analysis: `${warningText || 'This tour exceeds your current fitness or skill level.'} Consider a different objective.`,
+                    score: score,
+                    physicalDifficulty,
+                    technicalDifficulty
                 };
             }
         }
 
         function generateTourCard(tour, rec, rank = null) {
             const rankBadge = rank ? `<div style="display: inline-block; background: var(--burnt-orange); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 700; font-size: 0.85rem; margin-right: 0.5rem;">#${rank}</div>` : '';
+            
+            // Create difficulty bars
+            const physBar = createDifficultyBar(rec.physicalDifficulty || 5, 'Physical');
+            const techBar = createDifficultyBar(rec.technicalDifficulty || 5, 'Technical');
             
             return `
                 <div class="tour-card">
@@ -1274,15 +1543,8 @@
                         <div class="detail-item">
                             <div class="detail-icon">🏔️</div>
                             <div class="detail-text">
-                                <span class="detail-label">Elevation</span>
+                                <span class="detail-label">Max Elevation</span>
                                 <span class="detail-value">${tour.maxElevation.toLocaleString()} ft</span>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-icon">🎿</div>
-                            <div class="detail-text">
-                                <span class="detail-label">Aspect</span>
-                                <span class="detail-value">${tour.aspect}</span>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -1295,14 +1557,39 @@
                         <div class="detail-item">
                             <div class="detail-icon">💪</div>
                             <div class="detail-text">
-                                <span class="detail-label">Your Fitness</span>
-                                <span class="detail-value">${config.fitnessLevel}/10</span>
+                                <span class="detail-label">Physical</span>
+                                ${physBar}
                             </div>
                         </div>
+                        <div class="detail-item">
+                            <div class="detail-icon">🎿</div>
+                            <div class="detail-text">
+                                <span class="detail-label">Technical</span>
+                                ${techBar}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 6px; font-size: 0.85rem;">
+                        <div><strong>Your Energy:</strong> ${config.fitnessLevel}/10</div>
+                        <div><strong>Your Skill:</strong> ${config.skillLevel}/10</div>
                     </div>
                     <p style="margin-top: 1rem; color: var(--topo-gray); font-size: 0.9rem; line-height: 1.6;">
                         <strong>Analysis:</strong> ${rec.analysis}
                     </p>
+                </div>
+            `;
+        }
+
+        function createDifficultyBar(level, label) {
+            const colors = ['#50B848', '#50B848', '#8BC34A', '#FFF200', '#FFC107', '#F7941E', '#FF5722', '#ED1C24', '#D32F2F', '#880E4F'];
+            const color = colors[Math.min(level - 1, 9)];
+            const width = level * 10;
+            return `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div style="flex: 1; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                        <div style="width: ${width}%; height: 100%; background: ${color}; border-radius: 4px;"></div>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 600; color: ${color};">${level}/10</span>
                 </div>
             `;
         }
@@ -1322,6 +1609,7 @@
             return zones[zoneId] || zoneId;
         }
 
+        // Fitness slider event listener
         document.getElementById('fitnessSlider').addEventListener('input', function() {
             const value = parseInt(this.value);
             config.fitnessLevel = value;
@@ -1333,10 +1621,38 @@
             localStorage.setItem('skiTourConfig', JSON.stringify(config));
         });
 
+        // Skill slider event listener
+        document.getElementById('skillSlider').addEventListener('input', function() {
+            const value = parseInt(this.value);
+            config.skillLevel = value;
+            document.getElementById('skillStatus').textContent = 
+                `${skillLabels[value]} (${value}/10)`;
+            document.getElementById('skillDescription').textContent = skillDescriptions[value];
+            
+            console.log('🎿 Skill level changed to:', value, '- Recalculating recommendations...');
+            loadTours();
+            localStorage.setItem('skiTourConfig', JSON.stringify(config));
+        });
+
         window.addEventListener('load', () => {
             const savedConfig = localStorage.getItem('skiTourConfig');
             if (savedConfig) {
                 config = JSON.parse(savedConfig);
+                
+                // Restore fitness slider
+                if (config.fitnessLevel) {
+                    document.getElementById('fitnessSlider').value = config.fitnessLevel;
+                    document.getElementById('fitnessStatus').textContent = 
+                        `${fitnessLabels[config.fitnessLevel]} (${config.fitnessLevel}/10)`;
+                }
+                
+                // Restore skill slider
+                if (config.skillLevel) {
+                    document.getElementById('skillSlider').value = config.skillLevel;
+                    document.getElementById('skillStatus').textContent = 
+                        `${skillLabels[config.skillLevel]} (${config.skillLevel}/10)`;
+                    document.getElementById('skillDescription').textContent = skillDescriptions[config.skillLevel];
+                }
                 
                 if (config.location && config.nwacZone) {
                     const zoneDefault = zoneDefaults[config.nwacZone];
