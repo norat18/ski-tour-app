@@ -1599,10 +1599,12 @@
                             
                             if (synopticData.SUMMARY && synopticData.SUMMARY.RESPONSE_CODE === 1) {
                                 console.log('❄️ Found', synopticData.SUMMARY.NUMBER_OF_OBJECTS, 'stations');
+                            } else if (synopticData.SUMMARY) {
+                                console.warn('❄️ Synoptic API response code:', synopticData.SUMMARY.RESPONSE_CODE, synopticData.SUMMARY.RESPONSE_MESSAGE);
                             }
                             
                             if (synopticData.STATION && synopticData.STATION.length > 0) {
-                                // Find station with best snow data (prefer higher elevation with snow_depth)
+                                // Find station with best snow data (prefer higher elevation with any snow/precip data)
                                 let bestStation = null;
                                 let bestElevation = 0;
                                 
@@ -1610,19 +1612,23 @@
                                     const elev = parseFloat(station.ELEVATION) || 0;
                                     const obs = station.OBSERVATIONS || {};
                                     
-                                    // Check for snow-related data
-                                    const hasSnowData = obs.snow_depth_value_1 || 
-                                                       obs.snow_accum_24_hour_value_1 ||
-                                                       obs.snow_accum_value_1 ||
-                                                       obs.precip_accum_24_hour_value_1;
+                                    // Check for ANY snow or precip related data using flexible key matching
+                                    const obsKeys = Object.keys(obs);
+                                    const hasSnowData = obsKeys.some(key => 
+                                        key.includes('snow') || 
+                                        key.includes('precip') ||
+                                        key.includes('SNOW') ||
+                                        key.includes('PRECIP')
+                                    );
                                     
                                     if (hasSnowData && elev > bestElevation) {
                                         bestStation = station;
                                         bestElevation = elev;
+                                        console.log('❄️ Found station with snow data:', station.NAME, 'at', elev, 'ft');
                                     }
                                 });
                                 
-                                // Fallback to highest elevation station
+                                // Fallback to highest elevation station even without snow data
                                 if (!bestStation && synopticData.STATION.length > 0) {
                                     synopticData.STATION.forEach(station => {
                                         const elev = parseFloat(station.ELEVATION) || 0;
@@ -1631,6 +1637,7 @@
                                             bestElevation = elev;
                                         }
                                     });
+                                    console.log('❄️ Using highest elevation station:', bestStation?.NAME);
                                 }
                                 
                                 if (bestStation) {
@@ -1652,50 +1659,50 @@
                                         if (typeof obs[key] === 'number') {
                                             return obs[key];
                                         }
+                                        // Handle array format (sometimes returns array of values)
+                                        if (Array.isArray(obs[key]) && obs[key].length > 0) {
+                                            const lastVal = obs[key][obs[key].length - 1];
+                                            if (typeof lastVal === 'number') return lastVal;
+                                            if (typeof lastVal === 'object' && lastVal.value != null) return lastVal.value;
+                                        }
                                         return null;
                                     };
                                     
-                                    // Try multiple possible key names for snow depth
-                                    const snowDepthKeys = ['snow_depth_value_1', 'snow_depth_set_1', 'snow_depth'];
-                                    for (const key of snowDepthKeys) {
-                                        const val = getValue(key);
-                                        if (val != null && val > 0) {
-                                            snowDepth = Math.round(val) + '"';
-                                            console.log('❄️ Found snow depth:', val, 'from key:', key);
-                                            break;
+                                    // Find any key that matches a pattern
+                                    const findKeyValue = (patterns) => {
+                                        const obsKeys = Object.keys(obs);
+                                        for (const pattern of patterns) {
+                                            const matchingKey = obsKeys.find(k => k.toLowerCase().includes(pattern.toLowerCase()));
+                                            if (matchingKey) {
+                                                const val = getValue(matchingKey);
+                                                if (val != null) {
+                                                    console.log(`❄️ Found ${pattern}:`, val, 'from key:', matchingKey);
+                                                    return { key: matchingKey, value: val };
+                                                }
+                                            }
                                         }
+                                        return null;
+                                    };
+                                    
+                                    // Try to find snow depth
+                                    const depthResult = findKeyValue(['snow_depth', 'snowdepth', 'snow_total']);
+                                    if (depthResult && depthResult.value > 0) {
+                                        snowDepth = Math.round(depthResult.value) + '"';
                                     }
                                     
-                                    // Try multiple possible key names for 24hr snow
-                                    const snow24hKeys = [
-                                        'snow_accum_24_hour_value_1', 'snow_accum_24_hour_set_1',
-                                        'snow_interval_value_1', 'snow_interval_set_1',
-                                        'snow_accum_value_1', 'snow_accum_set_1'
-                                    ];
-                                    for (const key of snow24hKeys) {
-                                        const val = getValue(key);
-                                        if (val != null) {
-                                            newSnow24h = Math.round(val) + '"';
-                                            console.log('❄️ Found 24hr snow:', val, 'from key:', key);
-                                            break;
-                                        }
+                                    // Try to find 24hr snow
+                                    const snow24Result = findKeyValue(['snow_accum_24', 'snow_24', 'snow_accum', 'snow_interval', 'new_snow']);
+                                    if (snow24Result && snow24Result.value >= 0) {
+                                        newSnow24h = Math.round(snow24Result.value) + '"';
                                     }
                                     
                                     // If no direct snow data, try precip conversion
                                     if (newSnow24h === '--') {
-                                        const precip24hKeys = [
-                                            'precip_accum_24_hour_value_1', 'precip_accum_24_hour_set_1',
-                                            'precip_accum_since_local_midnight_value_1', 
-                                            'precip_accum_one_hour_value_1'
-                                        ];
-                                        for (const key of precip24hKeys) {
-                                            const val = getValue(key);
-                                            if (val != null && val > 0) {
-                                                // Convert liquid precip to snow (10:1 ratio)
-                                                newSnow24h = Math.round(val * 10) + '"*';
-                                                console.log('❄️ Estimated 24hr snow from precip:', val, '* 10 =', Math.round(val * 10));
-                                                break;
-                                            }
+                                        const precipResult = findKeyValue(['precip_accum_24', 'precip_24', 'precip_accum']);
+                                        if (precipResult && precipResult.value > 0) {
+                                            // Convert liquid precip to snow (10:1 ratio)
+                                            newSnow24h = Math.round(precipResult.value * 10) + '"*';
+                                            console.log('❄️ Estimated 24hr snow from precip:', precipResult.value, '* 10 =', Math.round(precipResult.value * 10));
                                         }
                                     }
                                     
@@ -1706,6 +1713,8 @@
                             }
                         } else {
                             console.warn('❄️ Synoptic API returned status:', synopticResponse.status);
+                            const errorText = await synopticResponse.text();
+                            console.warn('❄️ Synoptic error response:', errorText);
                         }
                         
                         // Second API call: Get 7-day snow using timeseries
@@ -1791,9 +1800,15 @@
                         
                     } catch (synopticErr) {
                         console.warn('❄️ Synoptic fetch failed:', synopticErr.message);
+                        synopticWorking = false;
                     }
                 } else {
                     console.log('ℹ️ Synoptic token not configured - using placeholder display');
+                }
+                
+                // If we still have no data but API was attempted, show station name at least
+                if (synopticWorking && snowDepth === '--' && newSnow24h === '--' && newSnow7d === '--') {
+                    console.log('❄️ Station found but no snow data available - may be early/late season');
                 }
                 
                 // ============================================
@@ -1801,6 +1816,114 @@
                 // ============================================
                 const isToday = daysFromNow === 0;
                 const dateLabel = isToday ? 'Current' : periodName;
+                
+                // Calculate 7-day snow forecast from NWS periods
+                let snowForecastHtml = '';
+                try {
+                    const forecastDays = [];
+                    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    
+                    // Group periods by day and extract snow/precipitation info
+                    for (let i = 0; i < Math.min(allPeriods.length, 14); i++) {
+                        const period = allPeriods[i];
+                        if (!period.isDaytime) continue; // Only use daytime periods
+                        
+                        const periodDate = new Date(period.startTime);
+                        const dayName = dayNames[periodDate.getDay()];
+                        const forecast = period.shortForecast.toLowerCase();
+                        const detailed = period.detailedForecast.toLowerCase();
+                        
+                        // Check for snow in forecast
+                        let snowAmount = '';
+                        let hasSnow = forecast.includes('snow') || detailed.includes('snow');
+                        
+                        // Try to extract snow amounts from detailed forecast
+                        const snowMatch = detailed.match(/(\d+)\s*to\s*(\d+)\s*inch/i) || 
+                                         detailed.match(/around\s*(\d+)\s*inch/i) ||
+                                         detailed.match(/(\d+)\s*inch/i);
+                        
+                        if (snowMatch) {
+                            if (snowMatch[2]) {
+                                snowAmount = `${snowMatch[1]}-${snowMatch[2]}"`;
+                            } else {
+                                snowAmount = `${snowMatch[1]}"`;
+                            }
+                        } else if (hasSnow) {
+                            // Check for trace/light/heavy descriptors
+                            if (detailed.includes('heavy snow')) snowAmount = '4"+';
+                            else if (detailed.includes('moderate snow')) snowAmount = '2-4"';
+                            else if (detailed.includes('light snow')) snowAmount = '<2"';
+                            else if (detailed.includes('snow likely')) snowAmount = '1-3"';
+                            else if (detailed.includes('chance of snow')) snowAmount = 'Poss';
+                            else if (detailed.includes('snow showers')) snowAmount = '1-2"';
+                            else snowAmount = '❄️';
+                        }
+                        
+                        // Weather icon
+                        let icon = '☀️';
+                        if (forecast.includes('snow')) icon = '🌨️';
+                        else if (forecast.includes('rain') && forecast.includes('snow')) icon = '🌨️';
+                        else if (forecast.includes('rain')) icon = '🌧️';
+                        else if (forecast.includes('shower')) icon = '🌦️';
+                        else if (forecast.includes('cloud')) icon = '☁️';
+                        else if (forecast.includes('partly')) icon = '⛅';
+                        else if (forecast.includes('fog')) icon = '🌫️';
+                        
+                        forecastDays.push({
+                            day: dayName,
+                            icon: icon,
+                            high: period.temperature,
+                            snow: snowAmount,
+                            hasSnow: hasSnow
+                        });
+                        
+                        if (forecastDays.length >= 7) break;
+                    }
+                    
+                    // Calculate total projected snow
+                    let totalSnowMin = 0;
+                    let totalSnowMax = 0;
+                    forecastDays.forEach(d => {
+                        if (d.snow) {
+                            const match = d.snow.match(/(\d+)(?:-(\d+))?/);
+                            if (match) {
+                                totalSnowMin += parseInt(match[1]) || 0;
+                                totalSnowMax += parseInt(match[2] || match[1]) || 0;
+                            }
+                        }
+                    });
+                    
+                    const totalSnowStr = totalSnowMax > 0 
+                        ? (totalSnowMin === totalSnowMax ? `${totalSnowMin}"` : `${totalSnowMin}-${totalSnowMax}"`)
+                        : 'None';
+                    
+                    snowForecastHtml = `
+                        <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <div style="font-size: 0.7rem; color: #1565c0; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    🌨️ 7-Day Snow Forecast
+                                </div>
+                                <div style="background: ${totalSnowMax > 0 ? '#1565c0' : '#78909c'}; color: white; padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                                    ${totalSnowStr} Total
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; gap: 0.25rem; overflow-x: auto;">
+                                ${forecastDays.map((d, i) => `
+                                    <div style="text-align: center; min-width: 42px; padding: 0.4rem 0.2rem; 
+                                                ${i === 0 ? 'background: rgba(21, 101, 192, 0.1); border-radius: 6px;' : ''}
+                                                ${d.hasSnow ? 'background: rgba(21, 101, 192, 0.15); border-radius: 6px;' : ''}">
+                                        <div style="font-size: 0.65rem; color: #666; font-weight: ${i === 0 ? '700' : '500'};">${d.day}</div>
+                                        <div style="font-size: 1.1rem; margin: 0.2rem 0;">${d.icon}</div>
+                                        <div style="font-size: 0.7rem; font-weight: 600; color: #333;">${d.high}°</div>
+                                        ${d.snow ? `<div style="font-size: 0.65rem; color: #1565c0; font-weight: 600; margin-top: 0.15rem;">${d.snow}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } catch (forecastErr) {
+                    console.warn('❄️ Snow forecast parse error:', forecastErr.message);
+                }
                 
                 content.innerHTML = `
                     <div style="text-align: center; padding: 0.5rem 0;">
@@ -1841,7 +1964,7 @@
                         <!-- Snow Data from Synoptic (OpenSnow's data source) -->
                         <div style="background: linear-gradient(135deg, #e8f4fd 0%, #d4e9f7 100%); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
                             <div style="font-size: 0.7rem; color: #1565c0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
-                                ❄️ Snow Conditions ${!isToday ? '(Current)' : ''}
+                                ❄️ Recent Snow ${!isToday ? '(Current)' : ''}
                             </div>
                             <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
                                 <div style="text-align: center; min-width: 70px;">
@@ -1871,6 +1994,9 @@
                             </div>
                             `}
                         </div>
+                        
+                        <!-- 7-Day Snow Forecast -->
+                        ${snowForecastHtml}
                         
                         <!-- NWS Detailed Forecast -->
                         <div style="background: var(--cream); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
