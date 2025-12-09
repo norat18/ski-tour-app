@@ -1320,6 +1320,23 @@
                         </button>
                     </div>
                     
+                    <!-- My Profile Section -->
+                    <div style="margin-bottom: 1rem;">
+                        <button id="myProfileToggleBtn" class="my-tours-toggle" onclick="toggleMyProfile()" style="background: #e8f5e9;">
+                            👤 My Profile
+                        </button>
+                        <div id="myProfileSection" style="display: none; background: var(--cream); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h4 style="margin: 0; color: var(--forest-green);">👤 My Touring Profile</h4>
+                                <button class="btn btn-secondary btn-small" onclick="openProfileModal()">✏️ Edit</button>
+                            </div>
+                            <div id="myProfileContent">
+                                <!-- Rendered by renderMyProfile() -->
+                                <p style="color: var(--topo-gray); font-size: 0.9rem;">No profile set up yet. Click Edit to create your touring profile!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- My Tours Section -->
                     <div style="margin-bottom: 1.5rem;">
                         <button id="myToursToggleBtn" class="my-tours-toggle" onclick="toggleMyTours()">
@@ -1373,6 +1390,159 @@
             </div>
         </div>
     </div>
+    
+    <!-- Profile Edit Modal -->
+    <div id="profileModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3>👤 Edit My Touring Profile</h3>
+                <button class="modal-close" onclick="closeProfileModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: left;">
+                
+                <!-- Basic Info -->
+                <div style="background: var(--cream); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem;">📋 Basic Info</div>
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Name</label>
+                        <input type="text" id="profileName" placeholder="Your name">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Phone</label>
+                        <input type="tel" id="profilePhone" placeholder="(555) 123-4567">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Social Media (Instagram, etc.)</label>
+                        <input type="text" id="profileSocial" placeholder="@username">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Nearest City</label>
+                        <input type="text" id="profileCity" placeholder="Seattle, WA">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem;">Introduction</label>
+                        <textarea id="profileIntro" rows="2" placeholder="A few words about yourself..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- Experience & Background -->
+                <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: #1565c0; margin-bottom: 0.75rem;">🎿 Experience & Background</div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Experience Overview</label>
+                        <textarea id="profileExperience" rows="2" placeholder="How long have you been backcountry skiing? What's your background?"></textarea>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Skill Level</label>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <input type="range" id="profileSkillLevel" min="1" max="5" value="3" style="flex: 1;">
+                            <span id="profileSkillLabel" style="font-weight: 600; min-width: 100px;">Intermediate</span>
+                        </div>
+                        <p style="font-size: 0.75rem; color: #666; margin-top: 0.25rem;">1 = Beginner, 3 = Intermediate, 5 = Expert</p>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">What kind of tours are you looking to do?</label>
+                        <textarea id="profileTourTypes" rows="2" placeholder="Mellow powder days, long traverses, steep couloirs..."></textarea>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Ski Pass?</label>
+                        <input type="text" id="profileSkiPass" placeholder="Ikon, Epic, Crystal, Stevens, etc.">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Medical / Avalanche Training</label>
+                        <input type="text" id="profileTraining" placeholder="AIARE 1, AIARE 2, WFR, Pro 1, etc.">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem;">Backcountry Ski / Board Preference</label>
+                        <select id="profileGear">
+                            <option value="">-- Select --</option>
+                            <option value="ski">Skis</option>
+                            <option value="splitboard">Splitboard</option>
+                            <option value="snowboard">Snowboard (w/ snowshoes)</option>
+                            <option value="both">Both ski and splitboard</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Touring Preferences -->
+                <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem;">⛰️ Touring Preferences</div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Preferred Pace (uphill)</label>
+                        <select id="profilePace">
+                            <option value="">-- Select --</option>
+                            <option value="chill">&lt;1000 ft/hr - Chill / social pace</option>
+                            <option value="moderate">~1000 ft/hr - Moderate / steady</option>
+                            <option value="fast">&gt;1000 ft/hr - Fast / fitness-focused</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Availability</label>
+                        <select id="profileAvailability">
+                            <option value="">-- Select --</option>
+                            <option value="weekends">Weekends only</option>
+                            <option value="weekdays">Weekdays only</option>
+                            <option value="both">Both weekends & weekdays</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Favorite Areas</label>
+                        <input type="text" id="profileFavoriteAreas" placeholder="Crystal, Baker, Alpental, Artist Point...">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Open to Traveling?</label>
+                        <select id="profileTravel">
+                            <option value="">-- Select --</option>
+                            <option value="local">Prefer to stay local</option>
+                            <option value="regional">Open to regional trips (2-3 hrs)</option>
+                            <option value="anywhere">Down to travel anywhere!</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem;">Can you drive to trailheads?</label>
+                        <select id="profileCanDrive">
+                            <option value="">-- Select --</option>
+                            <option value="yes-awd">Yes - AWD/4WD vehicle</option>
+                            <option value="yes-2wd">Yes - 2WD with chains</option>
+                            <option value="sometimes">Sometimes / depends</option>
+                            <option value="no">No - need a ride</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Fun Stuff -->
+                <div style="background: #fff3e0; padding: 1rem; border-radius: 8px; margin-bottom: 0;">
+                    <div style="font-weight: 600; color: #e65100; margin-bottom: 0.75rem;">🍕 The Important Stuff</div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Favorite Food Stop (post-tour)</label>
+                        <input type="text" id="profileFoodStop" placeholder="Taco Time, Sultan Bakery, Freeride Pizza...">
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem;">Favorite Mountain Snack</label>
+                        <input type="text" id="profileSnack" placeholder="Stroopwafels, PB&J, trail mix...">
+                    </div>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProfileModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProfile()">💾 Save Profile</button>
+            </div>
+        </div>
+    </div>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ============================================
@@ -1409,6 +1579,7 @@
                 console.log('👤 User signed in:', user.email);
                 // Sync local data to cloud and load cloud data
                 await syncTourLogs();
+                await syncProfile();
             } else {
                 console.log('👤 User signed out');
             }
@@ -3651,6 +3822,242 @@
         
         function closeWalkthrough() {
             document.getElementById('walkthroughModal').classList.remove('active');
+        }
+        
+        // ============================================
+        // USER PROFILE FUNCTIONS
+        // ============================================
+        
+        const PROFILE_KEY = 'pnw_ski_tours_profile';
+        
+        function getProfile() {
+            try {
+                const profile = localStorage.getItem(PROFILE_KEY);
+                return profile ? JSON.parse(profile) : null;
+            } catch (e) {
+                console.error('Error reading profile:', e);
+                return null;
+            }
+        }
+        
+        function saveProfileToStorage(profile) {
+            try {
+                localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+                console.log('💾 Profile saved locally');
+                
+                // Also save to cloud if user is signed in
+                if (currentUser) {
+                    saveProfileToCloud(profile);
+                }
+            } catch (e) {
+                console.error('Error saving profile:', e);
+            }
+        }
+        
+        async function saveProfileToCloud(profile) {
+            if (!currentUser) return;
+            
+            try {
+                updateSyncStatus('syncing');
+                await db.collection('users').doc(currentUser.uid).collection('profile').doc('data').set({
+                    ...profile,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                updateSyncStatus('synced');
+                console.log('☁️ Profile synced to cloud');
+            } catch (e) {
+                console.error('Error saving profile to cloud:', e);
+                updateSyncStatus('error');
+            }
+        }
+        
+        async function syncProfile() {
+            if (!currentUser) return;
+            
+            try {
+                const doc = await db.collection('users').doc(currentUser.uid).collection('profile').doc('data').get();
+                if (doc.exists) {
+                    const cloudProfile = doc.data();
+                    const localProfile = getProfile();
+                    
+                    // If cloud is newer or local doesn't exist, use cloud
+                    if (!localProfile || (cloudProfile.updatedAt && (!localProfile.updatedAt || cloudProfile.updatedAt.toDate() > new Date(localProfile.updatedAt)))) {
+                        localStorage.setItem(PROFILE_KEY, JSON.stringify(cloudProfile));
+                        console.log('☁️ Profile synced from cloud');
+                    }
+                }
+                renderMyProfile();
+            } catch (e) {
+                console.error('Error syncing profile:', e);
+            }
+        }
+        
+        function toggleMyProfile() {
+            const section = document.getElementById('myProfileSection');
+            const btn = document.getElementById('myProfileToggleBtn');
+            
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                btn.innerHTML = '👤 Hide Profile';
+                renderMyProfile();
+            } else {
+                section.style.display = 'none';
+                btn.innerHTML = '👤 My Profile';
+            }
+        }
+        
+        function openProfileModal() {
+            const profile = getProfile() || {};
+            
+            // Populate form fields
+            document.getElementById('profileName').value = profile.name || '';
+            document.getElementById('profilePhone').value = profile.phone || '';
+            document.getElementById('profileSocial').value = profile.social || '';
+            document.getElementById('profileCity').value = profile.city || '';
+            document.getElementById('profileIntro').value = profile.intro || '';
+            
+            document.getElementById('profileExperience').value = profile.experience || '';
+            document.getElementById('profileSkillLevel').value = profile.skillLevel || 3;
+            updateProfileSkillLabel();
+            document.getElementById('profileTourTypes').value = profile.tourTypes || '';
+            document.getElementById('profileSkiPass').value = profile.skiPass || '';
+            document.getElementById('profileTraining').value = profile.training || '';
+            document.getElementById('profileGear').value = profile.gear || '';
+            
+            document.getElementById('profilePace').value = profile.pace || '';
+            document.getElementById('profileAvailability').value = profile.availability || '';
+            document.getElementById('profileFavoriteAreas').value = profile.favoriteAreas || '';
+            document.getElementById('profileTravel').value = profile.travel || '';
+            document.getElementById('profileCanDrive').value = profile.canDrive || '';
+            
+            document.getElementById('profileFoodStop').value = profile.foodStop || '';
+            document.getElementById('profileSnack').value = profile.snack || '';
+            
+            document.getElementById('profileModal').classList.add('active');
+        }
+        
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+        
+        function updateProfileSkillLabel() {
+            const level = parseInt(document.getElementById('profileSkillLevel').value);
+            const labels = ['Beginner', 'Beginner-Int', 'Intermediate', 'Int-Advanced', 'Expert'];
+            document.getElementById('profileSkillLabel').textContent = labels[level - 1];
+        }
+        
+        // Add event listener for skill slider
+        document.addEventListener('DOMContentLoaded', function() {
+            const skillSlider = document.getElementById('profileSkillLevel');
+            if (skillSlider) {
+                skillSlider.addEventListener('input', updateProfileSkillLabel);
+            }
+        });
+        
+        function saveProfile() {
+            const profile = {
+                // Basic Info
+                name: document.getElementById('profileName').value.trim(),
+                phone: document.getElementById('profilePhone').value.trim(),
+                social: document.getElementById('profileSocial').value.trim(),
+                city: document.getElementById('profileCity').value.trim(),
+                intro: document.getElementById('profileIntro').value.trim(),
+                
+                // Experience
+                experience: document.getElementById('profileExperience').value.trim(),
+                skillLevel: parseInt(document.getElementById('profileSkillLevel').value),
+                tourTypes: document.getElementById('profileTourTypes').value.trim(),
+                skiPass: document.getElementById('profileSkiPass').value.trim(),
+                training: document.getElementById('profileTraining').value.trim(),
+                gear: document.getElementById('profileGear').value,
+                
+                // Preferences
+                pace: document.getElementById('profilePace').value,
+                availability: document.getElementById('profileAvailability').value,
+                favoriteAreas: document.getElementById('profileFavoriteAreas').value.trim(),
+                travel: document.getElementById('profileTravel').value,
+                canDrive: document.getElementById('profileCanDrive').value,
+                
+                // Fun
+                foodStop: document.getElementById('profileFoodStop').value.trim(),
+                snack: document.getElementById('profileSnack').value.trim(),
+                
+                updatedAt: new Date().toISOString()
+            };
+            
+            saveProfileToStorage(profile);
+            closeProfileModal();
+            renderMyProfile();
+            
+            // Show confirmation
+            alert('✅ Profile saved!');
+        }
+        
+        function renderMyProfile() {
+            const container = document.getElementById('myProfileContent');
+            const profile = getProfile();
+            
+            if (!profile || !profile.name) {
+                container.innerHTML = '<p style="color: var(--topo-gray); font-size: 0.9rem;">No profile set up yet. Click Edit to create your touring profile!</p>';
+                return;
+            }
+            
+            const skillLabels = ['Beginner', 'Beginner-Int', 'Intermediate', 'Int-Advanced', 'Expert'];
+            const paceLabels = { 'chill': '<1000 ft/hr (chill)', 'moderate': '~1000 ft/hr', 'fast': '>1000 ft/hr (fast)' };
+            const availLabels = { 'weekends': 'Weekends', 'weekdays': 'Weekdays', 'both': 'Weekends & Weekdays' };
+            const gearLabels = { 'ski': '⛷️ Skis', 'splitboard': '🏂 Splitboard', 'snowboard': '🏂 Snowboard', 'both': '⛷️🏂 Both' };
+            const travelLabels = { 'local': 'Prefer local', 'regional': 'Regional trips OK', 'anywhere': 'Down to travel!' };
+            const driveLabels = { 'yes-awd': '✅ Yes (AWD/4WD)', 'yes-2wd': '✅ Yes (2WD+chains)', 'sometimes': '🤷 Sometimes', 'no': '🚗 Need a ride' };
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 1rem;">
+                    <!-- Header with name -->
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 60px; height: 60px; background: var(--forest-green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700;">
+                            ${profile.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: var(--forest-green);">${profile.name}</div>
+                            ${profile.city ? `<div style="font-size: 0.9rem; color: var(--topo-gray);">📍 ${profile.city}</div>` : ''}
+                        </div>
+                    </div>
+                    
+                    ${profile.intro ? `<p style="font-style: italic; color: #555;">"${profile.intro}"</p>` : ''}
+                    
+                    <!-- Contact -->
+                    ${(profile.phone || profile.social) ? `
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.85rem;">
+                        ${profile.phone ? `<span>📞 ${profile.phone}</span>` : ''}
+                        ${profile.social ? `<span>📱 ${profile.social}</span>` : ''}
+                    </div>` : ''}
+                    
+                    <!-- Experience badges -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <span style="background: #e3f2fd; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">
+                            🎿 ${skillLabels[profile.skillLevel - 1] || 'Intermediate'}
+                        </span>
+                        ${profile.gear ? `<span style="background: #e3f2fd; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">${gearLabels[profile.gear] || profile.gear}</span>` : ''}
+                        ${profile.pace ? `<span style="background: #e8f5e9; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">⏱️ ${paceLabels[profile.pace] || profile.pace}</span>` : ''}
+                        ${profile.availability ? `<span style="background: #e8f5e9; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">📅 ${availLabels[profile.availability] || profile.availability}</span>` : ''}
+                        ${profile.canDrive ? `<span style="background: #f5f5f5; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">${driveLabels[profile.canDrive] || profile.canDrive}</span>` : ''}
+                    </div>
+                    
+                    <!-- Details -->
+                    ${profile.training ? `<div style="font-size: 0.85rem;"><strong>🎓 Training:</strong> ${profile.training}</div>` : ''}
+                    ${profile.experience ? `<div style="font-size: 0.85rem;"><strong>📝 Experience:</strong> ${profile.experience}</div>` : ''}
+                    ${profile.tourTypes ? `<div style="font-size: 0.85rem;"><strong>🎯 Looking for:</strong> ${profile.tourTypes}</div>` : ''}
+                    ${profile.favoriteAreas ? `<div style="font-size: 0.85rem;"><strong>❤️ Favorite areas:</strong> ${profile.favoriteAreas}</div>` : ''}
+                    ${profile.skiPass ? `<div style="font-size: 0.85rem;"><strong>🎫 Ski pass:</strong> ${profile.skiPass}</div>` : ''}
+                    ${profile.travel ? `<div style="font-size: 0.85rem;"><strong>✈️ Travel:</strong> ${travelLabels[profile.travel] || profile.travel}</div>` : ''}
+                    
+                    <!-- Fun stuff -->
+                    ${(profile.foodStop || profile.snack) ? `
+                    <div style="background: #fff3e0; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem;">
+                        ${profile.foodStop ? `<div>🍕 <strong>Post-tour food:</strong> ${profile.foodStop}</div>` : ''}
+                        ${profile.snack ? `<div>🍫 <strong>Mountain snack:</strong> ${profile.snack}</div>` : ''}
+                    </div>` : ''}
+                </div>
+            `;
         }
         
         // Open the tour log modal
