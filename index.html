@@ -1057,7 +1057,20 @@
                         <div id="authError" class="auth-error" style="display: none;"></div>
                         <form id="authForm" class="auth-form" onsubmit="handleEmailAuth(event)">
                             <input type="email" id="authEmail" placeholder="Email" required>
-                            <input type="password" id="authPassword" placeholder="Password" required minlength="6">
+                            <div style="position: relative;">
+                                <input type="password" id="authPassword" placeholder="Password" required minlength="6">
+                                <button type="button" onclick="togglePasswordVisibility('authPassword', this)" 
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
+                                           background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0.25rem;"
+                                    title="Show/hide password">👁️</button>
+                            </div>
+                            <div id="confirmPasswordGroup" style="display: none; position: relative;">
+                                <input type="password" id="authConfirmPassword" placeholder="Confirm Password" minlength="6">
+                                <button type="button" onclick="togglePasswordVisibility('authConfirmPassword', this)" 
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); 
+                                           background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0.25rem;"
+                                    title="Show/hide password">👁️</button>
+                            </div>
                             <div class="auth-form-buttons">
                                 <button type="submit" class="btn btn-primary" style="flex: 1;" id="authSubmitBtn">Sign In</button>
                             </div>
@@ -1236,7 +1249,7 @@
         </div>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ============================================
         // FIREBASE CONFIGURATION
         // ============================================
@@ -1321,8 +1334,17 @@
             
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPassword').value;
+            const confirmPassword = document.getElementById('authConfirmPassword').value;
             
             hideAuthError();
+            
+            // Validate password confirmation for sign up
+            if (isAuthModeSignUp) {
+                if (password !== confirmPassword) {
+                    showAuthError('Passwords do not match. Please try again.');
+                    return;
+                }
+            }
             
             try {
                 if (isAuthModeSignUp) {
@@ -1345,6 +1367,8 @@
                     message = 'An account with this email already exists. Try signing in.';
                 } else if (error.code === 'auth/weak-password') {
                     message = 'Password should be at least 6 characters.';
+                } else if (error.code === 'auth/invalid-credential') {
+                    message = 'Invalid email or password. Please try again.';
                 }
                 showAuthError(message);
             }
@@ -1358,7 +1382,33 @@
             document.getElementById('authToggleText').textContent = isAuthModeSignUp ? 'Already have an account?' : "Don't have an account?";
             document.getElementById('authToggleLink').textContent = isAuthModeSignUp ? 'Sign In' : 'Sign Up';
             
+            // Show/hide confirm password field
+            const confirmGroup = document.getElementById('confirmPasswordGroup');
+            const confirmInput = document.getElementById('authConfirmPassword');
+            if (isAuthModeSignUp) {
+                confirmGroup.style.display = 'block';
+                confirmInput.required = true;
+            } else {
+                confirmGroup.style.display = 'none';
+                confirmInput.required = false;
+                confirmInput.value = '';
+            }
+            
             hideAuthError();
+        }
+        
+        // Toggle password visibility
+        function togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+                button.title = 'Hide password';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+                button.title = 'Show password';
+            }
         }
         
         // Sign out
@@ -3780,10 +3830,4 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeTourLogModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveTourLog()">Save Log</button>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+                <but
