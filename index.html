@@ -1109,8 +1109,9 @@
                                 <h4 style="color: var(--forest-green);">Set Your Profile</h4>
                             </div>
                             <p style="margin-left: 2.5rem; font-size: 0.9rem; color: #555;">
-                                Use the <strong>Energy Level</strong> and <strong>Skill Level</strong> sliders to tell the app about yourself today. 
-                                This helps match you with appropriate tours - higher fitness = longer tours, higher skill = more technical terrain.
+                                Use the sliders to tell the app about yourself: <strong>Energy Level</strong> (how much vert you want today), 
+                                <strong>Downhill Skiing</strong> (ability to ski steep/variable terrain), and <strong>Touring Skill</strong> 
+                                (skinning, route-finding, avalanche awareness). This helps match you with appropriate tours.
                             </p>
                         </div>
                         
@@ -1219,7 +1220,7 @@
                                 <div class="auth-avatar" id="userAvatar">?</div>
                                 <div>
                                     <div class="auth-name" id="userName">User</div>
-                                    <div class="auth-email" id="userEmail">user@example.com</div>
+                                    <div class="auth-email" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="166365736456736e777b667a733875797b">[email&#160;protected]</a></div>
                                 </div>
                             </div>
                             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
@@ -1285,15 +1286,31 @@
                             </div>
                         </div>
                         
-                        <!-- Skill Section -->
+                        <!-- Downhill Skiing Skill Section -->
+                        <div style="display: flex; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid #eee;">
+                            <div style="font-size: 2rem; width: 50px; text-align: center;">⛷️</div>
+                            <div style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                                    <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Downhill Skiing</span>
+                                    <span id="downhillStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
+                                </div>
+                                <input type="range" id="downhillSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
+                                    <span>Beginner</span>
+                                    <span>Expert</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Touring Skill Section -->
                         <div style="display: flex; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid #eee;">
                             <div style="font-size: 2rem; width: 50px; text-align: center;">🎿</div>
                             <div style="flex: 1;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
                                     <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Touring Skill</span>
-                                    <span id="skillStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
+                                    <span id="touringStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
                                 </div>
-                                <input type="range" id="skillSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
+                                <input type="range" id="touringSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
                                 <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
                                     <span>Beginner</span>
                                     <span>Expert</span>
@@ -1303,7 +1320,7 @@
                         
                         <!-- Skill Description -->
                         <div id="skillDescription" style="margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 8px; font-size: 0.8rem; color: var(--topo-gray); line-height: 1.4;">
-                            💡 Can handle moderate terrain, some route-finding, comfortable with avalanche basics.
+                            💡 Downhill: ability to ski varied terrain. Touring: skinning, route-finding, avalanche awareness.
                         </div>
                     </div>
                 </div>
@@ -1410,8 +1427,7 @@
                         <p style="font-size: 0.85rem; margin-bottom: 0.75rem;">
                             Have suggestions, found a bug, or want to add tours?
                         </p>
-                        <a href="mailto:ntan.nora@gmail.com?subject=PNW%20Ski%20Tours%20Feedback" 
-                           style="display: inline-flex; align-items: center; gap: 0.3rem; background: var(--forest-green); 
+                        <a href="/cdn-cgi/l/email-protection#6f011b0e014101001d0e2f08020e0603410c0002501c1a0d050a0c1b523f21384a5d5f3c04064a5d5f3b001a1d1c4a5d5f290a0a0b0d0e0c04" style="display: inline-flex; align-items: center; gap: 0.3rem; background: var(--forest-green); 
                                   color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; 
                                   font-size: 0.85rem; font-weight: 600;">
                             ✉️ Contact
@@ -1578,7 +1594,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ============================================
         // FIREBASE CONFIGURATION
         // ============================================
@@ -1892,7 +1908,8 @@
             nwacZone: null,
             caltopoMapId: null,
             fitnessLevel: 7,
-            skillLevel: 5,
+            downhillSkill: 5,
+            touringSkill: 5,
             tourDate: new Date().toISOString().split('T')[0] // Today's date
         };
 
@@ -3193,7 +3210,7 @@
 
         async function loadTours() {
             const content = document.getElementById('toursContent');
-            console.log('📍 Loading tours for zone:', config.nwacZone, 'with fitness:', config.fitnessLevel, 'skill:', config.skillLevel);
+            console.log('📍 Loading tours for zone:', config.nwacZone, 'with fitness:', config.fitnessLevel, 'downhill:', config.downhillSkill, 'touring:', config.touringSkill);
             
             const zoneName = getZoneName(config.nwacZone);
             
@@ -3201,7 +3218,8 @@
             document.getElementById('toursSortMessage').innerHTML = `
                 💡 Showing <strong>top 5 tours</strong> for <strong>${zoneName}</strong> based on:
                 <br>Energy: <strong>${fitnessLabels[config.fitnessLevel]}</strong> (${config.fitnessLevel}/10) • 
-                Skill: <strong>${skillLabels[config.skillLevel]}</strong> (${config.skillLevel}/10)
+                Downhill: <strong>${skillLabels[config.downhillSkill]}</strong> • 
+                Touring: <strong>${skillLabels[config.touringSkill]}</strong>
             `;
             
             const tours = toursByZone[config.nwacZone] || [];
@@ -3300,7 +3318,8 @@
 
         function calculateRecommendation(tour) {
             const fitness = config.fitnessLevel;
-            const skill = config.skillLevel;
+            const downhillSkill = config.downhillSkill;
+            const touringSkill = config.touringSkill;
             const elevGain = tour.elevationGain;
             const distance = tour.distance;
             const terrain = tour.terrain.toLowerCase();
@@ -3339,7 +3358,7 @@
             // Calculate vertical-to-distance ratio (steeper = harder skinning but shorter)
             const vertPerMile = elevGain / Math.max(distance, 1);
             
-            // Technical difficulty based on terrain description
+            // Technical difficulty based on terrain description (for downhill skiing)
             let technicalDifficulty = 3; // default moderate
             
             // Slope angle parsing
@@ -3429,46 +3448,65 @@
             }
             
             // ============================================
-            // SKILL MATCHING (technical ability)
+            // SKILL MATCHING (separate downhill and touring)
             // ============================================
-            // Goal: Match terrain difficulty to skill level
+            // Downhill skill: matches technical terrain difficulty
+            // Touring skill: route-finding, avalanche awareness, efficiency
             
-            const skillDiff = skill - technicalDifficulty;
+            const downhillDiff = downhillSkill - technicalDifficulty;
             
-            // Ideal: terrain is at or slightly below skill level
-            if (skillDiff >= 0 && skillDiff <= 2) {
+            // Ideal: terrain is at or slightly below downhill skill level
+            if (downhillDiff >= 0 && downhillDiff <= 2) {
                 score += 3;
-                bonuses.push('Terrain matches your skill');
-            } else if (skillDiff > 2 && skillDiff <= 4) {
+                bonuses.push('Terrain matches your skiing ability');
+            } else if (downhillDiff > 2 && downhillDiff <= 4) {
                 score += 2;
-                bonuses.push('Well within your abilities');
-            } else if (skillDiff > 4) {
+                bonuses.push('Skiing well within your abilities');
+            } else if (downhillDiff > 4) {
                 score += 1;
                 // Very easy terrain for skill level
-            } else if (skillDiff >= -1 && skillDiff < 0) {
+            } else if (downhillDiff >= -1 && downhillDiff < 0) {
                 // Slightly above skill
                 score += 1;
-                warnings.push('Terrain at the edge of your skill level');
-            } else if (skillDiff >= -2 && skillDiff < -1) {
+                warnings.push('Terrain at the edge of your skiing ability');
+            } else if (downhillDiff >= -2 && downhillDiff < -1) {
                 // Above skill
                 score -= 1;
-                warnings.push('Terrain exceeds current skill - go with experienced partners');
-            } else if (skillDiff >= -3 && skillDiff < -2) {
+                warnings.push('Terrain exceeds current skiing ability - go with experienced partners');
+            } else if (downhillDiff >= -3 && downhillDiff < -2) {
                 // Well above skill
                 score -= 3;
-                warnings.push('Terrain too technical for current skill level');
+                warnings.push('Terrain too technical for current skiing level');
             } else {
                 // Way above skill
                 score -= 5;
-                warnings.push('Not recommended - terrain far exceeds skill level');
+                warnings.push('Not recommended - terrain far exceeds skiing ability');
+            }
+            
+            // Touring skill affects route-finding, complex terrain navigation
+            // Higher touring difficulty for longer tours, complex routes, glacier travel
+            let touringDifficulty = Math.round((physicalDifficulty + technicalDifficulty) / 2);
+            if (terrain.includes('glacier')) touringDifficulty = Math.min(10, touringDifficulty + 2);
+            if (terrain.includes('route-finding') || terrain.includes('complex')) touringDifficulty = Math.min(10, touringDifficulty + 1);
+            if (distance > 12) touringDifficulty = Math.min(10, touringDifficulty + 1);
+            
+            const touringDiff = touringSkill - touringDifficulty;
+            if (touringDiff >= 0 && touringDiff <= 2) {
+                score += 2;
+            } else if (touringDiff < 0 && touringDiff >= -2) {
+                score -= 1;
+                warnings.push('Tour complexity at edge of touring experience');
+            } else if (touringDiff < -2) {
+                score -= 2;
+                warnings.push('Consider simpler tours to build experience');
             }
             
             // ============================================
             // SYNERGY BONUS
             // ============================================
-            // Tours that match BOTH fitness and skill get a bonus
+            // Tours that match BOTH fitness and skills get a bonus
             
-            if (fitnessDiff >= -1 && fitnessDiff <= 2 && skillDiff >= -1 && skillDiff <= 2) {
+            if (fitnessDiff >= -1 && fitnessDiff <= 2 && downhillDiff >= -1 && downhillDiff <= 2) {
                 score += 2;
                 bonuses.push('Great overall match');
             }
@@ -3479,19 +3517,19 @@
             
             // Glacier travel requirements
             if (terrain.includes('glacier')) {
-                if (skill < 6) {
+                if (touringSkill < 6) {
                     score -= 3;
                     warnings.push('Glacier travel requires crevasse rescue training');
-                } else if (skill < 8) {
+                } else if (touringSkill < 8) {
                     warnings.push('Glacier travel - ensure rope team skills');
                 }
             }
             
             // Couloir skiing requirements
             if (terrain.includes('couloir')) {
-                if (skill < 7) {
+                if (downhillSkill < 7) {
                     score -= 3;
-                    warnings.push('Couloir skiing requires expert ability');
+                    warnings.push('Couloir skiing requires expert skiing ability');
                 }
                 if (fitness < 6) {
                     score -= 1;
@@ -3507,7 +3545,7 @@
             
             // High alpine
             if (maxElev > 10000) {
-                if (skill < 5) {
+                if (touringSkill < 5) {
                     score -= 1;
                     warnings.push('High alpine requires mountain experience');
                 }
@@ -3523,7 +3561,7 @@
                     score -= 2;
                     warnings.push('Big day - requires high fitness');
                 }
-                if (skill < 5) {
+                if (touringSkill < 5) {
                     score -= 1;
                     warnings.push('Long tour - navigation and pacing skills important');
                 }
@@ -3531,7 +3569,7 @@
             
             // Multi-day tours
             if (elevGain > 10000 || distance > 30) {
-                if (skill < 7 || fitness < 7) {
+                if (touringSkill < 7 || fitness < 7) {
                     score -= 3;
                     warnings.push('Multi-day objective requires advanced fitness and skills');
                 }
@@ -3543,14 +3581,14 @@
             
             if (aspect.includes('north') || aspect.includes('n-facing')) {
                 // North aspects hold snow longer, can be more persistent slab prone
-                if (skill < 4) {
+                if (touringSkill < 4) {
                     warnings.push('North aspects require avalanche awareness');
                 }
             }
             
             // Multiple aspects = more complex avalanche assessment
             if (aspect.includes('multiple') || aspect.includes('all') || aspect.includes('various')) {
-                if (skill < 5) {
+                if (touringSkill < 5) {
                     score -= 0.5;
                     warnings.push('Multiple aspects require careful terrain selection');
                 }
@@ -3755,7 +3793,7 @@
                             </div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-icon">🎿</div>
+                            <div class="detail-icon">⛷️</div>
                             <div class="detail-text">
                                 <span class="detail-label">Technical</span>
                                 ${techBar}
@@ -3763,9 +3801,10 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 1rem; margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 6px; font-size: 0.85rem; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                        <div style="display: flex; gap: 1rem;">
-                            <div><strong>Your Energy:</strong> ${config.fitnessLevel}/10</div>
-                            <div><strong>Your Skill:</strong> ${config.skillLevel}/10</div>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <div><strong>Energy:</strong> ${config.fitnessLevel}/10</div>
+                            <div><strong>Downhill:</strong> ${config.downhillSkill}/10</div>
+                            <div><strong>Touring:</strong> ${config.touringSkill}/10</div>
                         </div>
                         <button class="log-tour-btn ${isLogged ? 'logged' : ''}" onclick="openTourLogModal('${escapedName}', '${escapedZone}')">
                             ${isLogged ? '📝 Log Again' : '📝 Log Tour'}
@@ -4594,7 +4633,8 @@
             
             // Reset config to defaults
             config.fitnessLevel = 7;
-            config.skillLevel = 5;
+            config.downhillSkill = 5;
+            config.touringSkill = 5;
             config.nwacZone = null;
             config.location = null;
             
@@ -4607,7 +4647,8 @@
             
             // Set up slider event listeners
             const fitnessSlider = document.getElementById('fitnessSlider');
-            const skillSlider = document.getElementById('skillSlider');
+            const downhillSlider = document.getElementById('downhillSlider');
+            const touringSlider = document.getElementById('touringSlider');
             
             if (fitnessSlider) {
                 fitnessSlider.value = 7;
@@ -4624,25 +4665,70 @@
                 });
             }
             
-            if (skillSlider) {
-                skillSlider.value = 5;
-                document.getElementById('skillStatus').textContent = `${skillLabels[5]} (5/10)`;
-                document.getElementById('skillDescription').innerHTML = `💡 ${skillDescriptions[5]}`;
+            if (downhillSlider) {
+                downhillSlider.value = 5;
+                document.getElementById('downhillStatus').textContent = `${skillLabels[5]} (5/10)`;
                 
-                skillSlider.addEventListener('input', function() {
+                downhillSlider.addEventListener('input', function() {
                     const value = parseInt(this.value);
-                    config.skillLevel = value;
-                    document.getElementById('skillStatus').textContent = 
+                    config.downhillSkill = value;
+                    document.getElementById('downhillStatus').textContent = 
                         `${skillLabels[value]} (${value}/10)`;
-                    document.getElementById('skillDescription').innerHTML = `💡 ${skillDescriptions[value]}`;
+                    updateSkillDescription();
                     
-                    console.log('🎿 Skill level changed to:', value, '- Recalculating recommendations...');
+                    console.log('⛷️ Downhill skill changed to:', value, '- Recalculating recommendations...');
+                    if (config.nwacZone) loadTours();
+                });
+            }
+            
+            if (touringSlider) {
+                touringSlider.value = 5;
+                document.getElementById('touringStatus').textContent = `${skillLabels[5]} (5/10)`;
+                
+                touringSlider.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    config.touringSkill = value;
+                    document.getElementById('touringStatus').textContent = 
+                        `${skillLabels[value]} (${value}/10)`;
+                    updateSkillDescription();
+                    
+                    console.log('🎿 Touring skill changed to:', value, '- Recalculating recommendations...');
                     if (config.nwacZone) loadTours();
                 });
             }
             
             console.log('✅ App initialized - ready for zone selection');
         });
+        
+        function updateSkillDescription() {
+            const downhill = config.downhillSkill;
+            const touring = config.touringSkill;
+            let description = '💡 ';
+            
+            // Downhill description
+            if (downhill <= 3) {
+                description += 'Comfortable on groomed runs. ';
+            } else if (downhill <= 5) {
+                description += 'Can ski most resort terrain. ';
+            } else if (downhill <= 7) {
+                description += 'Confident in variable snow and steeper terrain. ';
+            } else {
+                description += 'Expert skiing ability, comfortable in any conditions. ';
+            }
+            
+            // Touring description
+            if (touring <= 3) {
+                description += 'New to backcountry, learning basics.';
+            } else if (touring <= 5) {
+                description += 'Solid skinning technique, basic avalanche awareness.';
+            } else if (touring <= 7) {
+                description += 'Efficient touring, good route-finding and avy skills.';
+            } else {
+                description += 'Expert touring, glacier travel, complex terrain navigation.';
+            }
+            
+            document.getElementById('skillDescription').innerHTML = description;
+        }
     </script>
     
     <!-- Tour Log Modal - AIARE Field Guide Aligned -->
@@ -4989,10 +5075,3 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeTourLogModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveTourLog()">💾 Save Debrief</button>
-            </div>
-        </div>
-    </div>
-</body>
