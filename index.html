@@ -3521,14 +3521,37 @@
             currentLogTour = { name: tourName, zone: tourZone };
             
             document.getElementById('logTourName').textContent = tourName;
-            document.getElementById('logTourDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('logTourNotes').value = '';
-            document.getElementById('logTourConditions').value = 'powder';
-            document.getElementById('logTourGroupSize').value = '2';
-            document.getElementById('logTourWouldRepeat').checked = true;
             
-            // Reset star rating to 3
+            // Basic info
+            document.getElementById('logTourDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('logTourGroupSize').value = '3';
+            
+            // Conditions
+            document.getElementById('logAvyDanger').value = 'moderate';
+            document.getElementById('logAvyProblem').value = 'none';
+            document.getElementById('logSnowConditions').value = 'powder';
+            document.getElementById('logWeather').value = 'partly-cloudy';
+            
+            // Signs of instability - reset all
+            document.getElementById('logSignRecent').checked = false;
+            document.getElementById('logSignWhumpf').checked = false;
+            document.getElementById('logSignCracking').checked = false;
+            document.getElementById('logSignLoading').checked = false;
+            document.getElementById('logSignCornice').checked = false;
+            document.getElementById('logSignRollerballs').checked = false;
+            
+            // Terrain
+            document.getElementById('logTerrainMindset').value = 'moderate';
+            document.getElementById('logStuckToPlan').value = 'yes';
+            
+            // Decision review
+            document.getElementById('logExposure').value = '';
+            document.getElementById('logLessons').value = '';
+            
+            // Overall
             document.getElementById('star3').checked = true;
+            document.getElementById('logTourNotes').value = '';
+            document.getElementById('logTourWouldRepeat').checked = true;
             
             document.getElementById('tourLogModal').classList.add('active');
         }
@@ -3543,10 +3566,36 @@
         function saveTourLog() {
             if (!currentLogTour) return;
             
+            // Basic info
             const date = document.getElementById('logTourDate').value;
-            const rating = parseInt(document.querySelector('input[name="rating"]:checked').value);
-            const conditions = document.getElementById('logTourConditions').value;
             const groupSize = document.getElementById('logTourGroupSize').value;
+            
+            // Conditions (AIARE: Summarize Conditions)
+            const avyDanger = document.getElementById('logAvyDanger').value;
+            const avyProblem = document.getElementById('logAvyProblem').value;
+            const snowConditions = document.getElementById('logSnowConditions').value;
+            const weather = document.getElementById('logWeather').value;
+            
+            // Signs of instability
+            const signsOfInstability = {
+                recentAvalanches: document.getElementById('logSignRecent').checked,
+                whumpfing: document.getElementById('logSignWhumpf').checked,
+                shootingCracks: document.getElementById('logSignCracking').checked,
+                heavyLoading: document.getElementById('logSignLoading').checked,
+                corniceDevelopment: document.getElementById('logSignCornice').checked,
+                rollerballs: document.getElementById('logSignRollerballs').checked
+            };
+            
+            // Terrain management
+            const terrainMindset = document.getElementById('logTerrainMindset').value;
+            const stuckToPlan = document.getElementById('logStuckToPlan').value;
+            
+            // Decision review
+            const exposure = document.getElementById('logExposure').value.trim();
+            const lessons = document.getElementById('logLessons').value.trim();
+            
+            // Overall experience
+            const rating = parseInt(document.querySelector('input[name="rating"]:checked').value);
             const notes = document.getElementById('logTourNotes').value.trim();
             const wouldRepeat = document.getElementById('logTourWouldRepeat').checked;
             
@@ -3558,9 +3607,21 @@
                 tourName: currentLogTour.name,
                 zone: currentLogTour.zone,
                 date: date,
-                rating: rating,
-                conditions: conditions,
                 groupSize: groupSize,
+                // Conditions
+                avyDanger: avyDanger,
+                avyProblem: avyProblem,
+                snowConditions: snowConditions,
+                weather: weather,
+                signsOfInstability: signsOfInstability,
+                // Terrain
+                terrainMindset: terrainMindset,
+                stuckToPlan: stuckToPlan,
+                // Decision review
+                exposure: exposure,
+                lessons: lessons,
+                // Overall
+                rating: rating,
                 notes: notes,
                 wouldRepeat: wouldRepeat,
                 loggedAt: new Date().toISOString()
@@ -3573,7 +3634,7 @@
             loadTours();
             
             // Show confirmation
-            showToast(`✅ Logged "${currentLogTour.name}" - ${rating} stars!`);
+            showToast(`✅ Tour debrief saved - ${rating} stars!`);
         }
         
         // Delete a tour log entry
@@ -3632,23 +3693,51 @@
                 container.innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: var(--topo-gray);">
                         <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No tours logged yet</p>
-                        <p style="font-size: 0.9rem;">Complete a tour and log it to track your adventures!</p>
+                        <p style="font-size: 0.9rem;">Complete a tour and debrief it using the AIARE framework!</p>
                     </div>
                 `;
                 return;
             }
             
-            const conditionEmojis = {
-                'powder': '❄️',
-                'packed': '🎿',
-                'crud': '🌀',
-                'corn': '🌽',
-                'ice': '🧊',
-                'wind-affected': '💨',
-                'breakable-crust': '💔'
+            const dangerEmojis = {
+                'low': '🟢',
+                'moderate': '🟡',
+                'considerable': '🟠',
+                'high': '🔴',
+                'extreme': '⚫'
             };
             
-            container.innerHTML = logEntries.map(log => `
+            const snowEmojis = {
+                'powder': '❄️',
+                'wind-affected': '💨',
+                'settled': '🎿',
+                'crust': '💔',
+                'corn': '🌽',
+                'ice': '🧊',
+                'variable': '🌀'
+            };
+            
+            const terrainLabels = {
+                'simple': '🟢 Simple',
+                'moderate': '🟡 Moderate',
+                'complex': '🟠 Complex'
+            };
+            
+            container.innerHTML = logEntries.map(log => {
+                // Count signs of instability
+                const signs = log.signsOfInstability || {};
+                const signCount = Object.values(signs).filter(v => v).length;
+                
+                // Build signs string
+                const signsList = [];
+                if (signs.recentAvalanches) signsList.push('Recent avy');
+                if (signs.whumpfing) signsList.push('Whumpf');
+                if (signs.shootingCracks) signsList.push('Cracks');
+                if (signs.heavyLoading) signsList.push('Loading');
+                if (signs.corniceDevelopment) signsList.push('Cornices');
+                if (signs.rollerballs) signsList.push('Rollerballs');
+                
+                return `
                 <div class="logged-tour-card">
                     <div class="logged-tour-header">
                         <div>
@@ -3660,7 +3749,6 @@
                                     day: 'numeric',
                                     year: 'numeric'
                                 })}
-                                ${conditionEmojis[log.conditions] || ''} ${log.conditions}
                                 • ${log.groupSize === '1' ? 'Solo' : log.groupSize + ' people'}
                             </div>
                         </div>
@@ -3668,7 +3756,20 @@
                             <div class="logged-tour-stars">${'★'.repeat(log.rating)}${'☆'.repeat(5 - log.rating)}</div>
                         </div>
                     </div>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0; font-size: 0.8rem;">
+                        ${log.avyDanger ? `<span style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 4px;">${dangerEmojis[log.avyDanger] || ''} ${log.avyDanger}</span>` : ''}
+                        ${log.snowConditions ? `<span style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 4px;">${snowEmojis[log.snowConditions] || ''} ${log.snowConditions}</span>` : ''}
+                        ${log.terrainMindset ? `<span style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 4px;">${terrainLabels[log.terrainMindset] || log.terrainMindset}</span>` : ''}
+                        ${signCount > 0 ? `<span style="background: #fff3e0; padding: 0.25rem 0.5rem; border-radius: 4px; color: #e65100;">⚠️ ${signCount} warning sign${signCount > 1 ? 's' : ''}</span>` : ''}
+                    </div>
+                    
+                    ${signsList.length > 0 ? `<div style="font-size: 0.8rem; color: #e65100; margin-bottom: 0.5rem;">Signs: ${signsList.join(', ')}</div>` : ''}
+                    
+                    ${log.lessons ? `<div style="font-size: 0.85rem; color: #7b1fa2; margin-bottom: 0.5rem; padding: 0.5rem; background: #f3e5f5; border-radius: 4px;"><strong>Lesson:</strong> ${log.lessons}</div>` : ''}
+                    
                     ${log.notes ? `<div class="logged-tour-notes">"${log.notes}"</div>` : ''}
+                    
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem;">
                         <span style="font-size: 0.8rem; color: ${log.wouldRepeat ? 'var(--forest-green)' : '#999'};">
                             ${log.wouldRepeat ? '✓ Would repeat' : '✗ Wouldn\'t repeat'}
@@ -3676,7 +3777,7 @@
                         <button class="btn btn-danger btn-small" onclick="deleteTourLog('${log.id}')">Delete</button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
         
         // Toggle My Tours section visibility
@@ -3767,67 +3868,193 @@
         });
     </script>
     
-    <!-- Tour Log Modal -->
+    <!-- Tour Log Modal - AIARE Field Guide Aligned -->
     <div id="tourLogModal" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
-                <h3>📝 Log Tour</h3>
+                <h3>📝 Tour Debrief</h3>
                 <button class="modal-close" onclick="closeTourLogModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div id="logTourName" style="font-size: 1.2rem; font-weight: 700; color: var(--forest-green); margin-bottom: 1rem;"></div>
+                <div id="logTourName" style="font-size: 1.2rem; font-weight: 700; color: var(--forest-green); margin-bottom: 0.5rem;"></div>
+                <p style="font-size: 0.8rem; color: var(--topo-gray); margin-bottom: 1rem;">Based on AIARE Field Guide debrief framework</p>
                 
-                <div class="form-group">
-                    <label>Date Completed</label>
-                    <input type="date" id="logTourDate" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Rating</label>
-                    <div class="star-rating">
-                        <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
-                        <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
-                        <input type="radio" id="star3" name="rating" value="3" checked><label for="star3">★</label>
-                        <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
-                        <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                <!-- Basic Info -->
+                <div style="background: var(--cream); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem;">📅 Trip Details</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.85rem;">Date</label>
+                            <input type="date" id="logTourDate" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.85rem;">Group Size</label>
+                            <select id="logTourGroupSize">
+                                <option value="1">Solo</option>
+                                <option value="2">2 people</option>
+                                <option value="3" selected>3 people (optimal)</option>
+                                <option value="4">4 people</option>
+                                <option value="5+">5+ people</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Conditions</label>
-                    <select id="logTourConditions">
-                        <option value="powder">❄️ Powder</option>
-                        <option value="packed">🎿 Packed/Groomed</option>
-                        <option value="crud">🌀 Crud/Variable</option>
-                        <option value="corn">🌽 Corn/Spring</option>
-                        <option value="ice">🧊 Icy/Hard</option>
-                        <option value="wind-affected">💨 Wind-affected</option>
-                        <option value="breakable-crust">💔 Breakable Crust</option>
-                    </select>
+                <!-- Conditions Summary (AIARE: Summarize Conditions) -->
+                <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: #1565c0; margin-bottom: 0.75rem;">🏔️ Summarize Conditions</div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Avalanche Danger (as observed)</label>
+                        <select id="logAvyDanger">
+                            <option value="low">🟢 Low - Generally safe conditions</option>
+                            <option value="moderate" selected>🟡 Moderate - Heightened conditions</option>
+                            <option value="considerable">🟠 Considerable - Dangerous conditions</option>
+                            <option value="high">🔴 High - Very dangerous conditions</option>
+                            <option value="extreme">⚫ Extreme - Avoid all avalanche terrain</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Primary Avalanche Problem</label>
+                        <select id="logAvyProblem">
+                            <option value="none">None observed</option>
+                            <option value="storm-slab">Storm Slab</option>
+                            <option value="wind-slab">Wind Slab</option>
+                            <option value="persistent-slab">Persistent Slab</option>
+                            <option value="deep-slab">Deep Persistent Slab</option>
+                            <option value="wet-loose">Wet Loose</option>
+                            <option value="wet-slab">Wet Slab</option>
+                            <option value="dry-loose">Dry Loose (Sluff)</option>
+                            <option value="cornice">Cornice Fall</option>
+                            <option value="glide">Glide</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Snow Surface Conditions</label>
+                        <select id="logSnowConditions">
+                            <option value="powder">❄️ Powder / Soft</option>
+                            <option value="wind-affected">💨 Wind-affected / Textured</option>
+                            <option value="settled">🎿 Settled / Packed</option>
+                            <option value="crust">💔 Crust (supportable or breakable)</option>
+                            <option value="corn">🌽 Corn / Spring snow</option>
+                            <option value="ice">🧊 Ice / Hard pack</option>
+                            <option value="variable">🌀 Variable / Mixed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem;">Weather During Tour</label>
+                        <select id="logWeather">
+                            <option value="clear">☀️ Clear / Sunny</option>
+                            <option value="partly-cloudy">⛅ Partly cloudy</option>
+                            <option value="cloudy">☁️ Cloudy / Overcast</option>
+                            <option value="light-snow">🌨️ Light snow</option>
+                            <option value="heavy-snow">❄️ Heavy snow</option>
+                            <option value="rain">🌧️ Rain</option>
+                            <option value="wind">💨 High wind</option>
+                            <option value="fog">🌫️ Fog / Flat light</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Group Size</label>
-                    <select id="logTourGroupSize">
-                        <option value="1">Solo</option>
-                        <option value="2" selected>2 people</option>
-                        <option value="3">3 people</option>
-                        <option value="4">4 people</option>
-                        <option value="5+">5+ people</option>
-                    </select>
+                <!-- Signs of Instability (AIARE: Monitor Conditions) -->
+                <div style="background: #fff3e0; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: #e65100; margin-bottom: 0.75rem;">⚠️ Signs of Instability Observed</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="logSignRecent" style="width: auto;"> Recent avalanches
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="logSignWhumpf" style="width: auto;"> Whumpfing
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="logSignCracking" style="width: auto;"> Shooting cracks
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="logSignLoading" style="width: auto;"> Heavy loading
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="logSignCornice" style="width: auto;"> Cornice development
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="logSignRollerballs" style="width: auto;"> Rollerballs/pinwheels
+                        </label>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Notes (optional)</label>
-                    <textarea id="logTourNotes" placeholder="How was the snow? Any route tips? Memorable moments?"></textarea>
+                <!-- Terrain Mindset (AIARE: Plan to Manage Avalanche Terrain) -->
+                <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem;">🗺️ Terrain Management</div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Terrain Mindset Used</label>
+                        <select id="logTerrainMindset">
+                            <option value="simple">🟢 Simple - Avoided avalanche terrain, stayed on low angle/forested</option>
+                            <option value="moderate" selected>🟡 Moderate - Limited exposure, avoided obvious paths</option>
+                            <option value="complex">🟠 Complex - Stepped out cautiously in consequential terrain</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem;">Did you stick to your planned route?</label>
+                        <select id="logStuckToPlan">
+                            <option value="yes">✅ Yes, followed the plan</option>
+                            <option value="adjusted-safer">🔄 Adjusted to safer terrain</option>
+                            <option value="adjusted-more">⚠️ Went into more exposed terrain than planned</option>
+                            <option value="turned-back">↩️ Turned back early</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                        <input type="checkbox" id="logTourWouldRepeat" checked style="width: auto;">
-                        Would do this tour again
-                    </label>
+                <!-- Review Decisions (AIARE: Review Today's Decisions) -->
+                <div style="background: #f3e5f5; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: #7b1fa2; margin-bottom: 0.75rem;">🧠 Review Today's Decisions</div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Where were you most exposed to avalanche risk?</label>
+                        <textarea id="logExposure" placeholder="e.g., Crossing below the wind-loaded slope on the north face..." style="min-height: 60px;"></textarea>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem;">What would you do differently next time?</label>
+                        <textarea id="logLessons" placeholder="e.g., Start earlier to avoid afternoon warming, bring extra layer..." style="min-height: 60px;"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Overall Rating -->
+                <div style="background: var(--cream); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem;">⭐ Overall Experience</div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Tour Rating</label>
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" checked><label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.85rem;">Additional Notes</label>
+                        <textarea id="logTourNotes" placeholder="Route beta, memorable moments, recommendations for others..." style="min-height: 70px;"></textarea>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="logTourWouldRepeat" checked style="width: auto;">
+                            Would do this tour again in similar conditions
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <but
+                <button class="btn btn-secondary" onclick="closeTourLogModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTourLog()">💾 Save Debrief</button>
+            </div>
+        </div>
+    </div>
+</body>
