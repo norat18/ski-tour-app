@@ -1028,96 +1028,46 @@
         <!-- Main App Content -->
         <div id="appContent">
             <!-- Welcome message shown before zone selection -->
-            <div id="welcomeMessage" class="welcome-message" style="max-width: 100%; width: 100%; padding: 0; margin: 0; background: transparent; box-shadow: none;">
-                <!-- Hero Section -->
-                <div style="background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #3d7a5a 100%); color: white; padding: 3rem 2rem; text-align: center; margin: -1rem -1rem 0 -1rem;">
-                    <div style="font-size: 5rem; margin-bottom: 1rem;">🏔️</div>
-                    <h2 style="font-size: 2.5rem; margin-bottom: 0.75rem; font-weight: 700; color: white;">PNW Ski Tours</h2>
-                    <p style="font-size: 1.25rem; color: rgba(255,255,255,0.95); max-width: 600px; margin: 0 auto;">Your backcountry ski tour planning companion for the Pacific Northwest</p>
-                </div>
+            <div id="welcomeMessage" class="welcome-message" style="max-width: 750px; padding: 2rem;">
+                <div class="welcome-icon" style="font-size: 4rem; margin-bottom: 1rem;">🏔️</div>
+                <h2 style="font-size: 1.8rem; margin-bottom: 0.75rem;">Welcome to PNW Ski Tours</h2>
+                <p style="font-size: 1.15rem; margin-bottom: 2rem; color: #555;">Your backcountry ski tour planning companion for the Pacific Northwest</p>
                 
-                <!-- Get Started Section -->
-                <div style="background: #e8f5e9; padding: 2rem; text-align: center; border-bottom: 3px solid var(--forest-green);">
-                    <p style="font-weight: 700; color: #1b5e20; margin-bottom: 0.5rem; font-size: 1.3rem;">👆 Get Started</p>
-                    <p style="font-size: 1.1rem; color: #2e7d32;">Select your zone from the dropdown above to see today's tour recommendations</p>
-                </div>
-                
-                <!-- Features Section -->
-                <div style="padding: 2.5rem 2rem; max-width: 1000px; margin: 0 auto;">
-                    <h3 style="color: #1b5e20; margin-bottom: 1.5rem; font-size: 1.4rem; text-align: center;">🎯 What This App Does</h3>
-                    <p style="margin-bottom: 2rem; line-height: 1.8; font-size: 1.05rem; text-align: center; max-width: 800px; margin-left: auto; margin-right: auto; color: #333;">
+                <div style="background: white; border-radius: 16px; padding: 2rem; text-align: left; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--forest-green); margin-bottom: 1.25rem; font-size: 1.2rem;">🎯 What This App Does</h3>
+                    <p style="margin-bottom: 1.5rem; line-height: 1.7; font-size: 1rem;">
                         This app helps you find the right ski tour for today's conditions. It combines <strong>real-time avalanche forecasts</strong>, 
                         <strong>current weather</strong>, and <strong>snow data</strong> with your personal fitness and skill level to recommend 
                         tours that match both the conditions and your abilities.
                     </p>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
-                        <div style="background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🏔️</div>
-                            <strong style="color: #1b5e20; font-size: 1rem;">200+ Tours</strong>
-                            <p style="font-size: 0.85rem; margin-top: 0.4rem; line-height: 1.4; color: #444;">Across 10 NWAC zones from Mt. Baker to Mt. Hood</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+                        <div style="background: var(--cream); padding: 1.25rem; border-radius: 12px;">
+                            <strong style="color: var(--forest-green); font-size: 1.05rem;">🏔️ 200+ Tours</strong>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.5;">Across 10 NWAC zones from Mt. Baker to Mt. Hood</p>
                         </div>
-                        <div style="background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📊</div>
-                            <strong style="color: #1b5e20; font-size: 1rem;">Live Data</strong>
-                            <p style="font-size: 0.85rem; margin-top: 0.4rem; line-height: 1.4; color: #444;">Real-time avalanche, weather, and snow conditions</p>
+                        <div style="background: var(--cream); padding: 1.25rem; border-radius: 12px;">
+                            <strong style="color: var(--forest-green); font-size: 1.05rem;">📊 Live Data</strong>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.5;">Real-time avalanche, weather, and snow conditions</p>
                         </div>
-                        <div style="background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🎿</div>
-                            <strong style="color: #1b5e20; font-size: 1rem;">Smart Matching</strong>
-                            <p style="font-size: 0.85rem; margin-top: 0.4rem; line-height: 1.4; color: #444;">Tours ranked by fit for you and today's conditions</p>
+                        <div style="background: var(--cream); padding: 1.25rem; border-radius: 12px;">
+                            <strong style="color: var(--forest-green); font-size: 1.05rem;">🎿 Smart Matching</strong>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.5;">Tours ranked by fit for you and today's conditions</p>
                         </div>
-                        <div style="background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📝</div>
-                            <strong style="color: #1b5e20; font-size: 1rem;">Tour Logging</strong>
-                            <p style="font-size: 0.85rem; margin-top: 0.4rem; line-height: 1.4; color: #444;">Track your tours using AIARE debrief framework</p>
+                        <div style="background: var(--cream); padding: 1.25rem; border-radius: 12px;">
+                            <strong style="color: var(--forest-green); font-size: 1.05rem;">📝 Tour Logging</strong>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.5;">Track your tours using AIARE debrief framework</p>
                         </div>
-                        <div style="background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                            <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🤝</div>
-                            <strong style="color: #1b5e20; font-size: 1rem;">Find Partners</strong>
-                            <p style="font-size: 0.85rem; margin-top: 0.4rem; line-height: 1.4; color: #444;">Create a profile and connect with other tourers</p>
-                        </div>
-                    </div>
-                    
-                    <div style="text-align: center; margin-bottom: 2rem;">
-                        <button onclick="openWalkthrough()" class="btn btn-secondary" style="padding: 0.85rem 2rem; font-size: 1.05rem;">
-                            📖 How to Use This App
-                        </button>
                     </div>
                 </div>
                 
-                <!-- Support Section -->
-                <div style="background: #fafafa; padding: 1.5rem 2rem; text-align: center; border-top: 1px solid #e0e0e0;">
-                    <div style="max-width: 600px; margin: 0 auto;">
-                        <p style="font-size: 0.9rem; color: #666; line-height: 1.6;">
-                            This app is self-funded and free to use. If you find it helpful and would like to support ongoing costs (hosting, data subscriptions, etc.), donations are appreciated via Venmo <strong style="color: #555;">@noratandemonium</strong> ☕
-                        </p>
-                    </div>
-                </div>
+                <button onclick="openWalkthrough()" class="btn btn-secondary" style="margin-bottom: 2rem; padding: 0.75rem 1.5rem; font-size: 1rem;">
+                    📖 How to Use This App
+                </button>
                 
-                <!-- Contact & Footer Section -->
-                <div style="background: #f5f5f5; padding: 1.5rem 2rem; text-align: center;">
-                    <div style="max-width: 800px; margin: 0 auto;">
-                        <p style="font-size: 0.9rem; color: #555; margin-bottom: 1rem; line-height: 1.6;">
-                            <strong style="color: #1b5e20;">📬 Feedback?</strong> 
-                            Have suggestions, found a bug, or want to contribute tour data? <a href="mailto:ntan.nora@gmail.com" style="color: #1b5e20; font-weight: 600;">Contact Me</a>
-                        </p>
-                        
-                        <div style="margin-bottom: 1rem;">
-                            <span style="font-size: 0.8rem; color: #888;">
-                                <strong>Data:</strong>
-                                <a href="https://nwac.us/" target="_blank" style="color: #666;">NWAC</a> • 
-                                <a href="https://avalanche.org/" target="_blank" style="color: #666;">Avalanche.org</a> • 
-                                <a href="https://www.weather.gov/" target="_blank" style="color: #666;">NWS</a> • 
-                                <a href="https://synopticdata.com/" target="_blank" style="color: #666;">Synoptic</a>
-                            </span>
-                        </div>
-                        
-                        <p style="font-size: 0.75rem; color: #aaa;">
-                            Made with ❤️ for the PNW backcountry community
-                        </p>
-                    </div>
+                <div style="background: #e8f5e9; border-radius: 16px; padding: 1.5rem; text-align: center;">
+                    <p style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem; font-size: 1.1rem;">👆 Get Started</p>
+                    <p style="font-size: 1rem;">Select your zone from the dropdown above to see today's tour recommendations</p>
                 </div>
-            </div>
             </div>
             
             <!-- Walkthrough Modal -->
@@ -1159,9 +1109,8 @@
                                 <h4 style="color: var(--forest-green);">Set Your Profile</h4>
                             </div>
                             <p style="margin-left: 2.5rem; font-size: 0.9rem; color: #555;">
-                                Use the sliders to tell the app about yourself: <strong>Energy Level</strong> (how much vert you want today), 
-                                <strong>Downhill Skiing</strong> (ability to ski steep/variable terrain), and <strong>Touring Skill</strong> 
-                                (skinning, route-finding, avalanche awareness). This helps match you with appropriate tours.
+                                Use the <strong>Energy Level</strong> and <strong>Skill Level</strong> sliders to tell the app about yourself today. 
+                                This helps match you with appropriate tours - higher fitness = longer tours, higher skill = more technical terrain.
                             </p>
                         </div>
                         
@@ -1270,7 +1219,7 @@
                                 <div class="auth-avatar" id="userAvatar">?</div>
                                 <div>
                                     <div class="auth-name" id="userName">User</div>
-                                    <div class="auth-email" id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="166365736456736e777b667a733875797b">[email&#160;protected]</a></div>
+                                    <div class="auth-email" id="userEmail">user@example.com</div>
                                 </div>
                             </div>
                             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
@@ -1336,31 +1285,15 @@
                             </div>
                         </div>
                         
-                        <!-- Downhill Skiing Skill Section -->
-                        <div style="display: flex; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid #eee;">
-                            <div style="font-size: 2rem; width: 50px; text-align: center;">⛷️</div>
-                            <div style="flex: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                                    <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Downhill Skiing</span>
-                                    <span id="downhillStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
-                                </div>
-                                <input type="range" id="downhillSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
-                                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
-                                    <span>Beginner</span>
-                                    <span>Expert</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Touring Skill Section -->
+                        <!-- Skill Section -->
                         <div style="display: flex; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid #eee;">
                             <div style="font-size: 2rem; width: 50px; text-align: center;">🎿</div>
                             <div style="flex: 1;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
                                     <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Touring Skill</span>
-                                    <span id="touringStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
+                                    <span id="skillStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
                                 </div>
-                                <input type="range" id="touringSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
+                                <input type="range" id="skillSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
                                 <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
                                     <span>Beginner</span>
                                     <span>Expert</span>
@@ -1370,14 +1303,14 @@
                         
                         <!-- Skill Description -->
                         <div id="skillDescription" style="margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 8px; font-size: 0.8rem; color: var(--topo-gray); line-height: 1.4;">
-                            💡 Downhill: ability to ski varied terrain. Touring: skinning, route-finding, avalanche awareness.
+                            💡 Can handle moderate terrain, some route-finding, comfortable with avalanche basics.
                         </div>
                     </div>
                 </div>
 
                 <div class="tours-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                        <h2 style="font-size: 2rem; color: var(--forest-green); margin: 0;">📍 Recommended Tours</h2>
+                        <h2 style="font-size: 2rem; color: var(--forest-green); margin: 0;">🎯 Recommended Tours for Your Zone</h2>
                         <button onclick="refreshTours()" id="refreshToursBtn"
                                 style="background: var(--forest-green); color: white; border: none; padding: 0.6rem 1.2rem; 
                                        border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;
@@ -1469,7 +1402,7 @@
                         <a href="https://avalanche.org/" target="_blank">Avalanche.org</a> • 
                         <a href="https://www.weather.gov/" target="_blank">NWS</a> • 
                         <a href="https://synopticdata.com/" target="_blank">Synoptic Data</a> • 
-                        <a href="https://caltopo.com/m/V106Q" target="_blank">CalTopo</a>
+                        <a href="https://caltopo.com/" target="_blank">CalTopo</a>
                     </p>
                     
                     <div style="border-top: 1px solid #ddd; padding-top: 1rem; margin-top: 0.5rem;">
@@ -1477,7 +1410,8 @@
                         <p style="font-size: 0.85rem; margin-bottom: 0.75rem;">
                             Have suggestions, found a bug, or want to add tours?
                         </p>
-                        <a href="/cdn-cgi/l/email-protection#6f011b0e014101001d0e2f08020e0603410c0002501c1a0d050a0c1b523f21384a5d5f3c04064a5d5f3b001a1d1c4a5d5f290a0a0b0d0e0c04" style="display: inline-flex; align-items: center; gap: 0.3rem; background: var(--forest-green); 
+                        <a href="mailto:ntan.nora@gmail.com?subject=PNW%20Ski%20Tours%20Feedback" 
+                           style="display: inline-flex; align-items: center; gap: 0.3rem; background: var(--forest-green); 
                                   color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; 
                                   font-size: 0.85rem; font-weight: 600;">
                             ✉️ Contact
@@ -1644,7 +1578,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ============================================
         // FIREBASE CONFIGURATION
         // ============================================
@@ -1665,6 +1599,228 @@
         // Current user state
         let currentUser = null;
         let isAuthModeSignUp = false;
+
+        // ============================================
+        // SLIDER DESCRIPTION OBJECTS
+        // ============================================
+        const energyDescriptions = {
+            1: "💪 <strong>Exhausted:</strong> Recovery day only - very short, mellow terrain",
+            2: "💪 <strong>Very Tired:</strong> Gentle tour, minimal vert (~1000ft max)",
+            3: "💪 <strong>Tired:</strong> Easy day, well-traveled routes only (~1500ft)",
+            4: "💪 <strong>Below Average:</strong> Short to moderate tour (~2000ft)",
+            5: "💪 <strong>Average:</strong> Standard day tour within your ability (~2500ft)",
+            6: "💪 <strong>Good:</strong> Solid day, comfortable with moderate objectives (~3000ft)",
+            7: "💪 <strong>Strong:</strong> Ready for a full day of touring with good vertical (~3500ft)",
+            8: "💪 <strong>Very Strong:</strong> Big day capacity, ambitious objectives (~4000ft+)",
+            9: "💪 <strong>Excellent:</strong> Peak fitness day, long tours no problem (~5000ft+)",
+            10: "💪 <strong>Peak Energy:</strong> Ready for anything - big linkups, dawn patrol to dusk"
+        };
+
+        const downhillDescriptions = {
+            1: "⛷️ <strong>First Timer:</strong> Never skied before, need lessons first",
+            2: "⛷️ <strong>Novice:</strong> Can snowplow, working on turns on greens",
+            3: "⛷️ <strong>Beginner:</strong> Comfortable on green runs, learning blues",
+            4: "⛷️ <strong>Developing:</strong> Can ski most blues, cautious on steeper terrain",
+            5: "⛷️ <strong>Intermediate:</strong> Comfortable on most blues, working on blacks",
+            6: "⛷️ <strong>Competent:</strong> Confident on black runs, can handle variable snow",
+            7: "⛷️ <strong>Advanced:</strong> Skis black diamonds confidently in all conditions",
+            8: "⛷️ <strong>Expert:</strong> Comfortable in steep chutes, variable conditions, tight trees",
+            9: "⛷️ <strong>Very Expert:</strong> Skis extreme terrain, 45°+ slopes, no-fall zones",
+            10: "⛷️ <strong>Professional:</strong> Guide-level skiing, any terrain any conditions"
+        };
+
+        const touringDescriptions = {
+            1: "🏔️ <strong>Brand New:</strong> Never been backcountry - start with a guide or mentor",
+            2: "🏔️ <strong>Novice:</strong> One or two tours, learning to skin and use gear",
+            3: "🏔️ <strong>Beginner:</strong> Basic skinning skills, rely on others for navigation",
+            4: "🏔️ <strong>Developing:</strong> Comfortable skinning, learning avy awareness basics",
+            5: "🏔️ <strong>Intermediate:</strong> AIARE 1, comfortable skinning, can read basic terrain",
+            6: "🏔️ <strong>Competent:</strong> Solid touring skills, can plan routes, good avy assessment",
+            7: "🏔️ <strong>Advanced:</strong> AIARE 2, leads groups, complex terrain navigation",
+            8: "🏔️ <strong>Expert:</strong> Glacier travel, crevasse rescue, multi-day planning",
+            9: "🏔️ <strong>Very Expert:</strong> Pro-level skills, teaches others, big objectives",
+            10: "🏔️ <strong>Guide Level:</strong> Certified guide or equivalent, any terrain any conditions"
+        };
+
+        function updateEnergyDescription() {
+            const value = parseInt(document.getElementById('fitnessSlider').value);
+            const descEl = document.getElementById('energyDescription');
+            if (descEl) descEl.innerHTML = energyDescriptions[value] || '';
+        }
+
+        function updateDownhillDescription() {
+            const value = parseInt(document.getElementById('downhillSlider').value);
+            const descEl = document.getElementById('downhillDescription');
+            if (descEl) descEl.innerHTML = downhillDescriptions[value] || '';
+        }
+
+        function updateTouringDescription() {
+            const value = parseInt(document.getElementById('skillSlider').value);
+            const descEl = document.getElementById('touringDescription');
+            if (descEl) descEl.innerHTML = touringDescriptions[value] || '';
+        }
+
+        // ============================================
+        // CONTACT MODAL FUNCTIONS
+        // ============================================
+        function openContactModal() {
+            document.getElementById('contactModal').classList.add('active');
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.remove('active');
+        }
+
+        function sendContactEmail() {
+            const subject = document.getElementById('contactSubject').value;
+            const message = document.getElementById('contactMessage').value;
+            const subjectMap = {
+                'feedback': 'PNW Ski Tours Feedback',
+                'bug': 'PNW Ski Tours Bug Report',
+                'feature': 'PNW Ski Tours Feature Request',
+                'tour': 'PNW Ski Tours - Tour Suggestion'
+            };
+            const emailSubject = subjectMap[subject] || 'PNW Ski Tours Feedback';
+            window.open(`mailto:ntan.nora@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(message)}`, '_blank');
+            closeContactModal();
+        }
+
+        // ============================================
+        // TOUR LOG DETAIL MODAL FUNCTIONS
+        // ============================================
+        let currentDetailLog = null;
+
+        function openTourLogDetail(logId) {
+            const logs = getTourLogs();
+            const log = logs[logId];
+            if (!log) return;
+            
+            currentDetailLog = { id: logId, ...log };
+            
+            document.getElementById('detailTourName').textContent = log.tourName;
+            document.getElementById('detailDate').textContent = new Date(log.date).toLocaleDateString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+            document.getElementById('detailZone').textContent = log.zone || 'N/A';
+            document.getElementById('detailGroupSize').textContent = log.groupSize === '1' ? 'Solo' : log.groupSize + ' people';
+            document.getElementById('detailRating').innerHTML = '★'.repeat(log.rating) + '☆'.repeat(5 - log.rating);
+            
+            const dangerLabels = { low: '🟢 Low', moderate: '🟡 Moderate', considerable: '🟠 Considerable', high: '🔴 High', extreme: '⚫ Extreme' };
+            document.getElementById('detailAvyDanger').textContent = dangerLabels[log.avyDanger] || log.avyDanger || 'N/A';
+            
+            let avyProblems = log.avyProblem && log.avyProblem !== 'none' ? log.avyProblem.replace(/-/g, ' ') : 'None';
+            if (log.avyProblem2 && log.avyProblem2 !== 'none') avyProblems += ', ' + log.avyProblem2.replace(/-/g, ' ');
+            document.getElementById('detailAvyProblems').textContent = avyProblems;
+            
+            let snowText = '';
+            if (typeof log.snowConditions === 'object') {
+                const parts = [];
+                if (log.snowConditions.am) parts.push('AM: ' + log.snowConditions.am.replace(/-/g, ' '));
+                if (log.snowConditions.midday) parts.push('Midday: ' + log.snowConditions.midday.replace(/-/g, ' '));
+                if (log.snowConditions.pm) parts.push('PM: ' + log.snowConditions.pm.replace(/-/g, ' '));
+                snowText = parts.join(' → ') || 'Not recorded';
+            } else {
+                snowText = log.snowConditions ? log.snowConditions.replace(/-/g, ' ') : 'Not recorded';
+            }
+            document.getElementById('detailSnowConditions').textContent = snowText;
+            
+            const signs = log.signsOfInstability || {};
+            const signsList = [];
+            if (signs.recentAvalanches) signsList.push('Recent avalanches');
+            if (signs.whumpfing) signsList.push('Whumpfing');
+            if (signs.shootingCracks) signsList.push('Shooting cracks');
+            if (signs.heavyLoading) signsList.push('Heavy loading');
+            if (signs.corniceDevelopment) signsList.push('Cornice development');
+            if (signs.rollerballs) signsList.push('Rollerballs');
+            if (signs.windDrifting) signsList.push('Wind drifting');
+            if (signs.sluffs) signsList.push('Sluffs');
+            document.getElementById('detailSigns').textContent = signsList.length > 0 ? signsList.join(', ') : 'None observed';
+            
+            const terrainLabels = { simple: '🟢 Simple', moderate: '🟡 Moderate', complex: '🟠 Complex' };
+            document.getElementById('detailTerrain').textContent = terrainLabels[log.terrainMindset] || log.terrainMindset || 'N/A';
+            
+            document.getElementById('detailLessons').textContent = log.lessons || 'None recorded';
+            document.getElementById('detailNotes').textContent = log.notes || 'None';
+            document.getElementById('detailWouldRepeat').textContent = log.wouldRepeat ? '✅ Yes' : '❌ No';
+            
+            document.getElementById('tourLogDetailModal').classList.add('active');
+        }
+
+        function closeTourLogDetail() {
+            document.getElementById('tourLogDetailModal').classList.remove('active');
+            currentDetailLog = null;
+        }
+
+        function editTourLogFromDetail() {
+            if (!currentDetailLog) return;
+            closeTourLogDetail();
+            openTourLogModalForEdit(currentDetailLog.id);
+        }
+
+        function deleteTourLogFromDetail() {
+            if (!currentDetailLog) return;
+            if (!confirm('Delete this tour log?')) return;
+            
+            const logs = getTourLogs();
+            delete logs[currentDetailLog.id];
+            saveTourLogs(logs);
+            
+            closeTourLogDetail();
+            renderMyTours();
+            loadTours();
+            showToast('🗑️ Tour log deleted');
+        }
+
+        function openTourLogModalForEdit(logId) {
+            const logs = getTourLogs();
+            const log = logs[logId];
+            if (!log) return;
+            
+            currentLogTour = { name: log.tourName, zone: log.zone, editId: logId };
+            
+            document.getElementById('logTourName').textContent = log.tourName + ' (Editing)';
+            document.getElementById('logTourDate').value = log.date;
+            document.getElementById('logTourGroupSize').value = log.groupSize;
+            document.getElementById('logAvyDanger').value = log.avyDanger || 'moderate';
+            document.getElementById('logAvyProblem').value = log.avyProblem || 'none';
+            document.getElementById('logAvyProblem2').value = log.avyProblem2 || 'none';
+            
+            if (typeof log.snowConditions === 'object') {
+                document.getElementById('logSnowAM').value = log.snowConditions.am || '';
+                document.getElementById('logSnowMidday').value = log.snowConditions.midday || '';
+                document.getElementById('logSnowPM').value = log.snowConditions.pm || '';
+            }
+            
+            if (log.weather) {
+                document.getElementById('logWeatherPrecip').value = log.weather.precip || 'clear';
+                document.getElementById('logWeatherWind').value = log.weather.wind || 'calm';
+                document.getElementById('logWeatherVis').value = log.weather.visibility || 'good';
+                document.getElementById('logWeatherTemp').value = log.weather.temperature || 'stable-cold';
+            }
+            
+            document.getElementById('logPrecipAmount').value = log.precipAmount || 'none';
+            
+            const signs = log.signsOfInstability || {};
+            document.getElementById('logSignRecent').checked = signs.recentAvalanches || false;
+            document.getElementById('logSignWhumpf').checked = signs.whumpfing || false;
+            document.getElementById('logSignCracking').checked = signs.shootingCracks || false;
+            document.getElementById('logSignLoading').checked = signs.heavyLoading || false;
+            document.getElementById('logSignCornice').checked = signs.corniceDevelopment || false;
+            document.getElementById('logSignRollerballs').checked = signs.rollerballs || false;
+            document.getElementById('logSignWindDrift').checked = signs.windDrifting || false;
+            document.getElementById('logSignSluffs').checked = signs.sluffs || false;
+            
+            document.getElementById('logTerrainMindset').value = log.terrainMindset || 'moderate';
+            document.getElementById('logStuckToPlan').value = log.stuckToPlan || 'yes';
+            document.getElementById('logExposure').value = log.exposure || '';
+            document.getElementById('logLessons').value = log.lessons || '';
+            
+            document.getElementById('star' + log.rating).checked = true;
+            document.getElementById('logTourNotes').value = log.notes || '';
+            document.getElementById('logTourWouldRepeat').checked = log.wouldRepeat !== false;
+            
+            document.getElementById('tourLogModal').classList.add('active');
+        }
         
         // ============================================
         // AUTHENTICATION FUNCTIONS
@@ -1958,8 +2114,7 @@
             nwacZone: null,
             caltopoMapId: null,
             fitnessLevel: 7,
-            downhillSkill: 5,
-            touringSkill: 5,
+            skillLevel: 5,
             tourDate: new Date().toISOString().split('T')[0] // Today's date
         };
 
@@ -3260,7 +3415,7 @@
 
         async function loadTours() {
             const content = document.getElementById('toursContent');
-            console.log('📍 Loading tours for zone:', config.nwacZone, 'with fitness:', config.fitnessLevel, 'downhill:', config.downhillSkill, 'touring:', config.touringSkill);
+            console.log('📍 Loading tours for zone:', config.nwacZone, 'with fitness:', config.fitnessLevel, 'skill:', config.skillLevel);
             
             const zoneName = getZoneName(config.nwacZone);
             
@@ -3268,8 +3423,7 @@
             document.getElementById('toursSortMessage').innerHTML = `
                 💡 Showing <strong>top 5 tours</strong> for <strong>${zoneName}</strong> based on:
                 <br>Energy: <strong>${fitnessLabels[config.fitnessLevel]}</strong> (${config.fitnessLevel}/10) • 
-                Downhill: <strong>${skillLabels[config.downhillSkill]}</strong> • 
-                Touring: <strong>${skillLabels[config.touringSkill]}</strong>
+                Skill: <strong>${skillLabels[config.skillLevel]}</strong> (${config.skillLevel}/10)
             `;
             
             const tours = toursByZone[config.nwacZone] || [];
@@ -3368,8 +3522,7 @@
 
         function calculateRecommendation(tour) {
             const fitness = config.fitnessLevel;
-            const downhillSkill = config.downhillSkill;
-            const touringSkill = config.touringSkill;
+            const skill = config.skillLevel;
             const elevGain = tour.elevationGain;
             const distance = tour.distance;
             const terrain = tour.terrain.toLowerCase();
@@ -3408,7 +3561,7 @@
             // Calculate vertical-to-distance ratio (steeper = harder skinning but shorter)
             const vertPerMile = elevGain / Math.max(distance, 1);
             
-            // Technical difficulty based on terrain description (for downhill skiing)
+            // Technical difficulty based on terrain description
             let technicalDifficulty = 3; // default moderate
             
             // Slope angle parsing
@@ -3498,65 +3651,46 @@
             }
             
             // ============================================
-            // SKILL MATCHING (separate downhill and touring)
+            // SKILL MATCHING (technical ability)
             // ============================================
-            // Downhill skill: matches technical terrain difficulty
-            // Touring skill: route-finding, avalanche awareness, efficiency
+            // Goal: Match terrain difficulty to skill level
             
-            const downhillDiff = downhillSkill - technicalDifficulty;
+            const skillDiff = skill - technicalDifficulty;
             
-            // Ideal: terrain is at or slightly below downhill skill level
-            if (downhillDiff >= 0 && downhillDiff <= 2) {
+            // Ideal: terrain is at or slightly below skill level
+            if (skillDiff >= 0 && skillDiff <= 2) {
                 score += 3;
-                bonuses.push('Terrain matches your skiing ability');
-            } else if (downhillDiff > 2 && downhillDiff <= 4) {
+                bonuses.push('Terrain matches your skill');
+            } else if (skillDiff > 2 && skillDiff <= 4) {
                 score += 2;
-                bonuses.push('Skiing well within your abilities');
-            } else if (downhillDiff > 4) {
+                bonuses.push('Well within your abilities');
+            } else if (skillDiff > 4) {
                 score += 1;
                 // Very easy terrain for skill level
-            } else if (downhillDiff >= -1 && downhillDiff < 0) {
+            } else if (skillDiff >= -1 && skillDiff < 0) {
                 // Slightly above skill
                 score += 1;
-                warnings.push('Terrain at the edge of your skiing ability');
-            } else if (downhillDiff >= -2 && downhillDiff < -1) {
+                warnings.push('Terrain at the edge of your skill level');
+            } else if (skillDiff >= -2 && skillDiff < -1) {
                 // Above skill
                 score -= 1;
-                warnings.push('Terrain exceeds current skiing ability - go with experienced partners');
-            } else if (downhillDiff >= -3 && downhillDiff < -2) {
+                warnings.push('Terrain exceeds current skill - go with experienced partners');
+            } else if (skillDiff >= -3 && skillDiff < -2) {
                 // Well above skill
                 score -= 3;
-                warnings.push('Terrain too technical for current skiing level');
+                warnings.push('Terrain too technical for current skill level');
             } else {
                 // Way above skill
                 score -= 5;
-                warnings.push('Not recommended - terrain far exceeds skiing ability');
-            }
-            
-            // Touring skill affects route-finding, complex terrain navigation
-            // Higher touring difficulty for longer tours, complex routes, glacier travel
-            let touringDifficulty = Math.round((physicalDifficulty + technicalDifficulty) / 2);
-            if (terrain.includes('glacier')) touringDifficulty = Math.min(10, touringDifficulty + 2);
-            if (terrain.includes('route-finding') || terrain.includes('complex')) touringDifficulty = Math.min(10, touringDifficulty + 1);
-            if (distance > 12) touringDifficulty = Math.min(10, touringDifficulty + 1);
-            
-            const touringDiff = touringSkill - touringDifficulty;
-            if (touringDiff >= 0 && touringDiff <= 2) {
-                score += 2;
-            } else if (touringDiff < 0 && touringDiff >= -2) {
-                score -= 1;
-                warnings.push('Tour complexity at edge of touring experience');
-            } else if (touringDiff < -2) {
-                score -= 2;
-                warnings.push('Consider simpler tours to build experience');
+                warnings.push('Not recommended - terrain far exceeds skill level');
             }
             
             // ============================================
             // SYNERGY BONUS
             // ============================================
-            // Tours that match BOTH fitness and skills get a bonus
+            // Tours that match BOTH fitness and skill get a bonus
             
-            if (fitnessDiff >= -1 && fitnessDiff <= 2 && downhillDiff >= -1 && downhillDiff <= 2) {
+            if (fitnessDiff >= -1 && fitnessDiff <= 2 && skillDiff >= -1 && skillDiff <= 2) {
                 score += 2;
                 bonuses.push('Great overall match');
             }
@@ -3567,19 +3701,19 @@
             
             // Glacier travel requirements
             if (terrain.includes('glacier')) {
-                if (touringSkill < 6) {
+                if (skill < 6) {
                     score -= 3;
                     warnings.push('Glacier travel requires crevasse rescue training');
-                } else if (touringSkill < 8) {
+                } else if (skill < 8) {
                     warnings.push('Glacier travel - ensure rope team skills');
                 }
             }
             
             // Couloir skiing requirements
             if (terrain.includes('couloir')) {
-                if (downhillSkill < 7) {
+                if (skill < 7) {
                     score -= 3;
-                    warnings.push('Couloir skiing requires expert skiing ability');
+                    warnings.push('Couloir skiing requires expert ability');
                 }
                 if (fitness < 6) {
                     score -= 1;
@@ -3595,7 +3729,7 @@
             
             // High alpine
             if (maxElev > 10000) {
-                if (touringSkill < 5) {
+                if (skill < 5) {
                     score -= 1;
                     warnings.push('High alpine requires mountain experience');
                 }
@@ -3611,7 +3745,7 @@
                     score -= 2;
                     warnings.push('Big day - requires high fitness');
                 }
-                if (touringSkill < 5) {
+                if (skill < 5) {
                     score -= 1;
                     warnings.push('Long tour - navigation and pacing skills important');
                 }
@@ -3619,7 +3753,7 @@
             
             // Multi-day tours
             if (elevGain > 10000 || distance > 30) {
-                if (touringSkill < 7 || fitness < 7) {
+                if (skill < 7 || fitness < 7) {
                     score -= 3;
                     warnings.push('Multi-day objective requires advanced fitness and skills');
                 }
@@ -3631,14 +3765,14 @@
             
             if (aspect.includes('north') || aspect.includes('n-facing')) {
                 // North aspects hold snow longer, can be more persistent slab prone
-                if (touringSkill < 4) {
+                if (skill < 4) {
                     warnings.push('North aspects require avalanche awareness');
                 }
             }
             
             // Multiple aspects = more complex avalanche assessment
             if (aspect.includes('multiple') || aspect.includes('all') || aspect.includes('various')) {
-                if (touringSkill < 5) {
+                if (skill < 5) {
                     score -= 0.5;
                     warnings.push('Multiple aspects require careful terrain selection');
                 }
@@ -3763,7 +3897,7 @@
                 : '<span style="color: #999;">Not available</span>';
             
             // Generate CalTopo search URL
-            const caltopoUrl = 'https://caltopo.com/m/V106Q';
+            const caltopoSearchUrl = `https://caltopo.com/map.html#ll=${hasCoords ? tour.trailheadLat + ',' + tour.trailheadLon : '47.5,-121.5'}&z=14&b=mbt`;
             
             // Check if tour has been logged and get rating info
             const isLogged = isTourLogged(tour.name);
@@ -3811,7 +3945,7 @@
                             <div class="detail-icon">🗺️</div>
                             <div class="detail-text">
                                 <span class="detail-label">View Map</span>
-                                <span class="detail-value"><a href="${caltopoUrl}" target="_blank" rel="noopener" style="color: var(--forest-green); text-decoration: none;">CalTopo ↗</a></span>
+                                <span class="detail-value"><a href="${caltopoSearchUrl}" target="_blank" rel="noopener" style="color: var(--forest-green); text-decoration: none;">CalTopo ↗</a></span>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -3843,7 +3977,7 @@
                             </div>
                         </div>
                         <div class="detail-item">
-                            <div class="detail-icon">⛷️</div>
+                            <div class="detail-icon">🎿</div>
                             <div class="detail-text">
                                 <span class="detail-label">Technical</span>
                                 ${techBar}
@@ -3851,10 +3985,9 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 1rem; margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 6px; font-size: 0.85rem; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                            <div><strong>Energy:</strong> ${config.fitnessLevel}/10</div>
-                            <div><strong>Downhill:</strong> ${config.downhillSkill}/10</div>
-                            <div><strong>Touring:</strong> ${config.touringSkill}/10</div>
+                        <div style="display: flex; gap: 1rem;">
+                            <div><strong>Your Energy:</strong> ${config.fitnessLevel}/10</div>
+                            <div><strong>Your Skill:</strong> ${config.skillLevel}/10</div>
                         </div>
                         <button class="log-tour-btn ${isLogged ? 'logged' : ''}" onclick="openTourLogModal('${escapedName}', '${escapedZone}')">
                             ${isLogged ? '📝 Log Again' : '📝 Log Tour'}
@@ -4308,7 +4441,7 @@
             const wouldRepeat = document.getElementById('logTourWouldRepeat').checked;
             
             const tourId = getTourId(currentLogTour.name);
-            const logId = `${tourId}_${date}`;
+             const logId = currentLogTour.editId || `${tourId}_${date}`;
             
             const logs = getTourLogs();
             logs[logId] = {
@@ -4482,7 +4615,8 @@
                 }
                 
                 return `
-                <div class="logged-tour-card">
+                 <div class="logged-tour-card" onclick="openTourLogDetail('${log.id}')" style="cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.transform='translateX(4px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.12)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)';">
+
                     <div class="logged-tour-header">
                         <div>
                             <div class="logged-tour-name">${log.tourName}</div>
@@ -4520,7 +4654,7 @@
                         <span style="font-size: 0.8rem; color: ${log.wouldRepeat ? 'var(--forest-green)' : '#999'};">
                             ${log.wouldRepeat ? '✓ Would repeat' : '✗ Wouldn\'t repeat'}
                         </span>
-                        <button class="btn btn-danger btn-small" onclick="deleteTourLog('${log.id}')">Delete</button>
+                        <span style="font-size: 0.75rem; color: var(--topo-gray);">Click for details</span>
                     </div>
                 </div>
             `}).join('');
@@ -4614,7 +4748,7 @@
         function renderSearchResult(tour) {
             const hasCoords = tour.trailheadLat && tour.trailheadLon;
             const googleMapsUrl = hasCoords ? `https://www.google.com/maps/dir/?api=1&destination=${tour.trailheadLat},${tour.trailheadLon}` : null;
-            const caltopoUrl = 'https://caltopo.com/m/V106Q';
+            const caltopoUrl = `https://caltopo.com/map.html#ll=${hasCoords ? tour.trailheadLat + ',' + tour.trailheadLon : '47.5,-121.5'}&z=14&b=mbt`;
             
             // Escape tour name for onclick
             const escapedName = tour.name.replace(/'/g, "\\'");
@@ -4683,8 +4817,7 @@
             
             // Reset config to defaults
             config.fitnessLevel = 7;
-            config.downhillSkill = 5;
-            config.touringSkill = 5;
+            config.skillLevel = 5;
             config.nwacZone = null;
             config.location = null;
             
@@ -4697,8 +4830,7 @@
             
             // Set up slider event listeners
             const fitnessSlider = document.getElementById('fitnessSlider');
-            const downhillSlider = document.getElementById('downhillSlider');
-            const touringSlider = document.getElementById('touringSlider');
+            const skillSlider = document.getElementById('skillSlider');
             
             if (fitnessSlider) {
                 fitnessSlider.value = 7;
@@ -4711,74 +4843,33 @@
                         `${fitnessLabels[value]} (${value}/10)`;
                     
                     console.log('💪 Fitness level changed to:', value, '- Recalculating recommendations...');
+                    updateEnergyDescription();
                     if (config.nwacZone) loadTours();
                 });
             }
             
-            if (downhillSlider) {
-                downhillSlider.value = 5;
-                document.getElementById('downhillStatus').textContent = `${skillLabels[5]} (5/10)`;
+            if (skillSlider) {
+                skillSlider.value = 5;
+                document.getElementById('skillStatus').textContent = `${skillLabels[5]} (5/10)`;
+                document.getElementById('skillDescription').innerHTML = `💡 ${skillDescriptions[5]}`;
                 
-                downhillSlider.addEventListener('input', function() {
+                skillSlider.addEventListener('input', function() {
                     const value = parseInt(this.value);
-                    config.downhillSkill = value;
-                    document.getElementById('downhillStatus').textContent = 
+                    config.skillLevel = value;
+                    document.getElementById('skillStatus').textContent = 
                         `${skillLabels[value]} (${value}/10)`;
-                    updateSkillDescription();
+                    document.getElementById('skillDescription').innerHTML = `💡 ${skillDescriptions[value]}`;
                     
-                    console.log('⛷️ Downhill skill changed to:', value, '- Recalculating recommendations...');
+                    console.log('🎿 Skill level changed to:', value, '- Recalculating recommendations...');
+                    updateTouringDescription();
                     if (config.nwacZone) loadTours();
                 });
             }
             
-            if (touringSlider) {
-                touringSlider.value = 5;
-                document.getElementById('touringStatus').textContent = `${skillLabels[5]} (5/10)`;
-                
-                touringSlider.addEventListener('input', function() {
-                    const value = parseInt(this.value);
-                    config.touringSkill = value;
-                    document.getElementById('touringStatus').textContent = 
-                        `${skillLabels[value]} (${value}/10)`;
-                    updateSkillDescription();
-                    
-                    console.log('🎿 Touring skill changed to:', value, '- Recalculating recommendations...');
-                    if (config.nwacZone) loadTours();
-                });
-            }
-            
+            updateEnergyDescription();
+            updateTouringDescription();
             console.log('✅ App initialized - ready for zone selection');
         });
-        
-        function updateSkillDescription() {
-            const downhill = config.downhillSkill;
-            const touring = config.touringSkill;
-            let description = '💡 ';
-            
-            // Downhill description
-            if (downhill <= 3) {
-                description += 'Comfortable on groomed runs. ';
-            } else if (downhill <= 5) {
-                description += 'Can ski most resort terrain. ';
-            } else if (downhill <= 7) {
-                description += 'Confident in variable snow and steeper terrain. ';
-            } else {
-                description += 'Expert skiing ability, comfortable in any conditions. ';
-            }
-            
-            // Touring description
-            if (touring <= 3) {
-                description += 'New to backcountry, learning basics.';
-            } else if (touring <= 5) {
-                description += 'Solid skinning technique, basic avalanche awareness.';
-            } else if (touring <= 7) {
-                description += 'Efficient touring, good route-finding and avy skills.';
-            } else {
-                description += 'Expert touring, glacier travel, complex terrain navigation.';
-            }
-            
-            document.getElementById('skillDescription').innerHTML = description;
-        }
     </script>
     
     <!-- Tour Log Modal - AIARE Field Guide Aligned -->
@@ -5119,4 +5210,117 @@
                     
                     <div class="form-group" style="margin-bottom: 0;">
                         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkb
+                            <input type="checkbox" id="logTourWouldRepeat" checked style="width: auto;">
+                            Would do this tour again in similar conditions
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeTourLogModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTourLog()">💾 Save Debrief</button>
+            </div>
+        </div>
+    </div>
+
+     <!-- Tour Log Detail Modal -->
+    <div id="tourLogDetailModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3>📖 Tour Details</h3>
+                <button class="modal-close" onclick="closeTourLogDetail()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <div id="detailTourName" style="font-size: 1.4rem; font-weight: 700; color: var(--forest-green);"></div>
+                    <div id="detailDate" style="color: var(--topo-gray); font-size: 0.9rem;"></div>
+                    <div id="detailRating" style="color: #FFD700; font-size: 1.5rem; margin-top: 0.5rem;"></div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="background: var(--cream); padding: 0.75rem; border-radius: 8px;">
+                        <div style="font-size: 0.75rem; color: var(--topo-gray); text-transform: uppercase;">Zone</div>
+                        <div id="detailZone" style="font-weight: 600;"></div>
+                    </div>
+                    <div style="background: var(--cream); padding: 0.75rem; border-radius: 8px;">
+                        <div style="font-size: 0.75rem; color: var(--topo-gray); text-transform: uppercase;">Group Size</div>
+                        <div id="detailGroupSize" style="font-weight: 600;"></div>
+                    </div>
+                </div>
+                
+                <div style="background: #e3f2fd; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: #1565c0; margin-bottom: 0.75rem;">🏔️ Conditions</div>
+                    <div style="display: grid; gap: 0.5rem; font-size: 0.9rem;">
+                        <div><strong>Avy Danger:</strong> <span id="detailAvyDanger"></span></div>
+                        <div><strong>Problems:</strong> <span id="detailAvyProblems"></span></div>
+                        <div><strong>Snow:</strong> <span id="detailSnowConditions"></span></div>
+                    </div>
+                </div>
+                
+                <div style="background: #fff3e0; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: #e65100; margin-bottom: 0.5rem;">⚠️ Signs of Instability</div>
+                    <div id="detailSigns" style="font-size: 0.9rem;"></div>
+                </div>
+                
+                <div style="background: #e8f5e9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.5rem;">🗺️ Terrain</div>
+                    <div id="detailTerrain" style="font-size: 0.9rem;"></div>
+                </div>
+                
+                <div style="background: #f3e5f5; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="font-weight: 600; color: #7b1fa2; margin-bottom: 0.5rem;">🧠 Lessons Learned</div>
+                    <div id="detailLessons" style="font-size: 0.9rem;"></div>
+                </div>
+                
+                <div style="background: var(--cream); padding: 1rem; border-radius: 8px;">
+                    <div style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.5rem;">📝 Notes</div>
+                    <div id="detailNotes" style="font-size: 0.9rem; font-style: italic;"></div>
+                    <div style="margin-top: 0.75rem; font-size: 0.9rem;">
+                        <strong>Would repeat:</strong> <span id="detailWouldRepeat"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button class="btn btn-danger" onclick="deleteTourLogFromDetail()">🗑️ Delete</button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="closeTourLogDetail()">Close</button>
+                    <button class="btn btn-primary" onclick="editTourLogFromDetail()">✏️ Edit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3>📬 Contact Us</h3>
+                <button class="modal-close" onclick="closeContactModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem; color: var(--topo-gray);">
+                    Have feedback, found a bug, or want to suggest a feature? We'd love to hear from you!
+                </p>
+                
+                <div class="form-group">
+                    <label style="font-size: 0.85rem;">Subject</label>
+                    <select id="contactSubject">
+                        <option value="feedback">💬 General Feedback</option>
+                        <option value="bug">🐛 Bug Report</option>
+                        <option value="feature">✨ Feature Request</option>
+                        <option value="tour">🏔️ Tour Suggestion</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label style="font-size: 0.85rem;">Message</label>
+                    <textarea id="contactMessage" rows="5" placeholder="Tell us what's on your mind..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeContactModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="sendContactEmail()">📧 Send Email</button>
+            </div>
+        </div>
+    </div>
+</body>
