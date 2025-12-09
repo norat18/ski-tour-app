@@ -946,11 +946,12 @@
 
         .welcome-message {
             text-align: center;
-            padding: 4rem 2rem;
+            padding: 3rem 2rem;
             background: white;
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            margin: 2rem 0;
+            margin: 2rem auto;
+            max-width: 900px
         }
 
         .welcome-icon {
@@ -1064,11 +1065,49 @@
                     📖 How to Use This App
                 </button>
                 
-                <div style="background: #e8f5e9; border-radius: 16px; padding: 1.5rem; text-align: center;">
-                    <p style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem; font-size: 1.1rem;">👆 Get Started</p>
-                    <p style="font-size: 1rem;">Select your zone from the dropdown above to see today's tour recommendations</p>
-                </div>
-            </div>
+                <div style="background: #e8f5e9; border-radius: 16px; padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
+    <p style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem; font-size: 1.1rem;">👆 Get Started</p>
+    <p style="font-size: 1rem;">Select your zone from the dropdown above to see today's tour recommendations</p>
+</div>
+
+<!-- Contact and Donation Section -->
+<div style="border-top: 2px solid #eee; padding-top: 2rem; margin-top: 1rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; text-align: left;">
+        <!-- Contact Info -->
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px;">
+            <h4 style="color: var(--forest-green); margin-bottom: 1rem; font-size: 1.1rem;">💬 Feedback & Contact</h4>
+            <p style="font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.6;">
+                Have suggestions, found a bug, or want to add tours? I'd love to hear from you!
+            </p>
+            <a href="mailto:ntan.nora@gmail.com?subject=PNW%20Ski%20Tours%20Feedback" 
+               style="display: inline-flex; align-items: center; gap: 0.3rem; background: var(--forest-green); 
+                      color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; 
+                      font-size: 0.9rem; font-weight: 600;">
+                ✉️ Email Me
+            </a>
+            <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">
+                Created by <a href="https://www.linkedin.com/in/nora-tan/" target="_blank" style="color: var(--forest-green); text-decoration: none; font-weight: 600;">Nora Tan</a>
+            </p>
+        </div>
+        
+        <!-- Donation Info -->
+        <div style="background: #fff8e1; padding: 1.5rem; border-radius: 12px;">
+            <h4 style="color: #f57c00; margin-bottom: 1rem; font-size: 1.1rem;">☕ Support This Project</h4>
+            <p style="font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.6;">
+                This app is free and always will be! If you find it useful and want to support development, consider buying me a coffee.
+            </p>
+            <a href="https://buymeacoffee.com/noratan" target="_blank"
+               style="display: inline-flex; align-items: center; gap: 0.3rem; background: #f57c00; 
+                      color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; 
+                      font-size: 0.9rem; font-weight: 600;">
+                ☕ Buy Me a Coffee
+            </a>
+            <p style="margin-top: 1rem; font-size: 0.85rem; color: #666;">
+                Your support helps cover hosting costs and motivates new features!
+            </p>
+        </div>
+    </div>
+</div>
             
             <!-- Walkthrough Modal -->
             <div id="walkthroughModal" class="modal-overlay">
@@ -1270,43 +1309,62 @@
                         </div>
                         
                         <!-- Energy Section -->
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
-                            <div style="font-size: 2rem; width: 50px; text-align: center;">💪</div>
-                            <div style="flex: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                                    <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Today's Energy</span>
-                                    <span id="fitnessStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Strong (7/10)</span>
-                                </div>
-                                <input type="range" id="fitnessSlider" min="1" max="10" value="7" step="1" style="margin: 0;">
-                                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
-                                    <span>Exhausted</span>
-                                    <span>Peak Energy</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Skill Section -->
-                        <div style="display: flex; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid #eee;">
-                            <div style="font-size: 2rem; width: 50px; text-align: center;">🎿</div>
-                            <div style="flex: 1;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                                    <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Touring Skill</span>
-                                    <span id="skillStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
-                                </div>
-                                <input type="range" id="skillSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
-                                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
-                                    <span>Beginner</span>
-                                    <span>Expert</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Skill Description -->
-                        <div id="skillDescription" style="margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 8px; font-size: 0.8rem; color: var(--topo-gray); line-height: 1.4;">
-                            💡 Can handle moderate terrain, some route-finding, comfortable with avalanche basics.
-                        </div>
-                    </div>
-                </div>
+<div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+    <div style="font-size: 2rem; width: 50px; text-align: center;">💪</div>
+    <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Today's Energy</span>
+            <span id="fitnessStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Strong (7/10)</span>
+        </div>
+        <input type="range" id="fitnessSlider" min="1" max="10" value="7" step="1" style="margin: 0;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
+            <span>Exhausted</span>
+            <span>Peak Energy</span>
+        </div>
+    </div>
+</div>
+
+<!-- Downhill Skill Section -->
+<div style="display: flex; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid #eee; margin-bottom: 1.25rem;">
+    <div style="font-size: 2rem; width: 50px; text-align: center;">⛷️</div>
+    <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Downhill Skiing</span>
+            <span id="downhillStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
+        </div>
+        <input type="range" id="downhillSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
+            <span>Beginner</span>
+            <span>Expert</span>
+        </div>
+    </div>
+</div>
+
+<!-- Downhill Description -->
+<div id="downhillDescription" style="margin-bottom: 1rem; padding: 0.75rem; background: #e3f2fd; border-radius: 8px; font-size: 0.8rem; color: #1565c0; line-height: 1.4;">
+    ⛷️ <strong>Intermediate:</strong> Comfortable on most blues, working on blacks.
+</div>
+
+<!-- Touring Skill Section -->
+<div style="display: flex; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid #eee;">
+    <div style="font-size: 2rem; width: 50px; text-align: center;">🏔️</div>
+    <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <span style="font-weight: 600; color: var(--forest-green); font-size: 0.9rem;">Touring Skill</span>
+            <span id="skillStatus" style="font-weight: 700; color: var(--forest-green); font-size: 0.95rem;">Intermediate (5/10)</span>
+        </div>
+        <input type="range" id="skillSlider" min="1" max="10" value="5" step="1" style="margin: 0;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--topo-gray); margin-top: 0.25rem;">
+            <span>Beginner</span>
+            <span>Expert</span>
+        </div>
+    </div>
+</div>
+
+<!-- Touring Skill Description -->
+<div id="skillDescription" style="margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 8px; font-size: 0.8rem; color: var(--topo-gray); line-height: 1.4;">
+    🏔️ Can handle moderate terrain, some route-finding, comfortable with avalanche basics.
+</div>
 
                 <div class="tours-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
@@ -2449,6 +2507,12 @@
             5: 'Intermediate', 6: 'Competent', 7: 'Advanced', 8: 'Expert',
             9: 'Very Expert', 10: 'Professional Guide'
         };
+
+        const downhillLabels = {
+            1: 'First Timer', 2: 'Novice', 3: 'Beginner', 4: 'Developing',
+            5: 'Intermediate', 6: 'Competent', 7: 'Advanced', 8: 'Expert',
+            9: 'Very Expert', 10: 'Professional'
+        };  
 
         const skillDescriptions = {
             1: 'New to backcountry skiing. Stick to groomed sidecountry or guided tours.',
@@ -3897,7 +3961,7 @@
                 : '<span style="color: #999;">Not available</span>';
             
             // Generate CalTopo search URL
-            const caltopoSearchUrl = `https://caltopo.com/map.html#ll=${hasCoords ? tour.trailheadLat + ',' + tour.trailheadLon : '47.5,-121.5'}&z=14&b=mbt`;
+            const caltopoSearchUrl = 'https://caltopo.com/m/V106Q';
             
             // Check if tour has been logged and get rating info
             const isLogged = isTourLogged(tour.name);
@@ -4865,7 +4929,25 @@
                     if (config.nwacZone) loadTours();
                 });
             }
-            
+            const downhillSlider = document.getElementById('downhillSlider');
+
+if (downhillSlider) {
+    downhillSlider.value = 5;
+    document.getElementById('downhillStatus').textContent = `${downhillLabels[5]} (5/10)`;
+    document.getElementById('downhillDescription').innerHTML = downhillDescriptions[5];
+    
+    downhillSlider.addEventListener('input', function() {
+        const value = parseInt(this.value);
+        config.downhillLevel = value;
+        document.getElementById('downhillStatus').textContent = 
+            `${downhillLabels[value]} (${value}/10)`;
+        document.getElementById('downhillDescription').innerHTML = downhillDescriptions[value];
+        
+        console.log('⛷️ Downhill level changed to:', value);
+        if (config.nwacZone) loadTours();
+    });
+}
+
             updateEnergyDescription();
             updateTouringDescription();
             console.log('✅ App initialized - ready for zone selection');
