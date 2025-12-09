@@ -1350,6 +1350,40 @@
                         </div>
                     </div>
                     
+                    <!-- Search Tours Section -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="background: white; border-radius: 10px; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                <span style="font-size: 1.25rem;">🔍</span>
+                                <h4 style="margin: 0; color: var(--forest-green);">Search All Tours</h4>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <input type="text" id="tourSearchInput" placeholder="Search by tour name..." 
+                                    style="flex: 1; min-width: 200px; padding: 0.6rem 1rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem;"
+                                    onkeyup="handleSearchKeyup(event)">
+                                <select id="tourSearchZone" style="padding: 0.6rem 1rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; background: white;">
+                                    <option value="all">All Zones</option>
+                                    <option value="Mt Baker">Mt Baker</option>
+                                    <option value="Stevens Pass">Stevens Pass</option>
+                                    <option value="Snoqualmie Pass">Snoqualmie Pass</option>
+                                    <option value="West Slopes North">West Slopes North</option>
+                                    <option value="West Slopes Central">West Slopes Central</option>
+                                    <option value="West Slopes South">West Slopes South</option>
+                                    <option value="East Slopes North">East Slopes North</option>
+                                    <option value="East Slopes Central">East Slopes Central</option>
+                                    <option value="East Slopes South">East Slopes South</option>
+                                    <option value="Mt Hood">Mt Hood</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="searchTours()" style="padding: 0.6rem 1.25rem;">
+                                    Search
+                                </button>
+                            </div>
+                            <div id="searchResults" style="display: none; margin-top: 1rem;">
+                                <!-- Search results rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                    
                     <p id="toursSortMessage" style="font-size: 0.9rem; color: var(--topo-gray); margin-bottom: 1.5rem; padding: 1rem; background: var(--cream); border-radius: 6px;">
                         💡 Tours sorted by best match for your fitness. Loading...
                     </p>
@@ -4416,6 +4450,126 @@
                 section.style.display = 'none';
                 btn.innerHTML = '📖 My Tours (' + Object.keys(getTourLogs()).length + ')';
             }
+        }
+        
+        // ============================================
+        // TOUR SEARCH FUNCTIONS
+        // ============================================
+        
+        function handleSearchKeyup(event) {
+            if (event.key === 'Enter') {
+                searchTours();
+            }
+        }
+        
+        function getAllTours() {
+            // Collect all tours from all zones
+            const allTours = [];
+            for (const [zone, tours] of Object.entries(toursByZone)) {
+                tours.forEach(tour => {
+                    allTours.push({ ...tour, zone: zone });
+                });
+            }
+            return allTours;
+        }
+        
+        function searchTours() {
+            const searchInput = document.getElementById('tourSearchInput').value.trim().toLowerCase();
+            const zoneFilter = document.getElementById('tourSearchZone').value;
+            const resultsContainer = document.getElementById('searchResults');
+            
+            if (!searchInput && zoneFilter === 'all') {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+            
+            const allTours = getAllTours();
+            
+            // Filter tours
+            const matchingTours = allTours.filter(tour => {
+                const nameMatch = !searchInput || tour.name.toLowerCase().includes(searchInput);
+                const zoneMatch = zoneFilter === 'all' || tour.location === zoneFilter || tour.zone === zoneFilter;
+                return nameMatch && zoneMatch;
+            });
+            
+            // Sort by name
+            matchingTours.sort((a, b) => a.name.localeCompare(b.name));
+            
+            // Render results
+            if (matchingTours.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 1rem; color: var(--topo-gray);">
+                        <p>No tours found matching "${searchInput || 'your criteria'}"</p>
+                        <p style="font-size: 0.85rem;">Try a different search term or zone.</p>
+                    </div>
+                `;
+            } else {
+                resultsContainer.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <span style="font-size: 0.9rem; color: var(--topo-gray);">
+                            Found <strong>${matchingTours.length}</strong> tour${matchingTours.length !== 1 ? 's' : ''}
+                        </span>
+                        <button onclick="clearSearch()" style="background: none; border: none; color: var(--forest-green); cursor: pointer; font-size: 0.85rem;">
+                            ✕ Clear
+                        </button>
+                    </div>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        ${matchingTours.map(tour => renderSearchResult(tour)).join('')}
+                    </div>
+                `;
+            }
+            
+            resultsContainer.style.display = 'block';
+        }
+        
+        function renderSearchResult(tour) {
+            const hasCoords = tour.trailheadLat && tour.trailheadLon;
+            const googleMapsUrl = hasCoords ? `https://www.google.com/maps/dir/?api=1&destination=${tour.trailheadLat},${tour.trailheadLon}` : null;
+            const caltopoUrl = `https://caltopo.com/map.html#ll=${hasCoords ? tour.trailheadLat + ',' + tour.trailheadLon : '47.5,-121.5'}&z=14&b=mbt`;
+            
+            // Escape tour name for onclick
+            const escapedName = tour.name.replace(/'/g, "\\'");
+            const escapedZone = (tour.zone || tour.location || '').replace(/'/g, "\\'");
+            
+            // Check if logged
+            const isLogged = isTourLogged(tour.name);
+            const avgRating = getTourAverageRating(tour.name);
+            const starsHtml = avgRating !== null 
+                ? `<span style="color: #FFD700; margin-left: 0.5rem;">${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5 - Math.round(avgRating))}</span>` 
+                : '';
+            
+            return `
+                <div style="background: var(--cream); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <div style="font-weight: 600; color: var(--forest-green); font-size: 0.95rem;">
+                                ${tour.name}${starsHtml}
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--topo-gray); margin-top: 0.25rem;">
+                                📍 ${tour.location} • ${tour.elevationGain.toLocaleString()} ft • ${tour.distance} mi
+                            </div>
+                            <div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                                ⛰️ ${tour.terrain} • Max: ${tour.maxElevation.toLocaleString()} ft
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                            ${hasCoords ? `<a href="${googleMapsUrl}" target="_blank" style="font-size: 0.8rem; color: var(--sky-blue); text-decoration: none;">Directions</a>` : ''}
+                            <a href="${caltopoUrl}" target="_blank" style="font-size: 0.8rem; color: var(--forest-green); text-decoration: none;">CalTopo</a>
+                            <button class="btn btn-small ${isLogged ? 'btn-secondary' : 'btn-primary'}" 
+                                onclick="openTourLogModal('${escapedName}', '${escapedZone}')" 
+                                style="padding: 0.35rem 0.6rem; font-size: 0.75rem;">
+                                ${isLogged ? '📝 Log Again' : '📝 Log'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function clearSearch() {
+            document.getElementById('tourSearchInput').value = '';
+            document.getElementById('tourSearchZone').value = 'all';
+            document.getElementById('searchResults').style.display = 'none';
         }
 
         function getZoneName(zoneId) {
