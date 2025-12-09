@@ -3666,11 +3666,21 @@
             // Conditions
             document.getElementById('logAvyDanger').value = 'moderate';
             document.getElementById('logAvyProblem').value = 'none';
-            document.getElementById('logSnowConditions').value = 'powder';
-            document.getElementById('logWeather').value = 'clear';
+            document.getElementById('logAvyProblem2').value = 'none';
+            
+            // Snow conditions by time of day
+            document.getElementById('logSnowAM').value = '';
+            document.getElementById('logSnowMidday').value = '';
+            document.getElementById('logSnowPM').value = '';
+            
+            // Weather by category
+            document.getElementById('logWeatherPrecip').value = 'clear';
+            document.getElementById('logWeatherWind').value = 'calm';
+            document.getElementById('logWeatherVis').value = 'good';
+            document.getElementById('logWeatherTemp').value = 'stable-cold';
             document.getElementById('logPrecipAmount').value = 'none';
             
-            // Signs of instability - reset all
+            // Signs of instability - reset all (optional, may have none)
             document.getElementById('logSignRecent').checked = false;
             document.getElementById('logSignWhumpf').checked = false;
             document.getElementById('logSignCracking').checked = false;
@@ -3713,11 +3723,26 @@
             // Conditions (AIARE: Summarize Conditions)
             const avyDanger = document.getElementById('logAvyDanger').value;
             const avyProblem = document.getElementById('logAvyProblem').value;
-            const snowConditions = document.getElementById('logSnowConditions').value;
-            const weather = document.getElementById('logWeather').value;
+            const avyProblem2 = document.getElementById('logAvyProblem2').value;
+            
+            // Snow conditions by time of day
+            const snowConditions = {
+                am: document.getElementById('logSnowAM').value,
+                midday: document.getElementById('logSnowMidday').value,
+                pm: document.getElementById('logSnowPM').value
+            };
+            
+            // Weather by category
+            const weather = {
+                precip: document.getElementById('logWeatherPrecip').value,
+                wind: document.getElementById('logWeatherWind').value,
+                visibility: document.getElementById('logWeatherVis').value,
+                temperature: document.getElementById('logWeatherTemp').value
+            };
+            
             const precipAmount = document.getElementById('logPrecipAmount').value;
             
-            // Signs of instability
+            // Signs of instability (optional - may have none)
             const signsOfInstability = {
                 recentAvalanches: document.getElementById('logSignRecent').checked,
                 whumpfing: document.getElementById('logSignWhumpf').checked,
@@ -3754,6 +3779,7 @@
                 // Conditions
                 avyDanger: avyDanger,
                 avyProblem: avyProblem,
+                avyProblem2: avyProblem2,
                 snowConditions: snowConditions,
                 weather: weather,
                 precipAmount: precipAmount,
@@ -3853,11 +3879,22 @@
             
             const snowEmojis = {
                 'powder': '❄️',
-                'wind-affected': '💨',
-                'settled': '🎿',
-                'crust': '💔',
+                'packed-powder': '🎿',
+                'wind-buff': '💨',
+                'wind-crust': '🌬️',
+                'sun-crust': '☀️',
+                'rain-crust': '🌧️',
+                'breakable-crust': '💔',
+                'supportable-crust': '✓',
+                'wet-powder': '💧',
                 'corn': '🌽',
+                'moist': '💦',
+                'wet': '🌊',
+                'slush': '🥤',
+                'sastrugi': '〰️',
                 'ice': '🧊',
+                'facets': '❅',
+                'surface-hoar': '✨',
                 'variable': '🌀'
             };
             
@@ -3883,6 +3920,27 @@
                 if (signs.windDrifting) signsList.push('Wind drift');
                 if (signs.sluffs) signsList.push('Sluffs');
                 
+                // Build snow conditions string (handle both old and new format)
+                let snowDisplay = '';
+                if (typeof log.snowConditions === 'object') {
+                    const snowParts = [];
+                    if (log.snowConditions.am) snowParts.push(`AM: ${snowEmojis[log.snowConditions.am] || ''} ${log.snowConditions.am.replace(/-/g, ' ')}`);
+                    if (log.snowConditions.midday) snowParts.push(`Mid: ${snowEmojis[log.snowConditions.midday] || ''} ${log.snowConditions.midday.replace(/-/g, ' ')}`);
+                    if (log.snowConditions.pm) snowParts.push(`PM: ${snowEmojis[log.snowConditions.pm] || ''} ${log.snowConditions.pm.replace(/-/g, ' ')}`);
+                    snowDisplay = snowParts.length > 0 ? snowParts.join(' → ') : '';
+                } else if (log.snowConditions) {
+                    snowDisplay = `${snowEmojis[log.snowConditions] || '❄️'} ${log.snowConditions.replace(/-/g, ' ')}`;
+                }
+                
+                // Build avy problems string
+                let avyProblemsDisplay = '';
+                if (log.avyProblem && log.avyProblem !== 'none') {
+                    avyProblemsDisplay = log.avyProblem.replace(/-/g, ' ');
+                    if (log.avyProblem2 && log.avyProblem2 !== 'none') {
+                        avyProblemsDisplay += ` + ${log.avyProblem2.replace(/-/g, ' ')}`;
+                    }
+                }
+                
                 return `
                 <div class="logged-tour-card">
                     <div class="logged-tour-header">
@@ -3905,11 +3963,12 @@
                     
                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0; font-size: 0.8rem;">
                         ${log.avyDanger ? `<span style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 4px;">${dangerEmojis[log.avyDanger] || ''} ${log.avyDanger}</span>` : ''}
-                        ${log.avyProblem && log.avyProblem !== 'none' ? `<span style="background: #e3f2fd; padding: 0.25rem 0.5rem; border-radius: 4px; color: #1565c0;">${log.avyProblem.replace(/-/g, ' ')}</span>` : ''}
-                        ${log.snowConditions ? `<span style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 4px;">${snowEmojis[log.snowConditions] || '❄️'} ${log.snowConditions.replace(/-/g, ' ')}</span>` : ''}
+                        ${avyProblemsDisplay ? `<span style="background: #e3f2fd; padding: 0.25rem 0.5rem; border-radius: 4px; color: #1565c0;">${avyProblemsDisplay}</span>` : ''}
                         ${log.terrainMindset ? `<span style="background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 4px;">${terrainLabels[log.terrainMindset] || log.terrainMindset}</span>` : ''}
                         ${signCount > 0 ? `<span style="background: #fff3e0; padding: 0.25rem 0.5rem; border-radius: 4px; color: #e65100;">⚠️ ${signCount} sign${signCount > 1 ? 's' : ''}</span>` : ''}
                     </div>
+                    
+                    ${snowDisplay ? `<div style="font-size: 0.8rem; color: #555; margin-bottom: 0.5rem;">🎿 ${snowDisplay}</div>` : ''}
                     
                     ${signsList.length > 0 ? `<div style="font-size: 0.8rem; color: #e65100; margin-bottom: 0.5rem;">⚠️ ${signsList.join(', ')}</div>` : ''}
                     
@@ -4062,115 +4121,214 @@
                         </select>
                     </div>
                     
-                    <div class="form-group" style="margin-bottom: 0.75rem;">
-                        <label style="font-size: 0.85rem;">Primary Avalanche Problem (from AIARE problem types)</label>
-                        <select id="logAvyProblem">
-                            <option value="none">None observed</option>
-                            <optgroup label="Hazard from New Snow and/or Wind">
-                                <option value="dry-loose">Dry Loose (Sluff) - Point releases in steep terrain</option>
-                                <option value="storm-slab">Storm Slab - New snow slab, hours to days after storm</option>
-                                <option value="wind-slab">Wind Slab - Cohesive wind-deposited snow on lee slopes</option>
-                                <option value="cornice">Cornice Fall - Overhanging snow on ridges</option>
-                            </optgroup>
-                            <optgroup label="Hazard from Rapid Warming or Rain">
-                                <option value="wet-loose">Wet Loose - Wet unconsolidated snow/slush</option>
-                                <option value="wet-slab">Wet Slab - Wet cohesive layer, rain-on-snow events</option>
-                            </optgroup>
-                            <optgroup label="Hazard Persisting in Old Snow Layers">
-                                <option value="persistent-slab">Persistent Slab - Slab over buried weak layer</option>
-                                <option value="deep-slab">Deep Persistent Slab - Thick slab over deep weak layer</option>
-                                <option value="glide">Glide - Entire snowpack sliding on ground</option>
-                            </optgroup>
-                        </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.85rem;">Primary Avalanche Problem</label>
+                            <select id="logAvyProblem">
+                                <option value="none">None observed</option>
+                                <optgroup label="New Snow / Wind">
+                                    <option value="dry-loose">Dry Loose (Sluff)</option>
+                                    <option value="storm-slab">Storm Slab</option>
+                                    <option value="wind-slab">Wind Slab</option>
+                                    <option value="cornice">Cornice Fall</option>
+                                </optgroup>
+                                <optgroup label="Warming / Rain">
+                                    <option value="wet-loose">Wet Loose</option>
+                                    <option value="wet-slab">Wet Slab</option>
+                                </optgroup>
+                                <optgroup label="Persistent">
+                                    <option value="persistent-slab">Persistent Slab</option>
+                                    <option value="deep-slab">Deep Persistent Slab</option>
+                                    <option value="glide">Glide</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.85rem;">Secondary Problem (optional)</label>
+                            <select id="logAvyProblem2">
+                                <option value="none">None</option>
+                                <optgroup label="New Snow / Wind">
+                                    <option value="dry-loose">Dry Loose (Sluff)</option>
+                                    <option value="storm-slab">Storm Slab</option>
+                                    <option value="wind-slab">Wind Slab</option>
+                                    <option value="cornice">Cornice Fall</option>
+                                </optgroup>
+                                <optgroup label="Warming / Rain">
+                                    <option value="wet-loose">Wet Loose</option>
+                                    <option value="wet-slab">Wet Slab</option>
+                                </optgroup>
+                                <optgroup label="Persistent">
+                                    <option value="persistent-slab">Persistent Slab</option>
+                                    <option value="deep-slab">Deep Persistent Slab</option>
+                                    <option value="glide">Glide</option>
+                                </optgroup>
+                            </select>
+                        </div>
                     </div>
                     
+                    <!-- Snow Surface by Time of Day -->
                     <div class="form-group" style="margin-bottom: 0.75rem;">
-                        <label style="font-size: 0.85rem;">Snow Surface Conditions</label>
-                        <select id="logSnowConditions">
-                            <optgroup label="Dry Snow">
-                                <option value="powder">❄️ Powder - Light, dry, untracked</option>
-                                <option value="packed-powder">🎿 Packed Powder - Settled, good coverage</option>
-                                <option value="wind-buff">💨 Wind Buff - Smooth, firm wind-packed</option>
-                                <option value="wind-crust">🌬️ Wind Crust - Hard, wind-affected surface</option>
-                                <option value="sun-crust">☀️ Sun Crust - Melt-freeze surface crust</option>
-                                <option value="rain-crust">🌧️ Rain Crust - Crust from rain-on-snow</option>
-                                <option value="breakable-crust">💔 Breakable Crust - Unsupportable crust</option>
-                                <option value="supportable-crust">✓ Supportable Crust - Holds weight</option>
-                            </optgroup>
-                            <optgroup label="Wet Snow">
-                                <option value="wet-powder">💧 Wet Powder - Heavy, moist new snow</option>
-                                <option value="corn">🌽 Corn - Melt-freeze cycles, spring snow</option>
-                                <option value="moist">💦 Moist - Damp, clumps together</option>
-                                <option value="wet">🌊 Wet - Saturated, water visible</option>
-                                <option value="slush">🥤 Slush - Very wet, soupy</option>
-                            </optgroup>
-                            <optgroup label="Challenging Surfaces">
-                                <option value="sastrugi">〰️ Sastrugi - Wind-eroded waves/ridges</option>
-                                <option value="ice">🧊 Ice - Hard ice, no edge grip</option>
-                                <option value="facets">❅ Surface Facets - Loose, sugary crystals</option>
-                                <option value="surface-hoar">✨ Surface Hoar - Feathery frost crystals</option>
-                                <option value="variable">🌀 Variable - Mixed conditions</option>
-                            </optgroup>
-                        </select>
+                        <label style="font-size: 0.85rem;">Snow Surface Conditions (by time of day)</label>
+                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; align-items: center; margin-top: 0.5rem;">
+                            <span style="font-size: 0.8rem; color: #555; font-weight: 500;">🌅 AM:</span>
+                            <select id="logSnowAM" style="font-size: 0.85rem;">
+                                <option value="">-- Select --</option>
+                                <optgroup label="Dry Snow">
+                                    <option value="powder">❄️ Powder</option>
+                                    <option value="packed-powder">🎿 Packed Powder</option>
+                                    <option value="wind-buff">💨 Wind Buff</option>
+                                    <option value="wind-crust">🌬️ Wind Crust</option>
+                                    <option value="sun-crust">☀️ Sun Crust</option>
+                                    <option value="rain-crust">🌧️ Rain Crust</option>
+                                    <option value="breakable-crust">💔 Breakable Crust</option>
+                                    <option value="supportable-crust">✓ Supportable Crust</option>
+                                </optgroup>
+                                <optgroup label="Wet Snow">
+                                    <option value="wet-powder">💧 Wet Powder</option>
+                                    <option value="corn">🌽 Corn</option>
+                                    <option value="moist">💦 Moist</option>
+                                    <option value="wet">🌊 Wet</option>
+                                    <option value="slush">🥤 Slush</option>
+                                </optgroup>
+                                <optgroup label="Challenging">
+                                    <option value="sastrugi">〰️ Sastrugi</option>
+                                    <option value="ice">🧊 Ice</option>
+                                    <option value="facets">❅ Surface Facets</option>
+                                    <option value="surface-hoar">✨ Surface Hoar</option>
+                                    <option value="variable">🌀 Variable</option>
+                                </optgroup>
+                            </select>
+                            
+                            <span style="font-size: 0.8rem; color: #555; font-weight: 500;">☀️ Midday:</span>
+                            <select id="logSnowMidday" style="font-size: 0.85rem;">
+                                <option value="">-- Select --</option>
+                                <optgroup label="Dry Snow">
+                                    <option value="powder">❄️ Powder</option>
+                                    <option value="packed-powder">🎿 Packed Powder</option>
+                                    <option value="wind-buff">💨 Wind Buff</option>
+                                    <option value="wind-crust">🌬️ Wind Crust</option>
+                                    <option value="sun-crust">☀️ Sun Crust</option>
+                                    <option value="rain-crust">🌧️ Rain Crust</option>
+                                    <option value="breakable-crust">💔 Breakable Crust</option>
+                                    <option value="supportable-crust">✓ Supportable Crust</option>
+                                </optgroup>
+                                <optgroup label="Wet Snow">
+                                    <option value="wet-powder">💧 Wet Powder</option>
+                                    <option value="corn">🌽 Corn</option>
+                                    <option value="moist">💦 Moist</option>
+                                    <option value="wet">🌊 Wet</option>
+                                    <option value="slush">🥤 Slush</option>
+                                </optgroup>
+                                <optgroup label="Challenging">
+                                    <option value="sastrugi">〰️ Sastrugi</option>
+                                    <option value="ice">🧊 Ice</option>
+                                    <option value="facets">❅ Surface Facets</option>
+                                    <option value="surface-hoar">✨ Surface Hoar</option>
+                                    <option value="variable">🌀 Variable</option>
+                                </optgroup>
+                            </select>
+                            
+                            <span style="font-size: 0.8rem; color: #555; font-weight: 500;">🌆 PM:</span>
+                            <select id="logSnowPM" style="font-size: 0.85rem;">
+                                <option value="">-- Select --</option>
+                                <optgroup label="Dry Snow">
+                                    <option value="powder">❄️ Powder</option>
+                                    <option value="packed-powder">🎿 Packed Powder</option>
+                                    <option value="wind-buff">💨 Wind Buff</option>
+                                    <option value="wind-crust">🌬️ Wind Crust</option>
+                                    <option value="sun-crust">☀️ Sun Crust</option>
+                                    <option value="rain-crust">🌧️ Rain Crust</option>
+                                    <option value="breakable-crust">💔 Breakable Crust</option>
+                                    <option value="supportable-crust">✓ Supportable Crust</option>
+                                </optgroup>
+                                <optgroup label="Wet Snow">
+                                    <option value="wet-powder">💧 Wet Powder</option>
+                                    <option value="corn">🌽 Corn</option>
+                                    <option value="moist">💦 Moist</option>
+                                    <option value="wet">🌊 Wet</option>
+                                    <option value="slush">🥤 Slush</option>
+                                </optgroup>
+                                <optgroup label="Challenging">
+                                    <option value="sastrugi">〰️ Sastrugi</option>
+                                    <option value="ice">🧊 Ice</option>
+                                    <option value="facets">❅ Surface Facets</option>
+                                    <option value="surface-hoar">✨ Surface Hoar</option>
+                                    <option value="variable">🌀 Variable</option>
+                                </optgroup>
+                            </select>
+                        </div>
                     </div>
                     
+                    <!-- Weather - Multi-select by category -->
                     <div class="form-group" style="margin-bottom: 0.75rem;">
-                        <label style="font-size: 0.85rem;">Weather During Tour</label>
-                        <select id="logWeather">
-                            <optgroup label="Precipitation">
-                                <option value="clear">☀️ Clear / Sunny</option>
-                                <option value="partly-cloudy">⛅ Partly cloudy</option>
-                                <option value="cloudy">☁️ Cloudy / Overcast</option>
-                                <option value="light-snow">🌨️ Light snow (&lt;1 in/hr)</option>
-                                <option value="moderate-snow">❄️ Moderate snow (1-2 in/hr)</option>
-                                <option value="heavy-snow">🌨️❄️ Heavy snow (&gt;2 in/hr) - UNSTABLE</option>
-                                <option value="rain-on-snow">🌧️ Rain on snow - UNSTABLE</option>
-                                <option value="graupel">⚪ Graupel / Snow pellets</option>
-                            </optgroup>
-                            <optgroup label="Wind">
-                                <option value="calm">🍃 Calm (&lt;15 mph)</option>
-                                <option value="light-wind">💨 Light wind (15-25 mph)</option>
-                                <option value="moderate-wind">💨💨 Moderate wind (25-35 mph) - Loading possible</option>
-                                <option value="strong-wind">🌪️ Strong wind (&gt;35 mph) - Active loading</option>
-                            </optgroup>
-                            <optgroup label="Visibility">
-                                <option value="good-visibility">👁️ Good visibility</option>
-                                <option value="flat-light">🌫️ Flat light - Difficult terrain reading</option>
-                                <option value="fog">🌁 Fog / Low clouds</option>
-                                <option value="whiteout">⬜ Whiteout - No visibility</option>
-                            </optgroup>
-                            <optgroup label="Temperature Trend">
-                                <option value="stable-cold">🥶 Stable cold</option>
-                                <option value="warming">🌡️ Warming trend - Watch for instability</option>
-                                <option value="rapid-warming">🔥 Rapid warming - UNSTABLE</option>
-                                <option value="cooling">❄️ Cooling trend</option>
-                            </optgroup>
-                        </select>
+                        <label style="font-size: 0.85rem;">Weather Conditions (select one from each category that applies)</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
+                            <div>
+                                <span style="font-size: 0.75rem; color: #555; font-weight: 600;">Sky/Precip:</span>
+                                <select id="logWeatherPrecip" style="font-size: 0.85rem; width: 100%; margin-top: 0.25rem;">
+                                    <option value="clear">☀️ Clear / Sunny</option>
+                                    <option value="partly-cloudy">⛅ Partly cloudy</option>
+                                    <option value="cloudy">☁️ Cloudy</option>
+                                    <option value="light-snow">🌨️ Light snow</option>
+                                    <option value="moderate-snow">❄️ Moderate snow</option>
+                                    <option value="heavy-snow">🌨️❄️ Heavy snow</option>
+                                    <option value="rain-on-snow">🌧️ Rain on snow</option>
+                                    <option value="graupel">⚪ Graupel</option>
+                                </select>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.75rem; color: #555; font-weight: 600;">Wind:</span>
+                                <select id="logWeatherWind" style="font-size: 0.85rem; width: 100%; margin-top: 0.25rem;">
+                                    <option value="calm">🍃 Calm (&lt;15 mph)</option>
+                                    <option value="light-wind">💨 Light (15-25 mph)</option>
+                                    <option value="moderate-wind">💨💨 Moderate (25-35 mph)</option>
+                                    <option value="strong-wind">🌪️ Strong (&gt;35 mph)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.75rem; color: #555; font-weight: 600;">Visibility:</span>
+                                <select id="logWeatherVis" style="font-size: 0.85rem; width: 100%; margin-top: 0.25rem;">
+                                    <option value="good">👁️ Good</option>
+                                    <option value="flat-light">🌫️ Flat light</option>
+                                    <option value="fog">🌁 Fog / Low clouds</option>
+                                    <option value="whiteout">⬜ Whiteout</option>
+                                </select>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.75rem; color: #555; font-weight: 600;">Temperature:</span>
+                                <select id="logWeatherTemp" style="font-size: 0.85rem; width: 100%; margin-top: 0.25rem;">
+                                    <option value="stable-cold">🥶 Stable cold</option>
+                                    <option value="warming">🌡️ Warming trend</option>
+                                    <option value="rapid-warming">🔥 Rapid warming</option>
+                                    <option value="cooling">❄️ Cooling trend</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 0;">
                         <label style="font-size: 0.85rem;">Precipitation Amount (new snow in last 48 hrs)</label>
                         <select id="logPrecipAmount">
-                            <option value="none">None</option>
+                            <option value="none" selected>None</option>
                             <option value="trace">Trace - &lt;2 inches</option>
                             <option value="light">Light - 2-6 inches</option>
                             <option value="moderate">Moderate - 6-12 inches</option>
-                            <option value="heavy" selected>Heavy - 12-24 inches - Elevated hazard</option>
-                            <option value="very-heavy">Very Heavy - &gt;24 inches - HIGH hazard</option>
+                            <option value="heavy">Heavy - 12-24 inches</option>
+                            <option value="very-heavy">Very Heavy - &gt;24 inches</option>
                         </select>
                     </div>
                 </div>
                 
                 <!-- Signs of Instability (AIARE: Monitor Conditions) -->
                 <div style="background: #fff3e0; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                    <div style="font-weight: 600; color: #e65100; margin-bottom: 0.5rem;">⚠️ Signs of Instability Observed</div>
-                    <p style="font-size: 0.75rem; color: #bf360c; margin-bottom: 0.75rem;">Check all that apply - these are critical red flags</p>
+                    <div style="font-weight: 600; color: #e65100; margin-bottom: 0.5rem;">⚠️ Signs of Instability Observed (if any)</div>
+                    <p style="font-size: 0.75rem; color: #8d6e63; margin-bottom: 0.75rem;">Check any that were observed - leave unchecked if no signs of instability</p>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
                         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="logSignRecent" style="width: auto;"> Recent avalanches (today/yesterday)
+                            <input type="checkbox" id="logSignRecent" style="width: auto;"> Recent avalanches
                         </label>
                         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="logSignWhumpf" style="width: auto;"> Whumpfing (collapsing)
+                            <input type="checkbox" id="logSignWhumpf" style="width: auto;"> Whumpfing
                         </label>
                         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                             <input type="checkbox" id="logSignCracking" style="width: auto;"> Shooting cracks
@@ -4182,10 +4340,10 @@
                             <input type="checkbox" id="logSignCornice" style="width: auto;"> Cornice development
                         </label>
                         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="logSignRollerballs" style="width: auto;"> Rollerballs/pinwheels (wet)
+                            <input type="checkbox" id="logSignRollerballs" style="width: auto;"> Rollerballs/pinwheels
                         </label>
                         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" id="logSignWindDrift" style="width: auto;"> Visible wind drifting
+                            <input type="checkbox" id="logSignWindDrift" style="width: auto;"> Wind drifting
                         </label>
                         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                             <input type="checkbox" id="logSignSluffs" style="width: auto;"> Sluffs/point releases
