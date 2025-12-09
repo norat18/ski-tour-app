@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ski Tour Decision - PNW Backcountry</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <style>
         :root {
             --cream: #F5F1E8;
@@ -718,6 +724,165 @@
         .log-tour-btn.logged {
             background: var(--forest-green);
         }
+        
+        /* Auth UI Styles */
+        .auth-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .auth-user-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .auth-user-details {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .auth-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--forest-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .auth-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .auth-name {
+            font-weight: 600;
+            color: var(--forest-green);
+        }
+        
+        .auth-email {
+            font-size: 0.8rem;
+            color: var(--topo-gray);
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-google:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+        
+        .btn-google img {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            color: var(--topo-gray);
+            font-size: 0.85rem;
+        }
+        
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+        
+        .auth-divider span {
+            padding: 0 1rem;
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .auth-form input {
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .auth-form input:focus {
+            outline: none;
+            border-color: var(--forest-green);
+        }
+        
+        .auth-form-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .auth-toggle {
+            text-align: center;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--topo-gray);
+        }
+        
+        .auth-toggle a {
+            color: var(--forest-green);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+        
+        .auth-error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .sync-status {
+            font-size: 0.75rem;
+            color: var(--topo-gray);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .sync-status.synced {
+            color: var(--forest-green);
+        }
 
         #setupPanel {
             display: block;
@@ -877,6 +1042,50 @@
 
             <!-- Dashboard content (hidden until zone selected) -->
             <div id="dashboardContent" style="display: none;">
+                <!-- Auth Section -->
+                <div id="authSection" class="auth-container">
+                    <div id="authLoggedOut">
+                        <div style="text-align: center; margin-bottom: 1rem;">
+                            <h3 style="color: var(--forest-green); margin-bottom: 0.5rem;">🔐 Save Your Tours</h3>
+                            <p style="font-size: 0.9rem; color: var(--topo-gray);">Sign in to sync tour logs across devices</p>
+                        </div>
+                        <button class="btn btn-google" onclick="signInWithGoogle()" style="width: 100%; justify-content: center;">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                            Sign in with Google
+                        </button>
+                        <div class="auth-divider"><span>or</span></div>
+                        <div id="authError" class="auth-error" style="display: none;"></div>
+                        <form id="authForm" class="auth-form" onsubmit="handleEmailAuth(event)">
+                            <input type="email" id="authEmail" placeholder="Email" required>
+                            <input type="password" id="authPassword" placeholder="Password" required minlength="6">
+                            <div class="auth-form-buttons">
+                                <button type="submit" class="btn btn-primary" style="flex: 1;" id="authSubmitBtn">Sign In</button>
+                            </div>
+                        </form>
+                        <div class="auth-toggle">
+                            <span id="authToggleText">Don't have an account?</span>
+                            <a onclick="toggleAuthMode()"><span id="authToggleLink">Sign Up</span></a>
+                        </div>
+                    </div>
+                    <div id="authLoggedIn" style="display: none;">
+                        <div class="auth-user-info">
+                            <div class="auth-user-details">
+                                <div class="auth-avatar" id="userAvatar">?</div>
+                                <div>
+                                    <div class="auth-name" id="userName">User</div>
+                                    <div class="auth-email" id="userEmail">user@example.com</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                                <button class="btn btn-secondary btn-small" onclick="signOutUser()">Sign Out</button>
+                                <div class="sync-status" id="syncStatus">
+                                    <span>⏳</span> Checking sync...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="date-banner" id="dateBanner">
                     📅 Loading...
                 </div>
@@ -1028,6 +1237,261 @@
     </div>
 
     <script>
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdsvWuplxxg3DRbT-wUb4n-u4W1HU89wY",
+            authDomain: "pnw-ski-tours.firebaseapp.com",
+            projectId: "pnw-ski-tours",
+            storageBucket: "pnw-ski-tours.firebasestorage.app",
+            messagingSenderId: "127747659158",
+            appId: "1:127747659158:web:b117223702d49617adf9b7"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Current user state
+        let currentUser = null;
+        let isAuthModeSignUp = false;
+        
+        // ============================================
+        // AUTHENTICATION FUNCTIONS
+        // ============================================
+        
+        // Listen for auth state changes
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            updateAuthUI();
+            
+            if (user) {
+                console.log('👤 User signed in:', user.email);
+                // Sync local data to cloud and load cloud data
+                await syncTourLogs();
+            } else {
+                console.log('👤 User signed out');
+            }
+        });
+        
+        // Update the auth UI based on login state
+        function updateAuthUI() {
+            const loggedOutEl = document.getElementById('authLoggedOut');
+            const loggedInEl = document.getElementById('authLoggedIn');
+            
+            if (currentUser) {
+                loggedOutEl.style.display = 'none';
+                loggedInEl.style.display = 'block';
+                
+                // Update user info
+                document.getElementById('userName').textContent = currentUser.displayName || 'Ski Enthusiast';
+                document.getElementById('userEmail').textContent = currentUser.email;
+                
+                // Avatar
+                const avatarEl = document.getElementById('userAvatar');
+                if (currentUser.photoURL) {
+                    avatarEl.innerHTML = `<img src="${currentUser.photoURL}" alt="Avatar">`;
+                } else {
+                    const initial = (currentUser.displayName || currentUser.email || '?')[0].toUpperCase();
+                    avatarEl.innerHTML = initial;
+                }
+            } else {
+                loggedOutEl.style.display = 'block';
+                loggedInEl.style.display = 'none';
+            }
+        }
+        
+        // Sign in with Google
+        async function signInWithGoogle() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+                showToast('✅ Signed in successfully!');
+            } catch (error) {
+                console.error('Google sign in error:', error);
+                showAuthError(error.message);
+            }
+        }
+        
+        // Handle email/password auth
+        async function handleEmailAuth(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            
+            hideAuthError();
+            
+            try {
+                if (isAuthModeSignUp) {
+                    // Sign up
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    showToast('✅ Account created successfully!');
+                } else {
+                    // Sign in
+                    await auth.signInWithEmailAndPassword(email, password);
+                    showToast('✅ Signed in successfully!');
+                }
+            } catch (error) {
+                console.error('Email auth error:', error);
+                let message = error.message;
+                if (error.code === 'auth/user-not-found') {
+                    message = 'No account found with this email. Click "Sign Up" to create one.';
+                } else if (error.code === 'auth/wrong-password') {
+                    message = 'Incorrect password. Please try again.';
+                } else if (error.code === 'auth/email-already-in-use') {
+                    message = 'An account with this email already exists. Try signing in.';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Password should be at least 6 characters.';
+                }
+                showAuthError(message);
+            }
+        }
+        
+        // Toggle between sign in and sign up
+        function toggleAuthMode() {
+            isAuthModeSignUp = !isAuthModeSignUp;
+            
+            document.getElementById('authSubmitBtn').textContent = isAuthModeSignUp ? 'Sign Up' : 'Sign In';
+            document.getElementById('authToggleText').textContent = isAuthModeSignUp ? 'Already have an account?' : "Don't have an account?";
+            document.getElementById('authToggleLink').textContent = isAuthModeSignUp ? 'Sign In' : 'Sign Up';
+            
+            hideAuthError();
+        }
+        
+        // Sign out
+        async function signOutUser() {
+            try {
+                await auth.signOut();
+                showToast('👋 Signed out');
+            } catch (error) {
+                console.error('Sign out error:', error);
+            }
+        }
+        
+        // Show auth error
+        function showAuthError(message) {
+            const errorEl = document.getElementById('authError');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+        
+        // Hide auth error
+        function hideAuthError() {
+            document.getElementById('authError').style.display = 'none';
+        }
+        
+        // ============================================
+        // CLOUD SYNC FUNCTIONS
+        // ============================================
+        
+        // Sync tour logs between local storage and Firestore
+        async function syncTourLogs() {
+            if (!currentUser) return;
+            
+            updateSyncStatus('syncing');
+            
+            try {
+                const userDocRef = db.collection('users').doc(currentUser.uid);
+                const logsDocRef = userDocRef.collection('tourLogs').doc('data');
+                
+                // Get local logs
+                const localLogs = getTourLogs();
+                
+                // Get cloud logs
+                const cloudDoc = await logsDocRef.get();
+                const cloudLogs = cloudDoc.exists ? cloudDoc.data().logs || {} : {};
+                
+                console.log('☁️ Local logs:', Object.keys(localLogs).length);
+                console.log('☁️ Cloud logs:', Object.keys(cloudLogs).length);
+                
+                // Merge: cloud wins for conflicts, but keep all unique entries
+                const mergedLogs = { ...localLogs };
+                
+                for (const [key, cloudLog] of Object.entries(cloudLogs)) {
+                    if (!mergedLogs[key]) {
+                        // New from cloud
+                        mergedLogs[key] = cloudLog;
+                    } else {
+                        // Both have it - keep the newer one
+                        const localTime = new Date(mergedLogs[key].loggedAt || 0).getTime();
+                        const cloudTime = new Date(cloudLog.loggedAt || 0).getTime();
+                        if (cloudTime > localTime) {
+                            mergedLogs[key] = cloudLog;
+                        }
+                    }
+                }
+                
+                // Save merged to local
+                saveTourLogs(mergedLogs);
+                
+                // Save merged to cloud
+                await logsDocRef.set({ 
+                    logs: mergedLogs,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                console.log('✅ Synced', Object.keys(mergedLogs).length, 'tour logs');
+                updateSyncStatus('synced');
+                
+                // Refresh UI
+                if (config.nwacZone) {
+                    loadTours();
+                }
+                
+            } catch (error) {
+                console.error('Sync error:', error);
+                updateSyncStatus('error');
+            }
+        }
+        
+        // Save tour log to cloud (called after saving locally)
+        async function saveTourLogToCloud(logs) {
+            if (!currentUser) return;
+            
+            try {
+                const logsDocRef = db.collection('users').doc(currentUser.uid)
+                    .collection('tourLogs').doc('data');
+                
+                await logsDocRef.set({ 
+                    logs: logs,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                updateSyncStatus('synced');
+                console.log('☁️ Saved to cloud');
+            } catch (error) {
+                console.error('Cloud save error:', error);
+                updateSyncStatus('error');
+            }
+        }
+        
+        // Update sync status indicator
+        function updateSyncStatus(status) {
+            const statusEl = document.getElementById('syncStatus');
+            if (!statusEl) return;
+            
+            switch (status) {
+                case 'syncing':
+                    statusEl.innerHTML = '<span>⏳</span> Syncing...';
+                    statusEl.className = 'sync-status';
+                    break;
+                case 'synced':
+                    statusEl.innerHTML = '<span>✅</span> Synced to cloud';
+                    statusEl.className = 'sync-status synced';
+                    break;
+                case 'error':
+                    statusEl.innerHTML = '<span>⚠️</span> Sync error';
+                    statusEl.className = 'sync-status';
+                    break;
+                default:
+                    statusEl.innerHTML = '<span>📱</span> Local only';
+                    statusEl.className = 'sync-status';
+            }
+        }
+        
         // Default coordinates for each NWAC zone
         const zoneDefaults = {
             'west-slopes-north': { lat: 48.868, lon: -121.813, name: 'Mt Baker Area' },
@@ -2961,7 +3425,12 @@
         function saveTourLogs(logs) {
             try {
                 localStorage.setItem(TOUR_LOG_KEY, JSON.stringify(logs));
-                console.log('💾 Tour logs saved:', Object.keys(logs).length, 'entries');
+                console.log('💾 Tour logs saved locally:', Object.keys(logs).length, 'entries');
+                
+                // Also save to cloud if user is signed in
+                if (currentUser) {
+                    saveTourLogToCloud(logs);
+                }
             } catch (e) {
                 console.error('Error saving tour logs:', e);
             }
