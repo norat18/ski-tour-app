@@ -1028,16 +1028,149 @@
         <!-- Main App Content -->
         <div id="appContent">
             <!-- Welcome message shown before zone selection -->
-            <div id="welcomeMessage" class="welcome-message">
+            <div id="welcomeMessage" class="welcome-message" style="max-width: 700px;">
                 <div class="welcome-icon">🏔️</div>
-                <h2>Welcome, Ski Tourer!</h2>
-                <p>Select your zone above to get personalized tour recommendations based on:</p>
-                <ul style="text-align: left; max-width: 300px; margin: 1rem auto;">
-                    <li>Current avalanche conditions</li>
-                    <li>Today's weather forecast</li>
-                    <li>Your energy level</li>
-                    <li>Your touring skill</li>
-                </ul>
+                <h2>Welcome to PNW Ski Tours</h2>
+                <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">Your backcountry ski tour planning companion for the Pacific Northwest</p>
+                
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: left; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="color: var(--forest-green); margin-bottom: 1rem; font-size: 1.1rem;">🎯 What This App Does</h3>
+                    <p style="margin-bottom: 1rem; line-height: 1.6;">
+                        This app helps you find the right ski tour for today's conditions. It combines <strong>real-time avalanche forecasts</strong>, 
+                        <strong>current weather</strong>, and <strong>snow data</strong> with your personal fitness and skill level to recommend 
+                        tours that match both the conditions and your abilities.
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div style="background: var(--cream); padding: 0.75rem; border-radius: 8px;">
+                            <strong style="color: var(--forest-green);">🏔️ 200+ Tours</strong>
+                            <p style="font-size: 0.85rem; margin-top: 0.25rem;">Across 10 NWAC zones from Mt. Baker to Mt. Hood</p>
+                        </div>
+                        <div style="background: var(--cream); padding: 0.75rem; border-radius: 8px;">
+                            <strong style="color: var(--forest-green);">📊 Live Data</strong>
+                            <p style="font-size: 0.85rem; margin-top: 0.25rem;">Real-time avalanche, weather, and snow conditions</p>
+                        </div>
+                        <div style="background: var(--cream); padding: 0.75rem; border-radius: 8px;">
+                            <strong style="color: var(--forest-green);">🎿 Smart Matching</strong>
+                            <p style="font-size: 0.85rem; margin-top: 0.25rem;">Tours ranked by fit for you and today's conditions</p>
+                        </div>
+                        <div style="background: var(--cream); padding: 0.75rem; border-radius: 8px;">
+                            <strong style="color: var(--forest-green);">📝 Tour Logging</strong>
+                            <p style="font-size: 0.85rem; margin-top: 0.25rem;">Track your tours using AIARE debrief framework</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="openWalkthrough()" class="btn btn-secondary" style="margin-bottom: 1.5rem;">
+                    📖 How to Use This App
+                </button>
+                
+                <div style="background: #e8f5e9; border-radius: 12px; padding: 1.25rem; text-align: center;">
+                    <p style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.5rem;">👆 Get Started</p>
+                    <p>Select your zone from the dropdown above to see today's tour recommendations</p>
+                </div>
+            </div>
+            
+            <!-- Walkthrough Modal -->
+            <div id="walkthroughModal" class="modal-overlay">
+                <div class="modal-content" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <h3>📖 How to Use PNW Ski Tours</h3>
+                        <button class="modal-close" onclick="closeWalkthrough()">&times;</button>
+                    </div>
+                    <div class="modal-body" style="text-align: left;">
+                        <!-- Step 1 -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <span style="background: var(--forest-green); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">1</span>
+                                <h4 style="color: var(--forest-green);">Select Your Zone</h4>
+                            </div>
+                            <p style="margin-left: 2.5rem; font-size: 0.9rem; color: #555;">
+                                Choose the NWAC avalanche zone where you want to tour. The app covers all 10 zones from Mt. Baker to Mt. Hood. 
+                                This determines which tours and forecasts you'll see.
+                            </p>
+                        </div>
+                        
+                        <!-- Step 2 -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <span style="background: var(--forest-green); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">2</span>
+                                <h4 style="color: var(--forest-green);">Review Conditions</h4>
+                            </div>
+                            <p style="margin-left: 2.5rem; font-size: 0.9rem; color: #555;">
+                                Check the <strong>Avalanche Forecast</strong> (from NWAC), <strong>Weather</strong> (from NWS), and 
+                                <strong>Snow Report</strong> (from Synoptic weather stations). These update automatically for your selected zone and date.
+                            </p>
+                        </div>
+                        
+                        <!-- Step 3 -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <span style="background: var(--forest-green); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">3</span>
+                                <h4 style="color: var(--forest-green);">Set Your Profile</h4>
+                            </div>
+                            <p style="margin-left: 2.5rem; font-size: 0.9rem; color: #555;">
+                                Use the <strong>Energy Level</strong> and <strong>Skill Level</strong> sliders to tell the app about yourself today. 
+                                This helps match you with appropriate tours - higher fitness = longer tours, higher skill = more technical terrain.
+                            </p>
+                        </div>
+                        
+                        <!-- Step 4 -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <span style="background: var(--forest-green); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">4</span>
+                                <h4 style="color: var(--forest-green);">Browse Tour Recommendations</h4>
+                            </div>
+                            <p style="margin-left: 2.5rem; font-size: 0.9rem; color: #555;">
+                                Tours are sorted by how well they match you and today's conditions. Each card shows:
+                            </p>
+                            <ul style="margin-left: 2.5rem; font-size: 0.85rem; color: #555; margin-top: 0.5rem;">
+                                <li><strong>Match score</strong> - How well the tour fits today</li>
+                                <li><strong>Distance & elevation</strong> - Tour statistics</li>
+                                <li><strong>Difficulty ratings</strong> - Fitness and skill required</li>
+                                <li><strong>Aspect & elevation</strong> - Terrain characteristics</li>
+                                <li><strong>Bonuses/warnings</strong> - Highlights and cautions</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Step 5 -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <span style="background: var(--forest-green); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">5</span>
+                                <h4 style="color: var(--forest-green);">Plan Your Tour</h4>
+                            </div>
+                            <p style="margin-left: 2.5rem; font-size: 0.9rem; color: #555;">
+                                Click <strong>CalTopo Map</strong> to view the route, or <strong>Google Maps</strong> for driving directions to the trailhead. 
+                                Use the <strong>date picker</strong> to plan up to 7 days ahead.
+                            </p>
+                        </div>
+                        
+                        <!-- Step 6 -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                <span style="background: var(--forest-green); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">6</span>
+                                <h4 style="color: var(--forest-green);">Log Your Tours</h4>
+                            </div>
+                            <p style="margin-left: 2.5rem; font-size: 0.9rem; color: #555;">
+                                After your tour, click <strong>📝 Log Tour</strong> to record conditions using the AIARE debrief framework. 
+                                Track avalanche danger, snow conditions, signs of instability, and lessons learned. 
+                                <strong>Sign in</strong> to sync your tour logs across devices.
+                            </p>
+                        </div>
+                        
+                        <!-- Safety Note -->
+                        <div style="background: #fff3e0; padding: 1rem; border-radius: 8px; border-left: 4px solid #e65100;">
+                            <p style="font-weight: 600; color: #e65100; margin-bottom: 0.5rem;">⚠️ Important Safety Note</p>
+                            <p style="font-size: 0.85rem; color: #555;">
+                                This app is a planning aid, not a substitute for avalanche education, proper equipment, and sound decision-making. 
+                                Always check the official <a href="https://nwac.us" target="_blank" style="color: var(--forest-green);">NWAC forecast</a>, 
+                                carry rescue gear, and travel with experienced partners.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="closeWalkthrough()">Got It!</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Dashboard content (hidden until zone selected) -->
@@ -3506,6 +3639,18 @@
             if (history.length === 0) return null;
             const sum = history.reduce((acc, log) => acc + log.rating, 0);
             return sum / history.length;
+        }
+        
+        // ============================================
+        // WALKTHROUGH MODAL FUNCTIONS
+        // ============================================
+        
+        function openWalkthrough() {
+            document.getElementById('walkthroughModal').classList.add('active');
+        }
+        
+        function closeWalkthrough() {
+            document.getElementById('walkthroughModal').classList.remove('active');
         }
         
         // Open the tour log modal
