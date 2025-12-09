@@ -467,6 +467,258 @@
             text-decoration: underline;
         }
 
+        /* Tour Log Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: var(--forest-green);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            padding: 0.5rem;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-green);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--forest-green);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Star Rating */
+        .star-rating {
+            display: flex;
+            gap: 0.25rem;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+        
+        .star-rating input {
+            display: none;
+        }
+        
+        .star-rating label {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #FFD700;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--forest-green);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--dark-green);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #ccc;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+        
+        /* My Tours Section */
+        .my-tours-toggle {
+            background: var(--cream);
+            border: 2px solid var(--forest-green);
+            color: var(--forest-green);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .my-tours-toggle:hover {
+            background: var(--forest-green);
+            color: white;
+        }
+        
+        .logged-tour-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--burnt-orange);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .logged-tour-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
+        .logged-tour-name {
+            font-weight: 700;
+            color: var(--forest-green);
+        }
+        
+        .logged-tour-date {
+            font-size: 0.8rem;
+            color: var(--topo-gray);
+        }
+        
+        .logged-tour-stars {
+            color: #FFD700;
+            font-size: 1.1rem;
+        }
+        
+        .logged-tour-notes {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+        
+        .log-tour-btn {
+            background: var(--burnt-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.2s;
+        }
+        
+        .log-tour-btn:hover {
+            background: #c45a00;
+            transform: translateY(-1px);
+        }
+        
+        .log-tour-btn.logged {
+            background: var(--forest-green);
+        }
+
         #setupPanel {
             display: block;
         }
@@ -712,6 +964,20 @@
                             🔄 New Top 5
                         </button>
                     </div>
+                    
+                    <!-- My Tours Section -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <button id="myToursToggleBtn" class="my-tours-toggle" onclick="toggleMyTours()">
+                            📖 My Tours (0)
+                        </button>
+                        <div id="myToursSection" style="display: none; background: var(--cream); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                            <h4 style="margin: 0 0 1rem 0; color: var(--forest-green);">📖 My Tour Log</h4>
+                            <div id="myToursContent">
+                                <!-- Rendered by renderMyTours() -->
+                            </div>
+                        </div>
+                    </div>
+                    
                     <p id="toursSortMessage" style="font-size: 0.9rem; color: var(--topo-gray); margin-bottom: 1.5rem; padding: 1rem; background: var(--cream); border-radius: 6px;">
                         💡 Tours sorted by best match for your fitness. Loading...
                     </p>
@@ -2179,6 +2445,13 @@
                     </div>
                 `;
             }
+            
+            // Update My Tours button count
+            const logCount = Object.keys(getTourLogs()).length;
+            const myToursBtn = document.getElementById('myToursToggleBtn');
+            if (myToursBtn && !myToursBtn.innerHTML.includes('Hide')) {
+                myToursBtn.innerHTML = `📖 My Tours (${logCount})`;
+            }
         }
 
         function calculateRecommendation(tour) {
@@ -2440,6 +2713,47 @@
             }
             
             // ============================================
+            // USER RATING BOOST (from logged tours)
+            // ============================================
+            
+            const userLogs = getTourLogHistory(tour.name);
+            if (userLogs.length > 0) {
+                const avgRating = userLogs.reduce((sum, log) => sum + log.rating, 0) / userLogs.length;
+                const wouldRepeatCount = userLogs.filter(log => log.wouldRepeat).length;
+                const wouldRepeatRatio = wouldRepeatCount / userLogs.length;
+                
+                // Boost score based on user's past ratings
+                if (avgRating >= 4.5) {
+                    score += 2;
+                    bonuses.push('You loved this tour! (' + avgRating.toFixed(1) + '★)');
+                } else if (avgRating >= 3.5) {
+                    score += 1;
+                    bonuses.push('You enjoyed this previously (' + avgRating.toFixed(1) + '★)');
+                } else if (avgRating <= 2) {
+                    score -= 1;
+                    warnings.push('You rated this tour low previously');
+                }
+                
+                // Adjust based on "would repeat"
+                if (wouldRepeatRatio >= 0.8) {
+                    score += 0.5;
+                } else if (wouldRepeatRatio <= 0.2 && userLogs.length >= 2) {
+                    score -= 1;
+                    warnings.push('You wouldn\'t repeat this tour');
+                }
+                
+                // Slight variety penalty - don't always recommend the same tours
+                const lastLog = userLogs[0];
+                const daysSinceLastLog = Math.floor((new Date() - new Date(lastLog.date)) / (1000 * 60 * 60 * 24));
+                if (daysSinceLastLog < 14) {
+                    score -= 0.5; // Small penalty for recently done tours
+                } else if (daysSinceLastLog > 365) {
+                    score += 0.5; // Bonus for tours you haven't done in a while
+                    bonuses.push('Great time to revisit!');
+                }
+            }
+            
+            // ============================================
             // GENERATE RECOMMENDATION
             // ============================================
             
@@ -2516,6 +2830,28 @@
                 ? `<a href="${googleMapsUrl}" target="_blank" rel="noopener" style="color: var(--sky-blue); text-decoration: none;">Directions 🗺️</a>`
                 : '<span style="color: #999;">Not available</span>';
             
+            // Check if tour has been logged and get rating info
+            const isLogged = isTourLogged(tour.name);
+            const avgRating = getTourAverageRating(tour.name);
+            const logHistory = getTourLogHistory(tour.name);
+            const logCount = logHistory.length;
+            
+            // Build user rating display
+            let userRatingHtml = '';
+            if (avgRating !== null) {
+                const stars = '★'.repeat(Math.round(avgRating)) + '☆'.repeat(5 - Math.round(avgRating));
+                userRatingHtml = `
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                        <span style="color: #FFD700; font-size: 1rem;">${stars}</span>
+                        <span style="font-size: 0.8rem; color: var(--topo-gray);">Your rating (${logCount} ${logCount === 1 ? 'trip' : 'trips'})</span>
+                    </div>
+                `;
+            }
+            
+            // Escape tour name for onclick
+            const escapedName = tour.name.replace(/'/g, "\\'");
+            const escapedZone = config.nwacZone.replace(/'/g, "\\'");
+            
             return `
                 <div class="tour-card">
                     <div class="tour-header">
@@ -2524,6 +2860,7 @@
                             <div class="tour-stats">
                                 ${tour.location} • ${tour.elevationGain.toLocaleString()} ft gain • ${tour.distance} mi RT
                             </div>
+                            ${userRatingHtml}
                         </div>
                         <div class="recommendation rec-${rec.level}">${rec.text}</div>
                     </div>
@@ -2571,9 +2908,14 @@
                             </div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 6px; font-size: 0.85rem;">
-                        <div><strong>Your Energy:</strong> ${config.fitnessLevel}/10</div>
-                        <div><strong>Your Skill:</strong> ${config.skillLevel}/10</div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem; padding: 0.75rem; background: var(--cream); border-radius: 6px; font-size: 0.85rem; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <div style="display: flex; gap: 1rem;">
+                            <div><strong>Your Energy:</strong> ${config.fitnessLevel}/10</div>
+                            <div><strong>Your Skill:</strong> ${config.skillLevel}/10</div>
+                        </div>
+                        <button class="log-tour-btn ${isLogged ? 'logged' : ''}" onclick="openTourLogModal('${escapedName}', '${escapedZone}')">
+                            ${isLogged ? '📝 Log Again' : '📝 Log Tour'}
+                        </button>
                     </div>
                     <p style="margin-top: 1rem; color: var(--topo-gray); font-size: 0.9rem; line-height: 1.6;">
                         <strong>Analysis:</strong> ${rec.analysis}
@@ -2594,6 +2936,243 @@
                     <span style="font-size: 0.8rem; font-weight: 600; color: ${color};">${level}/10</span>
                 </div>
             `;
+        }
+
+        // ============================================
+        // TOUR LOGGING SYSTEM
+        // Stores user's completed tours with ratings
+        // ============================================
+        
+        const TOUR_LOG_KEY = 'skiTourLogs';
+        let currentLogTour = null;
+        
+        // Get all logged tours from localStorage
+        function getTourLogs() {
+            try {
+                const logs = localStorage.getItem(TOUR_LOG_KEY);
+                return logs ? JSON.parse(logs) : {};
+            } catch (e) {
+                console.error('Error reading tour logs:', e);
+                return {};
+            }
+        }
+        
+        // Save tour logs to localStorage
+        function saveTourLogs(logs) {
+            try {
+                localStorage.setItem(TOUR_LOG_KEY, JSON.stringify(logs));
+                console.log('💾 Tour logs saved:', Object.keys(logs).length, 'entries');
+            } catch (e) {
+                console.error('Error saving tour logs:', e);
+            }
+        }
+        
+        // Generate a unique ID for a tour
+        function getTourId(tourName) {
+            return tourName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        }
+        
+        // Check if a tour has been logged
+        function isTourLogged(tourName) {
+            const logs = getTourLogs();
+            const tourId = getTourId(tourName);
+            return Object.keys(logs).some(key => key.startsWith(tourId + '_'));
+        }
+        
+        // Get all logs for a specific tour
+        function getTourLogHistory(tourName) {
+            const logs = getTourLogs();
+            const tourId = getTourId(tourName);
+            return Object.entries(logs)
+                .filter(([key]) => key.startsWith(tourId + '_'))
+                .map(([key, value]) => ({ id: key, ...value }))
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+        
+        // Get average rating for a tour
+        function getTourAverageRating(tourName) {
+            const history = getTourLogHistory(tourName);
+            if (history.length === 0) return null;
+            const sum = history.reduce((acc, log) => acc + log.rating, 0);
+            return sum / history.length;
+        }
+        
+        // Open the tour log modal
+        function openTourLogModal(tourName, tourZone) {
+            currentLogTour = { name: tourName, zone: tourZone };
+            
+            document.getElementById('logTourName').textContent = tourName;
+            document.getElementById('logTourDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('logTourNotes').value = '';
+            document.getElementById('logTourConditions').value = 'powder';
+            document.getElementById('logTourGroupSize').value = '2';
+            document.getElementById('logTourWouldRepeat').checked = true;
+            
+            // Reset star rating to 3
+            document.getElementById('star3').checked = true;
+            
+            document.getElementById('tourLogModal').classList.add('active');
+        }
+        
+        // Close the tour log modal
+        function closeTourLogModal() {
+            document.getElementById('tourLogModal').classList.remove('active');
+            currentLogTour = null;
+        }
+        
+        // Save a tour log entry
+        function saveTourLog() {
+            if (!currentLogTour) return;
+            
+            const date = document.getElementById('logTourDate').value;
+            const rating = parseInt(document.querySelector('input[name="rating"]:checked').value);
+            const conditions = document.getElementById('logTourConditions').value;
+            const groupSize = document.getElementById('logTourGroupSize').value;
+            const notes = document.getElementById('logTourNotes').value.trim();
+            const wouldRepeat = document.getElementById('logTourWouldRepeat').checked;
+            
+            const tourId = getTourId(currentLogTour.name);
+            const logId = `${tourId}_${date}`;
+            
+            const logs = getTourLogs();
+            logs[logId] = {
+                tourName: currentLogTour.name,
+                zone: currentLogTour.zone,
+                date: date,
+                rating: rating,
+                conditions: conditions,
+                groupSize: groupSize,
+                notes: notes,
+                wouldRepeat: wouldRepeat,
+                loggedAt: new Date().toISOString()
+            };
+            
+            saveTourLogs(logs);
+            closeTourLogModal();
+            
+            // Refresh tours to update the button state and recommendations
+            loadTours();
+            
+            // Show confirmation
+            showToast(`✅ Logged "${currentLogTour.name}" - ${rating} stars!`);
+        }
+        
+        // Delete a tour log entry
+        function deleteTourLog(logId) {
+            if (!confirm('Delete this tour log?')) return;
+            
+            const logs = getTourLogs();
+            delete logs[logId];
+            saveTourLogs(logs);
+            
+            // Refresh the My Tours section
+            renderMyTours();
+            loadTours();
+            
+            showToast('🗑️ Tour log deleted');
+        }
+        
+        // Simple toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 2rem;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--forest-green);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 2000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: slideUp 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+        
+        // Render the My Tours section
+        function renderMyTours() {
+            const container = document.getElementById('myToursContent');
+            if (!container) return;
+            
+            const logs = getTourLogs();
+            const logEntries = Object.entries(logs)
+                .map(([id, log]) => ({ id, ...log }))
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (logEntries.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--topo-gray);">
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No tours logged yet</p>
+                        <p style="font-size: 0.9rem;">Complete a tour and log it to track your adventures!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const conditionEmojis = {
+                'powder': '❄️',
+                'packed': '🎿',
+                'crud': '🌀',
+                'corn': '🌽',
+                'ice': '🧊',
+                'wind-affected': '💨',
+                'breakable-crust': '💔'
+            };
+            
+            container.innerHTML = logEntries.map(log => `
+                <div class="logged-tour-card">
+                    <div class="logged-tour-header">
+                        <div>
+                            <div class="logged-tour-name">${log.tourName}</div>
+                            <div class="logged-tour-date">
+                                ${new Date(log.date).toLocaleDateString('en-US', { 
+                                    weekday: 'short', 
+                                    month: 'short', 
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                })}
+                                ${conditionEmojis[log.conditions] || ''} ${log.conditions}
+                                • ${log.groupSize === '1' ? 'Solo' : log.groupSize + ' people'}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="logged-tour-stars">${'★'.repeat(log.rating)}${'☆'.repeat(5 - log.rating)}</div>
+                        </div>
+                    </div>
+                    ${log.notes ? `<div class="logged-tour-notes">"${log.notes}"</div>` : ''}
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem;">
+                        <span style="font-size: 0.8rem; color: ${log.wouldRepeat ? 'var(--forest-green)' : '#999'};">
+                            ${log.wouldRepeat ? '✓ Would repeat' : '✗ Wouldn\'t repeat'}
+                        </span>
+                        <button class="btn btn-danger btn-small" onclick="deleteTourLog('${log.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Toggle My Tours section visibility
+        function toggleMyTours() {
+            const section = document.getElementById('myToursSection');
+            const btn = document.getElementById('myToursToggleBtn');
+            
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                btn.innerHTML = '📖 Hide My Tours';
+                renderMyTours();
+            } else {
+                section.style.display = 'none';
+                btn.innerHTML = '📖 My Tours (' + Object.keys(getTourLogs()).length + ')';
+            }
         }
 
         function getZoneName(zoneId) {
@@ -2668,5 +3247,74 @@
             console.log('✅ App initialized - ready for zone selection');
         });
     </script>
+    
+    <!-- Tour Log Modal -->
+    <div id="tourLogModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📝 Log Tour</h3>
+                <button class="modal-close" onclick="closeTourLogModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="logTourName" style="font-size: 1.2rem; font-weight: 700; color: var(--forest-green); margin-bottom: 1rem;"></div>
+                
+                <div class="form-group">
+                    <label>Date Completed</label>
+                    <input type="date" id="logTourDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3" checked><label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Conditions</label>
+                    <select id="logTourConditions">
+                        <option value="powder">❄️ Powder</option>
+                        <option value="packed">🎿 Packed/Groomed</option>
+                        <option value="crud">🌀 Crud/Variable</option>
+                        <option value="corn">🌽 Corn/Spring</option>
+                        <option value="ice">🧊 Icy/Hard</option>
+                        <option value="wind-affected">💨 Wind-affected</option>
+                        <option value="breakable-crust">💔 Breakable Crust</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Group Size</label>
+                    <select id="logTourGroupSize">
+                        <option value="1">Solo</option>
+                        <option value="2" selected>2 people</option>
+                        <option value="3">3 people</option>
+                        <option value="4">4 people</option>
+                        <option value="5+">5+ people</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="logTourNotes" placeholder="How was the snow? Any route tips? Memorable moments?"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="logTourWouldRepeat" checked style="width: auto;">
+                        Would do this tour again
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeTourLogModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTourLog()">Save Log</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
