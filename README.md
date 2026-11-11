@@ -2,7 +2,7 @@
 
 A web-based decision support tool for backcountry skiers in the Pacific Northwest. Get real-time avalanche forecasts, weather data, snow conditions, and personalized tour recommendations all in one place.
 
-**🌐 Live App:** [https://norat18.github.io/ski-tour-app/](https://norat18.github.io/ski-tour-app/)
+**🌐 Live App:** [https://pnwskitours.com](https://pnwskitours.com)
 
 ---
 
@@ -158,12 +158,14 @@ The entire app is contained in a single HTML file with embedded CSS and JavaScri
 
 ## 🚀 Deployment
 
-### GitHub Pages (Recommended)
+### Cloudflare Pages
+The live site is a Cloudflare Pages project connected to this repository. Every push to `main` deploys to production, and other branches and pull requests get preview URLs.
+
+To host your own copy:
 1. Fork this repository
-2. Go to Settings → Pages
-3. Set source to "Deploy from a branch"
-4. Select `main` branch and `/ (root)` folder
-5. Your app will be live at `https://yourusername.github.io/ski-tour-app/`
+2. In the Cloudflare dashboard, go to Workers & Pages → Create → Pages → Connect to Git
+3. Select your fork, leave the build command empty, and set the output directory to `/`
+4. Your app will be live at `https://<project-name>.pages.dev`
 
 ### Local Development
 Simply open `index.html` in a web browser. No build tools required.
