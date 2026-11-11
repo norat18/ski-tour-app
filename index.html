@@ -2259,53 +2259,65 @@
             }
         }
 
-        // Fetch trailhead elevation from Open Topo Data API
-        // Uses NED 10m dataset for US - free, no API key required
-        // Rate limit: 1 call/sec, 1000 calls/day
-        const elevationQueue = [];
-        let isProcessingQueue = false;
-        
-        async function fetchTrailheadElevation(lat, lon, elementId) {
-            // Add to queue instead of fetching immediately
-            elevationQueue.push({ lat, lon, elementId });
-            processElevationQueue();
+        // Fetch trailhead elevation from the USGS Elevation Point Query Service
+        // (3DEP, up to 1 m lidar; free, no key, allows browser requests).
+        // The estimate stays on screen until (and unless) USGS answers.
+        const ELEVATION_MAX_CONCURRENT = 3;
+        const ELEVATION_TIMEOUT_MS = 15000;
+        const elevationCache = new Map();   // "lat,lon" -> Promise<feet | null>
+        const elevationWaiting = [];
+        let elevationActive = 0;
+
+        function fetchTrailheadElevation(lat, lon, elementId) {
+            getUsgsElevation(lat, lon).then(elevFeet => {
+                if (elevFeet === null) return;
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = elevFeet.toLocaleString() + ' ft';
+                    console.log(`🗺️ Elevation for ${elementId}: ${elevFeet} ft`);
+                }
+            });
         }
-        
-        async function processElevationQueue() {
-            if (isProcessingQueue || elevationQueue.length === 0) return;
-            isProcessingQueue = true;
-            
-            while (elevationQueue.length > 0) {
-                const { lat, lon, elementId } = elevationQueue.shift();
-                
-                try {
-                    // USGS Elevation Point Query Service (3DEP, up to 1 m lidar); allows browser requests
-                    const url = `https://epqs.nationalmap.gov/v1/json?x=${lon}&y=${lat}&units=Feet&wkid=4326`;
-                    const response = await fetch(url);
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        const elevFeet = Math.round(Number(data && data.value));
-                        // USGS returns a large negative value where it has no data
-                        if (Number.isFinite(elevFeet) && elevFeet > -1000) {
-                            const element = document.getElementById(elementId);
-                            if (element) {
-                                element.textContent = elevFeet.toLocaleString() + ' ft';
-                                console.log(`🗺️ Elevation for ${elementId}: ${elevFeet} ft`);
-                            }
-                        }
-                    }
-                } catch (err) {
-                    console.warn('🗺️ Elevation API error:', err.message);
-                }
-
-                // Space out requests to stay polite to the USGS service
-                if (elevationQueue.length > 0) {
-                    await new Promise(resolve => setTimeout(resolve, 200));
-                }
+        // One request per trailhead, shared by every tour that starts there
+        function getUsgsElevation(lat, lon) {
+            const key = `${lat},${lon}`;
+            if (!elevationCache.has(key)) {
+                elevationCache.set(key, withElevationSlot(() => requestUsgsElevation(lat, lon)));
             }
-            
-            isProcessingQueue = false;
+            return elevationCache.get(key);
+        }
+
+        // Run at most ELEVATION_MAX_CONCURRENT requests at once
+        function withElevationSlot(task) {
+            return new Promise(resolve => {
+                const run = async () => {
+                    elevationActive++;
+                    try { resolve(await task()); }
+                    finally {
+                        elevationActive--;
+                        const next = elevationWaiting.shift();
+                        if (next) next();
+                    }
+                };
+                if (elevationActive < ELEVATION_MAX_CONCURRENT) run(); else elevationWaiting.push(run);
+            });
+        }
+
+        async function requestUsgsElevation(lat, lon) {
+            try {
+                const url = `https://epqs.nationalmap.gov/v1/json?x=${lon}&y=${lat}&units=Feet&wkid=4326`;
+                const response = await fetch(url, { signal: AbortSignal.timeout(ELEVATION_TIMEOUT_MS) });
+                if (!response.ok) return null;
+                const data = await response.json();
+                const elevFeet = Math.round(Number(data && data.value));
+                // USGS returns a large negative value where it has no data
+                return (Number.isFinite(elevFeet) && elevFeet > -1000) ? elevFeet : null;
+            } catch (err) {
+                console.warn('🗺️ Elevation API error:', err.message);
+                elevationCache.delete(`${lat},${lon}`);   // allow a retry on the next render
+                return null;
+            }
         }
 
         // Tour database organized by zone
