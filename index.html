@@ -1398,6 +1398,37 @@
                         </div>
                     </div>
                     
+                    <!-- Partner Directory Section -->
+                    <div style="margin-bottom: 1rem;">
+                        <button id="partnerDirectoryToggleBtn" class="my-tours-toggle" onclick="togglePartnerDirectory()" style="background: #f3e5f5;">
+                            🤝 Find Partners
+                        </button>
+                        <div id="partnerDirectorySection" style="display: none; background: var(--cream); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                            <h4 style="margin: 0 0 0.75rem 0; color: var(--forest-green);">🤝 Partner Directory</h4>
+                            <div id="partnerDirectoryFilters" style="display: none; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <input type="search" id="partnerSearch" placeholder="Search name, city, areas..." oninput="renderPartnerDirectory()" style="flex: 2 1 180px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                                <select id="partnerGearFilter" onchange="renderPartnerDirectory()" style="flex: 1 1 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                                    <option value="">Any gear</option>
+                                    <option value="ski">Skis</option>
+                                    <option value="splitboard">Splitboard</option>
+                                    <option value="snowboard">Snowboard</option>
+                                </select>
+                                <select id="partnerPaceFilter" onchange="renderPartnerDirectory()" style="flex: 1 1 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                                    <option value="">Any pace</option>
+                                    <option value="chill">Chill</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="fast">Fast</option>
+                                </select>
+                                <select id="partnerAvailFilter" onchange="renderPartnerDirectory()" style="flex: 1 1 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                                    <option value="">Any days</option>
+                                    <option value="weekends">Weekends</option>
+                                    <option value="weekdays">Weekdays</option>
+                                </select>
+                            </div>
+                            <div id="partnerDirectoryContent"></div>
+                        </div>
+                    </div>
+
                     <!-- My Tours Section -->
                     <div style="margin-bottom: 1.5rem;">
                         <button id="myToursToggleBtn" class="my-tours-toggle" onclick="toggleMyTours()">
@@ -1499,23 +1530,23 @@
                     <div style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem;">📋 Basic Info</div>
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">Name</label>
-                        <input type="text" id="profileName" placeholder="Your name">
+                        <input type="text" id="profileName" maxlength="80" placeholder="Your name">
                     </div>
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">Phone</label>
-                        <input type="tel" id="profilePhone" placeholder="(555) 123-4567">
+                        <input type="tel" id="profilePhone" maxlength="30" placeholder="(555) 123-4567">
                     </div>
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">Social Media (Instagram, etc.)</label>
-                        <input type="text" id="profileSocial" placeholder="@username">
+                        <input type="text" id="profileSocial" maxlength="80" placeholder="@username">
                     </div>
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">Nearest City</label>
-                        <input type="text" id="profileCity" placeholder="Seattle, WA">
+                        <input type="text" id="profileCity" maxlength="80" placeholder="Seattle, WA">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label style="font-size: 0.85rem;">Introduction</label>
-                        <textarea id="profileIntro" rows="2" placeholder="A few words about yourself..."></textarea>
+                        <textarea id="profileIntro" maxlength="500" rows="2" placeholder="A few words about yourself..."></textarea>
                     </div>
                 </div>
                 
@@ -1525,7 +1556,7 @@
                     
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">Experience Overview</label>
-                        <textarea id="profileExperience" rows="2" placeholder="How long have you been backcountry skiing? What's your background?"></textarea>
+                        <textarea id="profileExperience" maxlength="1000" rows="2" placeholder="How long have you been backcountry skiing? What's your background?"></textarea>
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 0.75rem;">
@@ -1539,17 +1570,17 @@
                     
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">What kind of tours are you looking to do?</label>
-                        <textarea id="profileTourTypes" rows="2" placeholder="Mellow powder days, long traverses, steep couloirs..."></textarea>
+                        <textarea id="profileTourTypes" maxlength="500" rows="2" placeholder="Mellow powder days, long traverses, steep couloirs..."></textarea>
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">Ski Pass?</label>
-                        <input type="text" id="profileSkiPass" placeholder="Ikon, Epic, Crystal, Stevens, etc.">
+                        <input type="text" id="profileSkiPass" maxlength="120" placeholder="Ikon, Epic, Crystal, Stevens, etc.">
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">Medical / Avalanche Training</label>
-                        <input type="text" id="profileTraining" placeholder="AIARE 1, AIARE 2, WFR, Pro 1, etc.">
+                        <input type="text" id="profileTraining" maxlength="200" placeholder="AIARE 1, AIARE 2, WFR, Pro 1, etc.">
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 0;">
@@ -1590,7 +1621,7 @@
                     
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">Favorite Areas</label>
-                        <input type="text" id="profileFavoriteAreas" placeholder="Crystal, Baker, Alpental, Artist Point...">
+                        <input type="text" id="profileFavoriteAreas" maxlength="300" placeholder="Crystal, Baker, Alpental, Artist Point...">
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 0.75rem;">
@@ -1621,15 +1652,35 @@
                     
                     <div class="form-group" style="margin-bottom: 0.75rem;">
                         <label style="font-size: 0.85rem;">Favorite Food Stop (post-tour)</label>
-                        <input type="text" id="profileFoodStop" placeholder="Taco Time, Sultan Bakery, Freeride Pizza...">
+                        <input type="text" id="profileFoodStop" maxlength="120" placeholder="Taco Time, Sultan Bakery, Freeride Pizza...">
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 0;">
                         <label style="font-size: 0.85rem;">Favorite Mountain Snack</label>
-                        <input type="text" id="profileSnack" placeholder="Stroopwafels, PB&J, trail mix...">
+                        <input type="text" id="profileSnack" maxlength="120" placeholder="Stroopwafels, PB&J, trail mix...">
                     </div>
                 </div>
-                
+
+                <!-- Partner Directory -->
+                <div style="background: #f3e5f5; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <div style="font-weight: 600; color: #6a1b9a; margin-bottom: 0.5rem;">🤝 Partner Directory</div>
+                    <p style="font-size: 0.8rem; color: #555; margin: 0 0 0.75rem 0;">
+                        Listed profiles can be seen by anyone signed in to PNW Ski Tours. Requires signing in. Nothing is shared unless you turn it on.
+                    </p>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; margin-bottom: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="profileListed" onchange="updateDirectoryOptions()">
+                        Show me in the partner directory
+                    </label>
+                    <div id="profileContactOptions" style="padding-left: 1.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; margin-bottom: 0.35rem; cursor: pointer;">
+                            <input type="checkbox" id="profileShowPhone"> Show my phone number
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                            <input type="checkbox" id="profileShowSocial"> Show my social handle
+                        </label>
+                    </div>
+                </div>
+
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeProfileModal()">Cancel</button>
@@ -1898,6 +1949,10 @@
                 await syncProfile();
             } else {
                 console.log('👤 User signed out');
+            }
+
+            if (document.getElementById('partnerDirectorySection').style.display !== 'none') {
+                loadPartnerDirectory();
             }
         });
         
@@ -4218,6 +4273,11 @@
                         console.log('☁️ Profile synced from cloud');
                     }
                 }
+                // Keep the public directory entry in step with the profile's settings
+                const profile = getProfile();
+                if (profile && profile.listed) {
+                    await publishDirectoryEntry(profile);
+                }
                 renderMyProfile();
             } catch (e) {
                 console.error('Error syncing profile:', e);
@@ -4264,7 +4324,12 @@
             
             document.getElementById('profileFoodStop').value = profile.foodStop || '';
             document.getElementById('profileSnack').value = profile.snack || '';
-            
+
+            document.getElementById('profileListed').checked = !!profile.listed;
+            document.getElementById('profileShowPhone').checked = !!profile.showPhone;
+            document.getElementById('profileShowSocial').checked = !!profile.showSocial;
+            updateDirectoryOptions();
+
             document.getElementById('profileModal').classList.add('active');
         }
         
@@ -4313,16 +4378,190 @@
                 // Fun
                 foodStop: document.getElementById('profileFoodStop').value.trim(),
                 snack: document.getElementById('profileSnack').value.trim(),
-                
+
+                // Partner directory (all opt-in)
+                listed: document.getElementById('profileListed').checked,
+                showPhone: document.getElementById('profileShowPhone').checked,
+                showSocial: document.getElementById('profileShowSocial').checked,
+
                 updatedAt: new Date().toISOString()
             };
-            
+
+            if (profile.listed && !profile.name) {
+                alert('Add your name to be listed in the partner directory.');
+                return;
+            }
+
             saveProfileToStorage(profile);
             closeProfileModal();
             renderMyProfile();
-            
+
+            if (profile.listed && !currentUser) {
+                alert('✅ Profile saved! Sign in to appear in the partner directory.');
+                return;
+            }
+
+            publishDirectoryEntry(profile).then(() => {
+                if (document.getElementById('partnerDirectorySection').style.display !== 'none') {
+                    loadPartnerDirectory();
+                }
+            });
+
             // Show confirmation
             alert('✅ Profile saved!');
+        }
+
+        // ============================================
+        // PARTNER DIRECTORY
+        // Listed profiles live in Firestore at directory/{uid}.
+        // Only the owner can write their entry; any signed-in user can read.
+        // ============================================
+
+        const DIRECTORY_FIELDS = ['name', 'city', 'intro', 'experience', 'skillLevel', 'tourTypes', 'skiPass',
+            'training', 'gear', 'pace', 'availability', 'favoriteAreas', 'travel', 'canDrive', 'foodStop', 'snack'];
+        let partnerDirectoryEntries = [];
+
+        function updateDirectoryOptions() {
+            const listed = document.getElementById('profileListed').checked;
+            const options = document.getElementById('profileContactOptions');
+            options.style.opacity = listed ? '1' : '0.5';
+            options.querySelectorAll('input').forEach(input => { input.disabled = !listed; });
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        // Write (or remove) the signed-in user's public directory entry to match their profile settings
+        async function publishDirectoryEntry(profile) {
+            if (!currentUser) return;
+            const ref = db.collection('directory').doc(currentUser.uid);
+            try {
+                if (!profile || !profile.listed || !profile.name) {
+                    await ref.delete();
+                    return;
+                }
+                const entry = {};
+                DIRECTORY_FIELDS.forEach(key => {
+                    const value = profile[key];
+                    if (value !== undefined && value !== null && value !== '') entry[key] = value;
+                });
+                if (profile.showPhone && profile.phone) entry.phone = profile.phone;
+                if (profile.showSocial && profile.social) entry.social = profile.social;
+                entry.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+                await ref.set(entry);
+                console.log('🤝 Directory entry published');
+            } catch (e) {
+                console.error('Error updating partner directory entry:', e);
+                showToast('⚠️ Could not update your partner directory listing');
+            }
+        }
+
+        function togglePartnerDirectory() {
+            const section = document.getElementById('partnerDirectorySection');
+            const btn = document.getElementById('partnerDirectoryToggleBtn');
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                btn.innerHTML = '🤝 Hide Partners';
+                loadPartnerDirectory();
+            } else {
+                section.style.display = 'none';
+                btn.innerHTML = '🤝 Find Partners';
+            }
+        }
+
+        async function loadPartnerDirectory() {
+            const container = document.getElementById('partnerDirectoryContent');
+            const filters = document.getElementById('partnerDirectoryFilters');
+
+            if (!currentUser) {
+                filters.style.display = 'none';
+                partnerDirectoryEntries = [];
+                container.innerHTML = '<p style="color: var(--topo-gray); font-size: 0.9rem;">Sign in to browse touring partners and list yourself.</p>';
+                return;
+            }
+
+            container.innerHTML = '<p style="color: var(--topo-gray); font-size: 0.9rem;">Loading partners...</p>';
+            try {
+                const snapshot = await db.collection('directory').orderBy('updatedAt', 'desc').limit(200).get();
+                partnerDirectoryEntries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                filters.style.display = 'flex';
+                renderPartnerDirectory();
+            } catch (e) {
+                console.error('Error loading partner directory:', e);
+                container.innerHTML = '<p style="color: #c62828; font-size: 0.9rem;">Could not load the partner directory. Please try again later.</p>';
+            }
+        }
+
+        function renderPartnerDirectory() {
+            const container = document.getElementById('partnerDirectoryContent');
+            if (!currentUser) return;
+
+            const query = document.getElementById('partnerSearch').value.trim().toLowerCase();
+            const gear = document.getElementById('partnerGearFilter').value;
+            const pace = document.getElementById('partnerPaceFilter').value;
+            const avail = document.getElementById('partnerAvailFilter').value;
+
+            const matches = partnerDirectoryEntries.filter(p => {
+                if (gear && p.gear !== gear && p.gear !== 'both') return false;
+                if (pace && p.pace !== pace) return false;
+                if (avail && p.availability !== avail && p.availability !== 'both') return false;
+                if (query) {
+                    const haystack = [p.name, p.city, p.favoriteAreas, p.tourTypes, p.intro, p.training].join(' ').toLowerCase();
+                    if (!haystack.includes(query)) return false;
+                }
+                return true;
+            });
+
+            const me = getProfile();
+            const listedNote = (me && me.listed)
+                ? ''
+                : '<p style="font-size: 0.85rem; background: #f3e5f5; padding: 0.5rem 0.75rem; border-radius: 8px;">You\'re not listed yet. <a href="#" onclick="openProfileModal(); return false;">Edit your profile</a> and turn on "Show me in the partner directory".</p>';
+
+            if (matches.length === 0) {
+                container.innerHTML = listedNote + `<p style="color: var(--topo-gray); font-size: 0.9rem;">${partnerDirectoryEntries.length === 0 ? 'No one is listed yet. Be the first!' : 'No partners match those filters.'}</p>`;
+                return;
+            }
+
+            const skillLabels = ['Beginner', 'Beginner-Int', 'Intermediate', 'Int-Advanced', 'Expert'];
+            const paceLabels = { 'chill': 'Chill pace', 'moderate': '~1000 ft/hr', 'fast': 'Fast pace' };
+            const availLabels = { 'weekends': 'Weekends', 'weekdays': 'Weekdays', 'both': 'Weekends & weekdays' };
+            const gearLabels = { 'ski': '⛷️ Skis', 'splitboard': '🏂 Splitboard', 'snowboard': '🏂 Snowboard', 'both': '⛷️🏂 Both' };
+            const driveLabels = { 'yes-awd': '🚙 Can drive (AWD)', 'yes-2wd': '🚗 Can drive (2WD)', 'sometimes': '🤷 Sometimes drives', 'no': '🙋 Needs a ride' };
+            const badge = (text, bg) => `<span style="background: ${bg}; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.8rem;">${escapeHtml(text)}</span>`;
+
+            container.innerHTML = listedNote + `
+                <p style="font-size: 0.8rem; color: var(--topo-gray); margin: 0 0 0.75rem 0;">${matches.length} skier${matches.length === 1 ? '' : 's'} · Meet new partners somewhere public and talk through experience, gear and the plan before heading out.</p>
+                <div style="display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
+                    ${matches.map(p => `
+                        <div style="background: white; border-radius: 10px; padding: 0.9rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: grid; gap: 0.5rem; align-content: start;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="width: 44px; height: 44px; flex-shrink: 0; background: var(--forest-green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700;">${escapeHtml(String(p.name || '?').charAt(0).toUpperCase())}</div>
+                                <div style="min-width: 0;">
+                                    <div style="font-weight: 700; color: var(--forest-green); overflow-wrap: anywhere;">${escapeHtml(p.name)}${p.id === currentUser.uid ? ' <span style="font-weight: 400; font-size: 0.8rem; color: var(--topo-gray);">(you)</span>' : ''}</div>
+                                    ${p.city ? `<div style="font-size: 0.8rem; color: var(--topo-gray);">📍 ${escapeHtml(p.city)}</div>` : ''}
+                                </div>
+                            </div>
+                            ${p.intro ? `<div style="font-size: 0.85rem; font-style: italic; color: #555; overflow-wrap: anywhere;">"${escapeHtml(p.intro)}"</div>` : ''}
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                                ${p.skillLevel ? badge('🎿 ' + (skillLabels[p.skillLevel - 1] || 'Intermediate'), '#e3f2fd') : ''}
+                                ${p.gear ? badge(gearLabels[p.gear] || p.gear, '#e3f2fd') : ''}
+                                ${p.pace ? badge('⏱️ ' + (paceLabels[p.pace] || p.pace), '#e8f5e9') : ''}
+                                ${p.availability ? badge('📅 ' + (availLabels[p.availability] || p.availability), '#e8f5e9') : ''}
+                                ${p.canDrive ? badge(driveLabels[p.canDrive] || p.canDrive, '#f5f5f5') : ''}
+                            </div>
+                            ${p.training ? `<div style="font-size: 0.8rem; overflow-wrap: anywhere;"><strong>🎓 Training:</strong> ${escapeHtml(p.training)}</div>` : ''}
+                            ${p.tourTypes ? `<div style="font-size: 0.8rem; overflow-wrap: anywhere;"><strong>🎯 Looking for:</strong> ${escapeHtml(p.tourTypes)}</div>` : ''}
+                            ${p.favoriteAreas ? `<div style="font-size: 0.8rem; overflow-wrap: anywhere;"><strong>❤️ Areas:</strong> ${escapeHtml(p.favoriteAreas)}</div>` : ''}
+                            ${(p.phone || p.social) ? `
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; font-size: 0.85rem; border-top: 1px solid #eee; padding-top: 0.5rem;">
+                                    ${p.phone ? `<a href="tel:${escapeHtml(String(p.phone).replace(/[^0-9+]/g, ''))}">📞 ${escapeHtml(p.phone)}</a>` : ''}
+                                    ${p.social ? `<span style="overflow-wrap: anywhere;">📱 ${escapeHtml(p.social)}</span>` : ''}
+                                </div>` : '<div style="font-size: 0.8rem; color: var(--topo-gray); border-top: 1px solid #eee; padding-top: 0.5rem;">No contact info shared</div>'}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
         
         function renderMyProfile() {

@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Private per-user data: tour logs and the full profile
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Public partner directory: one opt-in entry per user, readable by any signed-in user
+    match /directory/{userId} {
+      allow read: if request.auth != null;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && validEntry(request.resource.data);
+    }
+
+    function optString(data, key, maxLen) {
+      return !(key in data) || (data[key] is string && data[key].size() <= maxLen);
+    }
+
+    function validEntry(data) {
+      return data.keys().hasOnly(['name', 'city', 'intro', 'experience', 'skillLevel', 'tourTypes',
+          'skiPass', 'training', 'gear', 'pace', 'availability', 'favoriteAreas', 'travel',
+          'canDrive', 'foodStop', 'snack', 'phone', 'social', 'updatedAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 80
+        && data.updatedAt == request.time
+        && (!('skillLevel' in data) || (data.skillLevel is int && data.skillLevel >= 1 && data.skillLevel <= 5))
+        && optString(data, 'city', 80)
+        && optString(data, 'intro', 500)
+        && optString(data, 'experience', 1000)
+        && optString(data, 'tourTypes', 500)
+        && optString(data, 'skiPass', 120)
+        && optString(data, 'training', 200)
+        && optString(data, 'gear', 20)
+        && optString(data, 'pace', 20)
+        && optString(data, 'availability', 20)
+        && optString(data, 'favoriteAreas', 300)
+        && optString(data, 'travel', 20)
+        && optString(data, 'canDrive', 20)
+        && optString(data, 'foodStop', 120)
+        && optString(data, 'snack', 120)
+        && optString(data, 'phone', 30)
+        && optString(data, 'social', 80);
+    }
+  }
+}
