@@ -1138,7 +1138,7 @@
                             </div>
                             <p style="margin-left: 2.5rem; font-size: 0.9rem; color: #555;">
                                 Check the <strong>Avalanche Forecast</strong> (from NWAC), <strong>Weather</strong> (from NWS), and 
-                                <strong>Snow Report</strong> (from Synoptic weather stations). These update automatically for your selected zone and date.
+                                <strong>Snow Report</strong> (from Synoptic weather stations, or USDA SNOTEL when Synoptic is unavailable). These update automatically for your selected zone and date.
                             </p>
                         </div>
                         
@@ -2726,6 +2726,73 @@
             'mt-hood': { lat: 45.37, lon: -121.70, name: 'Mt Hood' }
         };
 
+        // ============================================
+        // USDA NRCS SNOTEL (free, no key, allows browser requests)
+        // Used when Synoptic is unavailable. Picks the highest SNOTEL station
+        // within ~40 miles of the zone that reported snow depth recently.
+        // ============================================
+        const AWDB_BASE = 'https://wcc.sc.egov.usda.gov/awdbRestApi/services/v1';
+        let snotelStationsPromise = null;
+
+        function getSnotelStations() {
+            if (!snotelStationsPromise) {
+                snotelStationsPromise = fetch(`${AWDB_BASE}/stations?stationTriplets=*:WA:SNTL,*:OR:SNTL&activeOnly=true` +
+                    `&returnForecastPointMetadata=false&returnReservoirMetadata=false&returnStationElements=false`,
+                    { signal: AbortSignal.timeout(20000) })
+                    .then(r => r.ok ? r.json() : [])
+                    .catch(() => { snotelStationsPromise = null; return []; });
+            }
+            return snotelStationsPromise;
+        }
+
+        function milesBetween(lat1, lon1, lat2, lon2) {
+            const toRad = d => d * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+            return 3959 * 2 * Math.asin(Math.sqrt(a));
+        }
+
+        async function loadSnotelSnow(zoneInfo) {
+            try {
+                const stations = (await getSnotelStations())
+                    .map(s => ({ ...s, miles: milesBetween(zoneInfo.lat, zoneInfo.lon, s.latitude, s.longitude) }))
+                    .filter(s => s.miles <= 40)
+                    .sort((a, b) => b.elevation - a.elevation)
+                    .slice(0, 4);
+                if (stations.length === 0) return null;
+
+                const fmt = d => d.toISOString().slice(0, 10);
+                const end = new Date(), begin = new Date(end.getTime() - 8 * 86400000);
+                const url = `${AWDB_BASE}/data?stationTriplets=${stations.map(s => s.stationTriplet).join(',')}` +
+                    `&elements=SNWD&duration=DAILY&beginDate=${fmt(begin)}&endDate=${fmt(end)}`;
+                const response = await fetch(url, { signal: AbortSignal.timeout(20000) });
+                if (!response.ok) return null;
+                const data = await response.json();
+
+                for (const station of stations) {
+                    const series = data.find(d => d.stationTriplet === station.stationTriplet);
+                    const values = (series?.data?.[0]?.values || []).filter(v => v.value != null);
+                    if (values.length === 0) continue;
+                    const depths = values.map(v => v.value);
+                    const latest = depths[depths.length - 1];
+                    let gained7 = 0;
+                    for (let i = 1; i < depths.length; i++) gained7 += Math.max(0, depths[i] - depths[i - 1]);
+                    const gained24 = depths.length >= 2 ? Math.max(0, latest - depths[depths.length - 2]) : null;
+                    console.log('❄️ SNOTEL snow from', station.name, { latest, gained24, gained7 });
+                    return {
+                        snowDepth: Math.round(latest) + '"',
+                        newSnow24h: gained24 === null ? '--' : Math.round(gained24) + '"',
+                        newSnow7d: Math.round(gained7) + '"',
+                        source: `${station.name} SNOTEL (${Math.round(station.elevation)}') · ${values[values.length - 1].date}`
+                    };
+                }
+                return null;
+            } catch (err) {
+                console.warn('❄️ SNOTEL fallback failed:', err.message);
+                return null;
+            }
+        }
+
         async function loadWeatherData() {
             const content = document.getElementById('weatherContent');
             console.log('⛅ Loading weather data for:', config.location, 'Date:', config.tourDate);
@@ -3019,10 +3086,20 @@
                     
                 } catch (synopticErr) {
                     console.error('❄️ Synoptic API error:', synopticErr.message);
-                    
-                    // Fallback to Open-Meteo if Synoptic fails
-                    console.log('❄️ Falling back to Open-Meteo...');
-                    try {
+
+                    // Fallback 1: measured snow depth from USDA SNOTEL stations
+                    const snotel = await loadSnotelSnow(zoneInfo);
+                    if (snotel) {
+                        snowDepth = snotel.snowDepth;
+                        newSnow24h = snotel.newSnow24h;
+                        newSnow7d = snotel.newSnow7d;
+                        snowDataSource = snotel.source;
+                        snowDataWorking = true;
+                    }
+
+                    // Fallback 2: Open-Meteo model estimate
+                    if (!snotel) console.log('❄️ Falling back to Open-Meteo...');
+                    if (!snotel) try {
                         const openMeteoUrl = `https://api.open-meteo.com/v1/forecast?` +
                             `latitude=${zoneInfo.lat}&longitude=${zoneInfo.lon}` +
                             `&current=snow_depth&daily=snowfall_sum` +
