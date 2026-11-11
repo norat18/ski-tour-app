@@ -15,6 +15,20 @@ service cloud.firestore {
         && validEntry(request.resource.data);
     }
 
+    // Reports on directory listings: write-once, one per reporter per listing,
+    // never readable from the site (review them in the Firebase console)
+    match /reports/{reportId} {
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['reportedUid', 'reporterUid', 'reason', 'createdAt'])
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.reportedUid is string
+        && request.resource.data.reportedUid != request.auth.uid
+        && reportId == request.auth.uid + '_' + request.resource.data.reportedUid
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() > 0 && request.resource.data.reason.size() <= 500
+        && request.resource.data.createdAt == request.time;
+    }
+
     function optString(data, key, maxLen) {
       return !(key in data) || (data[key] is string && data[key].size() <= maxLen);
     }

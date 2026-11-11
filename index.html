@@ -1068,6 +1068,7 @@
                 <div style="background: #e8f5e9; border-radius: 16px; padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
     <p style="font-weight: 600; color: var(--forest-green); margin-bottom: 0.75rem; font-size: 1.1rem;">👆 Get Started</p>
     <p style="font-size: 1rem;">Select your zone from the dropdown above to see today's tour recommendations</p>
+    <p style="font-size: 0.95rem; margin-top: 0.75rem;">Looking for people to tour with? <a href="#" onclick="openPartnerDirectory(); return false;" style="color: var(--forest-green); font-weight: 600;">🤝 Find touring partners</a></p>
 </div>
 
 <!-- Contact and Donation Section -->
@@ -1398,37 +1399,13 @@
                         </div>
                     </div>
                     
-                    <!-- Partner Directory Section -->
+                    <!-- Partner Directory (opens the pop-up) -->
                     <div style="margin-bottom: 1rem;">
-                        <button id="partnerDirectoryToggleBtn" class="my-tours-toggle" onclick="togglePartnerDirectory()" style="background: #f3e5f5;">
+                        <button id="partnerDirectoryToggleBtn" class="my-tours-toggle" onclick="openPartnerDirectory()" style="background: #f3e5f5;">
                             🤝 Find Partners
                         </button>
-                        <div id="partnerDirectorySection" style="display: none; background: var(--cream); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
-                            <h4 style="margin: 0 0 0.75rem 0; color: var(--forest-green);">🤝 Partner Directory</h4>
-                            <div id="partnerDirectoryFilters" style="display: none; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
-                                <input type="search" id="partnerSearch" placeholder="Search name, city, areas..." oninput="renderPartnerDirectory()" style="flex: 2 1 180px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
-                                <select id="partnerGearFilter" onchange="renderPartnerDirectory()" style="flex: 1 1 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
-                                    <option value="">Any gear</option>
-                                    <option value="ski">Skis</option>
-                                    <option value="splitboard">Splitboard</option>
-                                    <option value="snowboard">Snowboard</option>
-                                </select>
-                                <select id="partnerPaceFilter" onchange="renderPartnerDirectory()" style="flex: 1 1 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
-                                    <option value="">Any pace</option>
-                                    <option value="chill">Chill</option>
-                                    <option value="moderate">Moderate</option>
-                                    <option value="fast">Fast</option>
-                                </select>
-                                <select id="partnerAvailFilter" onchange="renderPartnerDirectory()" style="flex: 1 1 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
-                                    <option value="">Any days</option>
-                                    <option value="weekends">Weekends</option>
-                                    <option value="weekdays">Weekdays</option>
-                                </select>
-                            </div>
-                            <div id="partnerDirectoryContent"></div>
-                        </div>
                     </div>
-
+                    
                     <!-- My Tours Section -->
                     <div style="margin-bottom: 1.5rem;">
                         <button id="myToursToggleBtn" class="my-tours-toggle" onclick="toggleMyTours()">
@@ -1517,6 +1494,38 @@
         </div>
     
     <!-- Profile Edit Modal -->
+    <div id="partnerDirectoryModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3>🤝 Partner Directory</h3>
+                <button class="modal-close" onclick="closePartnerDirectory()">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: left;">
+                            <div id="partnerDirectoryFilters" style="display: none; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <input type="search" id="partnerSearch" placeholder="Search name, city, areas..." oninput="renderPartnerDirectory()" style="flex: 2 1 180px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                                <select id="partnerGearFilter" onchange="renderPartnerDirectory()" style="flex: 1 1 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                                    <option value="">Any gear</option>
+                                    <option value="ski">Skis</option>
+                                    <option value="splitboard">Splitboard</option>
+                                    <option value="snowboard">Snowboard</option>
+                                </select>
+                                <select id="partnerPaceFilter" onchange="renderPartnerDirectory()" style="flex: 1 1 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                                    <option value="">Any pace</option>
+                                    <option value="chill">Chill</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="fast">Fast</option>
+                                </select>
+                                <select id="partnerAvailFilter" onchange="renderPartnerDirectory()" style="flex: 1 1 120px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                                    <option value="">Any days</option>
+                                    <option value="weekends">Weekends</option>
+                                    <option value="weekdays">Weekdays</option>
+                                </select>
+                            </div>
+                            <div id="partnerDirectoryContent"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="profileModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
@@ -1952,7 +1961,7 @@
                 console.log('👤 User signed out');
             }
 
-            if (document.getElementById('partnerDirectorySection').style.display !== 'none') {
+            if (document.getElementById('partnerDirectoryModal').classList.contains('active')) {
                 loadPartnerDirectory();
             }
         });
@@ -4303,7 +4312,7 @@
             }
 
             publishDirectoryEntry(profile).then(() => {
-                if (document.getElementById('partnerDirectorySection').style.display !== 'none') {
+                if (document.getElementById('partnerDirectoryModal').classList.contains('active')) {
                     loadPartnerDirectory();
                 }
             });
@@ -4358,16 +4367,55 @@
             }
         }
 
-        function togglePartnerDirectory() {
-            const section = document.getElementById('partnerDirectorySection');
-            const btn = document.getElementById('partnerDirectoryToggleBtn');
-            if (section.style.display === 'none') {
-                section.style.display = 'block';
-                btn.innerHTML = '🤝 Hide Partners';
-                loadPartnerDirectory();
-            } else {
-                section.style.display = 'none';
-                btn.innerHTML = '🤝 Find Partners';
+        function openPartnerDirectory() {
+            document.getElementById('partnerDirectoryModal').classList.add('active');
+            loadPartnerDirectory();
+        }
+
+        function closePartnerDirectory() {
+            document.getElementById('partnerDirectoryModal').classList.remove('active');
+        }
+
+        // Listings this viewer chose to hide (kept on this device only)
+        const HIDDEN_PARTNERS_KEY = 'pnw_ski_tours_hidden_partners';
+        function getHiddenPartners() {
+            try { return JSON.parse(localStorage.getItem(HIDDEN_PARTNERS_KEY)) || []; } catch (e) { return []; }
+        }
+        function setHiddenPartners(ids) {
+            try { localStorage.setItem(HIDDEN_PARTNERS_KEY, JSON.stringify(ids)); } catch (e) { /* storage unavailable */ }
+        }
+        function hidePartner(uid) {
+            setHiddenPartners([...new Set([...getHiddenPartners(), uid])]);
+            renderPartnerDirectory();
+            showToast('Listing hidden on this device');
+        }
+        function unhideAllPartners() {
+            setHiddenPartners([]);
+            renderPartnerDirectory();
+        }
+
+        // Report a listing for review. Stored in Firestore at reports/{reporter}_{reported};
+        // one report per person per listing. Reviewed in the Firebase console.
+        async function reportPartner(uid) {
+            if (!currentUser || uid === currentUser.uid) return;
+            const reason = prompt('Why are you reporting this listing? (fake profile, harassment, unsafe behavior, spam...)');
+            if (reason === null) return;
+            const trimmed = reason.trim().slice(0, 500);
+            if (!trimmed) { alert('Please add a short reason so the report can be reviewed.'); return; }
+            try {
+                await db.collection('reports').doc(`${currentUser.uid}_${uid}`).set({
+                    reportedUid: uid,
+                    reporterUid: currentUser.uid,
+                    reason: trimmed,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                hidePartner(uid);
+                alert('Thanks. The report was sent for review and this listing is now hidden for you.');
+            } catch (e) {
+                console.error('Error sending report:', e);
+                alert(e.code === 'permission-denied'
+                    ? 'You have already reported this listing.'
+                    : 'Could not send the report. Please try again or use the contact link on the home page.');
             }
         }
 
@@ -4403,7 +4451,13 @@
             const pace = document.getElementById('partnerPaceFilter').value;
             const avail = document.getElementById('partnerAvailFilter').value;
 
+            const hidden = getHiddenPartners();
+            const hiddenCount = partnerDirectoryEntries.filter(p => hidden.includes(p.id)).length;
+            const hiddenNote = hiddenCount > 0
+                ? `<p style="font-size: 0.8rem; color: var(--topo-gray); margin: 0 0 0.5rem 0;">${hiddenCount} hidden listing${hiddenCount === 1 ? '' : 's'} · <a href="#" onclick="unhideAllPartners(); return false;">Show all</a></p>`
+                : '';
             const matches = partnerDirectoryEntries.filter(p => {
+                if (hidden.includes(p.id)) return false;
                 if (gear && p.gear !== gear && p.gear !== 'both') return false;
                 if (pace && p.pace !== pace) return false;
                 if (avail && p.availability !== avail && p.availability !== 'both') return false;
@@ -4420,7 +4474,7 @@
                 : '<p style="font-size: 0.85rem; background: #f3e5f5; padding: 0.5rem 0.75rem; border-radius: 8px;">You\'re not listed yet. <a href="#" onclick="openProfileModal(); return false;">Edit your profile</a> and turn on "Show me in the partner directory".</p>';
 
             if (matches.length === 0) {
-                container.innerHTML = listedNote + `<p style="color: var(--topo-gray); font-size: 0.9rem;">${partnerDirectoryEntries.length === 0 ? 'No one is listed yet. Be the first!' : 'No partners match those filters.'}</p>`;
+                container.innerHTML = listedNote + hiddenNote + `<p style="color: var(--topo-gray); font-size: 0.9rem;">${partnerDirectoryEntries.length === 0 ? 'No one is listed yet. Be the first!' : 'No partners match those filters.'}</p>`;
                 return;
             }
 
@@ -4431,7 +4485,7 @@
             const driveLabels = { 'yes-awd': '🚙 Can drive (AWD)', 'yes-2wd': '🚗 Can drive (2WD)', 'sometimes': '🤷 Sometimes drives', 'no': '🙋 Needs a ride' };
             const badge = (text, bg) => `<span style="background: ${bg}; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.8rem;">${escapeHtml(text)}</span>`;
 
-            container.innerHTML = listedNote + `
+            container.innerHTML = listedNote + hiddenNote + `
                 <p style="font-size: 0.8rem; color: var(--topo-gray); margin: 0 0 0.75rem 0;">${matches.length} skier${matches.length === 1 ? '' : 's'} · Meet new partners somewhere public and talk through experience, gear and the plan before heading out.</p>
                 <div style="display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
                     ${matches.map(p => `
@@ -4459,6 +4513,11 @@
                                     ${p.phone ? `<a href="tel:${escapeHtml(String(p.phone).replace(/[^0-9+]/g, ''))}">📞 ${escapeHtml(p.phone)}</a>` : ''}
                                     ${p.social ? `<span style="overflow-wrap: anywhere;">📱 ${escapeHtml(p.social)}</span>` : ''}
                                 </div>` : '<div style="font-size: 0.8rem; color: var(--topo-gray); border-top: 1px solid #eee; padding-top: 0.5rem;">No contact info shared</div>'}
+                            ${(p.id !== currentUser.uid && /^[A-Za-z0-9]+$/.test(p.id)) ? `
+                                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; font-size: 0.75rem;">
+                                    <a href="#" onclick="hidePartner('${p.id}'); return false;" style="color: var(--topo-gray);">Hide</a>
+                                    <a href="#" onclick="reportPartner('${p.id}'); return false;" style="color: #c62828;">⚑ Report</a>
+                                </div>` : ''}
                         </div>
                     `).join('')}
                 </div>
