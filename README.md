@@ -148,11 +148,12 @@ const SYNOPTIC_TOKEN = 'your-token-here';
 
 ```
 ski-tour-app/
-├── index.html      # Complete single-file application
+├── index.html      # Application (HTML, CSS, JavaScript)
+├── tours.js        # Tour database, organized by NWAC zone
 └── README.md       # This file
 ```
 
-The entire app is contained in a single HTML file with embedded CSS and JavaScript for easy deployment.
+The app is a static site: `index.html` holds the HTML, CSS and JavaScript, and `tours.js` holds the tour database. No build step.
 
 ---
 
@@ -189,7 +190,7 @@ Tours are organized by NWAC zone in the `toursByZone` object. Each tour has:
 ```
 
 ### Adding Tours
-Edit the `toursByZone` object in `index.html`:
+Edit the `toursByZone` object in `tours.js`:
 
 ```javascript
 const toursByZone = {
