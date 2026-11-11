@@ -2279,28 +2279,27 @@
                 const { lat, lon, elementId } = elevationQueue.shift();
                 
                 try {
-                    const url = `https://api.opentopodata.org/v1/ned10m?locations=${lat},${lon}`;
+                    // USGS Elevation Point Query Service (3DEP, up to 1 m lidar); allows browser requests
+                    const url = `https://epqs.nationalmap.gov/v1/json?x=${lon}&y=${lat}&units=Feet&wkid=4326`;
                     const response = await fetch(url);
-                    
+
                     if (response.ok) {
                         const data = await response.json();
-                        if (data.status === 'OK' && data.results && data.results[0]) {
-                            const elevMeters = data.results[0].elevation;
-                            if (elevMeters != null) {
-                                const elevFeet = Math.round(elevMeters * 3.28084);
-                                const element = document.getElementById(elementId);
-                                if (element) {
-                                    element.textContent = elevFeet.toLocaleString() + ' ft';
-                                    console.log(`🗺️ Elevation for ${elementId}: ${elevFeet} ft`);
-                                }
+                        const elevFeet = Math.round(Number(data && data.value));
+                        // USGS returns a large negative value where it has no data
+                        if (Number.isFinite(elevFeet) && elevFeet > -1000) {
+                            const element = document.getElementById(elementId);
+                            if (element) {
+                                element.textContent = elevFeet.toLocaleString() + ' ft';
+                                console.log(`🗺️ Elevation for ${elementId}: ${elevFeet} ft`);
                             }
                         }
                     }
                 } catch (err) {
                     console.warn('🗺️ Elevation API error:', err.message);
                 }
-                
-                // Wait 200ms between requests to respect rate limit (5 req/sec max)
+
+                // Space out requests to stay polite to the USGS service
                 if (elevationQueue.length > 0) {
                     await new Promise(resolve => setTimeout(resolve, 200));
                 }
