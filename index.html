@@ -3337,8 +3337,16 @@
             
             console.log(`✅ Loaded ${tours.length} tours for ${config.nwacZone} - Calculating recommendations with fitness ${config.fitnessLevel}/10`);
             
-            // Calculate recommendations for all tours
-            const toursWithRecs = tours.map((tour) => {
+            // Calculate recommendations for all tours.
+            // In winter, tours behind a seasonal highway closure can't be reached, so leave them out.
+            const winterSeason = isWinterSeason(config.tourDate);
+            const reachableTours = winterSeason ? tours.filter(t => t.winterAccess !== 'closed') : tours;
+            const hiddenForWinter = tours.length - reachableTours.length;
+            if (hiddenForWinter > 0) {
+                document.getElementById('toursSortMessage').innerHTML +=
+                    `<br>🚧 ${hiddenForWinter} tour${hiddenForWinter === 1 ? '' : 's'} behind winter highway closures ${hiddenForWinter === 1 ? 'is' : 'are'} hidden until spring (still in Search All Tours).`;
+            }
+            const toursWithRecs = reachableTours.map((tour) => {
                 const rec = calculateRecommendation(tour);
                 return { tour, rec };
             });
@@ -3711,9 +3719,26 @@
             }
             
             // ============================================
+            // WINTER ACCESS
+            // ============================================
+            if (isWinterSeason(config.tourDate)) {
+                if (tour.winterAccess === 'closed') {
+                    score -= 10;
+                    warnings.push('Access highway is closed for winter - not reachable until spring');
+                } else if (tour.winterAccess === 'unplowed') {
+                    score -= 1;
+                    warnings.push('Trailhead road is not plowed - expect a longer approach than listed');
+                } else if (tour.winterAccess === 'snopark') {
+                    warnings.push('Start from the sno-park - adds distance (Sno-Park permit needed)');
+                } else if (tour.winterAccess === 'scheduled') {
+                    warnings.push('Access road opens on a schedule - check hours before driving');
+                }
+            }
+
+            // ============================================
             // GENERATE RECOMMENDATION
             // ============================================
-            
+
             // Remove duplicate warnings/bonuses
             warnings = [...new Set(warnings)];
             bonuses = [...new Set(bonuses)];
@@ -3760,6 +3785,28 @@
                 warnings,
                 bonuses
             };
+        }
+
+        // Winter road access season: SR 20 typically closes mid/late November and reopens in early May
+        function isWinterSeason(dateStr) {
+            const d = dateStr ? new Date(dateStr + 'T12:00:00') : new Date();
+            const month = d.getMonth() + 1, day = d.getDate();
+            return month === 12 || month <= 4 || (month === 11 && day >= 15);
+        }
+
+        const WINTER_ACCESS_INFO = {
+            plowed:    { icon: '✅', label: 'Plowed road',        color: '#2e7d32', note: 'On or next to a winter-plowed highway or ski-area road.' },
+            scheduled: { icon: '🕒', label: 'Road on schedule',   color: '#1565c0', note: 'Road is plowed but opens on set hours/days. Check before driving.' },
+            snopark:   { icon: '🅿️', label: 'Sno-Park start',     color: '#6a1b9a', note: 'Road is plowed to a sno-park; start there (permit required).' },
+            unplowed:  { icon: '❄️', label: 'Road not plowed',    color: '#e65100', note: 'Trailhead road is not plowed in winter: much longer approach, or spring only.' },
+            closed:    { icon: '🚧', label: 'Closed for winter',  color: '#c62828', note: 'Access highway is closed for winter; reachable once it reopens in spring.' }
+        };
+
+        function winterAccessHtml(tour) {
+            const info = WINTER_ACCESS_INFO[tour.winterAccess];
+            if (!info) return '<span style="color: #999;">Unknown</span>';
+            const note = (tour.winterNote || info.note) + ' Approximate - check WSDOT/agency road reports before you go.';
+            return `<span title="${note.replace(/"/g, '&quot;')}" style="color: ${info.color}; font-weight: 600; cursor: help;">${info.icon} ${info.label}</span>`;
         }
 
         function generateTourCard(tour, rec, rank = null) {
@@ -3837,6 +3884,13 @@
                             <div class="detail-text">
                                 <span class="detail-label">View Map</span>
                                 <span class="detail-value"><a href="${caltopoSearchUrl}" target="_blank" rel="noopener" style="color: var(--forest-green); text-decoration: none;">CalTopo ↗</a></span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-icon">🛣️</div>
+                            <div class="detail-text">
+                                <span class="detail-label">Winter Access</span>
+                                <span class="detail-value">${winterAccessHtml(tour)}</span>
                             </div>
                         </div>
                         <div class="detail-item">
